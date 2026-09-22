@@ -12,6 +12,8 @@ NestJS backend service.
 | Test runner | [Vitest](https://vitest.dev/) | Fast, native ESM support, Jest-compatible API |
 | Formatter | [Prettier](https://prettier.io/) | Consistent code style, no formatting debates |
 | ORM / database | [Prisma](https://www.prisma.io/) + PostgreSQL | Type-safe queries generated from schema, migration tooling built in |
+| Cache | Redis via [@nestjs/cache-manager](https://docs.nestjs.com/techniques/caching) + [@keyv/redis](https://github.com/jaredwray/keyv) | Standard Nest caching abstraction, backed by Redis |
+| Local infra | [Docker Compose](https://docs.docker.com/compose/) | One command to run Postgres + Redis for local development |
 
 ### Linting: ESLint vs Oxlint
 
@@ -51,13 +53,27 @@ pnpm run prisma:migrate    # create + apply a migration (dev)
 pnpm run prisma:studio     # browse data in Prisma Studio
 ```
 
+### Cache: Redis
+
+`RedisCacheModule` (`src/cache/redis-cache.module.ts`) registers Nest's `CacheModule` globally with a `@keyv/redis` store, connection string in `REDIS_URL` (`.env`). Inject `CACHE_MANAGER` where caching is needed.
+
+### Local infra: Docker Compose
+
+`docker-compose.yml` runs Postgres and Redis for local development, matching the default `.env` connection strings.
+
+```bash
+pnpm run docker:up     # start postgres + redis in the background
+pnpm run docker:down   # stop and remove them
+```
+
 ## Project setup
 
 ```bash
 pnpm install
+pnpm run docker:up
 ```
 
-Set `DATABASE_URL` in `.env` to point at your PostgreSQL instance before running migrations.
+Set `DATABASE_URL` and `REDIS_URL` in `.env` before running migrations or starting the app; defaults match `docker-compose.yml`.
 
 ## Run
 
