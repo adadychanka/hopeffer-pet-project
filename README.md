@@ -14,7 +14,8 @@ NestJS backend service.
 | ORM / database | [Prisma](https://www.prisma.io/) + PostgreSQL | Type-safe queries generated from schema, migration tooling built in |
 | Cache | Redis via [@nestjs/cache-manager](https://docs.nestjs.com/techniques/caching) + [@keyv/redis](https://github.com/jaredwray/keyv) | Standard Nest caching abstraction, backed by Redis |
 | Object storage | [MinIO](https://min.io/) via the [`minio`](https://www.npmjs.com/package/minio) SDK | S3-compatible object storage, runs locally, same client API as AWS S3 in production |
-| Local infra | [Docker Compose](https://docs.docker.com/compose/) | One command to run Postgres + Redis + MinIO for local development |
+| Search | [OpenSearch](https://opensearch.org/) via [`@opensearch-project/opensearch`](https://www.npmjs.com/package/@opensearch-project/opensearch) | Full-text search / analytics, Elasticsearch-compatible API, open-source license |
+| Local infra | [Docker Compose](https://docs.docker.com/compose/) | One command to run Postgres + Redis + MinIO + OpenSearch for local development |
 
 ### Linting: ESLint vs Oxlint
 
@@ -62,12 +63,16 @@ pnpm run prisma:studio     # browse data in Prisma Studio
 
 `MinioService` (`src/minio/`) extends the `minio` SDK's `Client` directly, configured from `MINIO_ENDPOINT`/`MINIO_PORT`/`MINIO_USE_SSL`/`MINIO_ACCESS_KEY`/`MINIO_SECRET_KEY` (`.env`), exported globally via `MinioModule`. Console at `http://localhost:9001` (default creds `minioadmin`/`minioadmin`).
 
+### Search: OpenSearch
+
+`OpensearchService` (`src/opensearch/`) extends the official client's `Client` directly, configured from `OPENSEARCH_NODE` (`.env`), exported globally via `OpensearchModule`. Local Compose instance runs with the security plugin disabled (dev only).
+
 ### Local infra: Docker Compose
 
-`docker-compose.yml` runs Postgres, Redis and MinIO for local development, matching the default `.env` connection strings.
+`docker-compose.yml` runs Postgres, Redis, MinIO and OpenSearch for local development, matching the default `.env` connection strings.
 
 ```bash
-pnpm run docker:up     # start postgres + redis + minio in the background
+pnpm run docker:up     # start postgres + redis + minio + opensearch in the background
 pnpm run docker:down   # stop and remove them
 ```
 
@@ -78,7 +83,7 @@ pnpm install
 pnpm run docker:up
 ```
 
-Set `DATABASE_URL`, `REDIS_URL` and the `MINIO_*` vars in `.env` before running migrations or starting the app; defaults match `docker-compose.yml`.
+Set `DATABASE_URL`, `REDIS_URL`, the `MINIO_*` vars and `OPENSEARCH_NODE` in `.env` before running migrations or starting the app; defaults match `docker-compose.yml`.
 
 ## Run
 
