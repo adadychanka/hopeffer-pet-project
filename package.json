@@ -44,6 +44,7 @@
     "@prisma/client": "^7.10.0",
     "cache-manager": "^7.2.9",
     "keyv": "^5.6.0",
+    "minio": "^8.0.7",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },

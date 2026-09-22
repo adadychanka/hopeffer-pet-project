@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { RedisCacheModule } from './cache/redis-cache.module.js';
+import { MinioModule } from './minio/minio.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 
 @Module({
-  imports: [PrismaModule, RedisCacheModule],
+  imports: [PrismaModule, RedisCacheModule, MinioModule],
   controllers: [AppController],
   providers: [AppService],
 })

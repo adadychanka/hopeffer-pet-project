@@ -13,7 +13,8 @@ NestJS backend service.
 | Formatter | [Prettier](https://prettier.io/) | Consistent code style, no formatting debates |
 | ORM / database | [Prisma](https://www.prisma.io/) + PostgreSQL | Type-safe queries generated from schema, migration tooling built in |
 | Cache | Redis via [@nestjs/cache-manager](https://docs.nestjs.com/techniques/caching) + [@keyv/redis](https://github.com/jaredwray/keyv) | Standard Nest caching abstraction, backed by Redis |
-| Local infra | [Docker Compose](https://docs.docker.com/compose/) | One command to run Postgres + Redis for local development |
+| Object storage | [MinIO](https://min.io/) via the [`minio`](https://www.npmjs.com/package/minio) SDK | S3-compatible object storage, runs locally, same client API as AWS S3 in production |
+| Local infra | [Docker Compose](https://docs.docker.com/compose/) | One command to run Postgres + Redis + MinIO for local development |
 
 ### Linting: ESLint vs Oxlint
 
@@ -57,12 +58,16 @@ pnpm run prisma:studio     # browse data in Prisma Studio
 
 `RedisCacheModule` (`src/cache/redis-cache.module.ts`) registers Nest's `CacheModule` globally with a `@keyv/redis` store, connection string in `REDIS_URL` (`.env`). Inject `CACHE_MANAGER` where caching is needed.
 
+### Object storage: MinIO
+
+`MinioService` (`src/minio/`) extends the `minio` SDK's `Client` directly, configured from `MINIO_ENDPOINT`/`MINIO_PORT`/`MINIO_USE_SSL`/`MINIO_ACCESS_KEY`/`MINIO_SECRET_KEY` (`.env`), exported globally via `MinioModule`. Console at `http://localhost:9001` (default creds `minioadmin`/`minioadmin`).
+
 ### Local infra: Docker Compose
 
-`docker-compose.yml` runs Postgres and Redis for local development, matching the default `.env` connection strings.
+`docker-compose.yml` runs Postgres, Redis and MinIO for local development, matching the default `.env` connection strings.
 
 ```bash
-pnpm run docker:up     # start postgres + redis in the background
+pnpm run docker:up     # start postgres + redis + minio in the background
 pnpm run docker:down   # stop and remove them
 ```
 
@@ -73,7 +78,7 @@ pnpm install
 pnpm run docker:up
 ```
 
-Set `DATABASE_URL` and `REDIS_URL` in `.env` before running migrations or starting the app; defaults match `docker-compose.yml`.
+Set `DATABASE_URL`, `REDIS_URL` and the `MINIO_*` vars in `.env` before running migrations or starting the app; defaults match `docker-compose.yml`.
 
 ## Run
 
