@@ -16,7 +16,7 @@ NestJS backend service.
 
 Two linters run at different stages, each for a different purpose:
 
-- **ESLint** — full check, runs in CI/CD. Type-aware rules (`typescript-eslint` with `recommendedTypeChecked`), Prettier integration, Vitest-specific rules for test files. Catches everything before merge.
+- **ESLint** — full check, runs in CI/CD. Type-aware rules (`typescript-eslint` with `recommendedTypeChecked`), [eslint-plugin-security](https://github.com/eslint-community/eslint-plugin-security) for common vulnerability patterns, Prettier integration, Vitest-specific rules for test files. Catches everything before merge.
 - **Oxlint** — fast, local-only check, runs on the pre-commit hook via [Husky](https://typicode.github.io/husky/). Catches obvious mistakes before commit without slowing down the commit itself.
 
 Commands:
