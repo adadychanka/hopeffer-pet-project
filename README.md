@@ -11,6 +11,7 @@ NestJS backend service.
 | Language | TypeScript | Type safety, matches NestJS defaults |
 | Test runner | [Vitest](https://vitest.dev/) | Fast, native ESM support, Jest-compatible API |
 | Formatter | [Prettier](https://prettier.io/) | Consistent code style, no formatting debates |
+| ORM / database | [Prisma](https://www.prisma.io/) + PostgreSQL | Type-safe queries generated from schema, migration tooling built in |
 
 ### Linting: ESLint vs Oxlint
 
@@ -40,11 +41,23 @@ chore: bump dependencies
 
 Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
 
+### Database: Prisma + PostgreSQL
+
+Schema lives in `prisma/schema.prisma`, config in `prisma.config.ts`, connection string in `DATABASE_URL` (`.env`, gitignored). Client generates into `src/generated/prisma` (gitignored, regenerated on `pnpm install` via `postinstall`), wired into Nest through `PrismaModule`/`PrismaService` (`src/prisma/`), imported globally in `AppModule`.
+
+```bash
+pnpm run prisma:generate   # regenerate client after schema changes
+pnpm run prisma:migrate    # create + apply a migration (dev)
+pnpm run prisma:studio     # browse data in Prisma Studio
+```
+
 ## Project setup
 
 ```bash
 pnpm install
 ```
+
+Set `DATABASE_URL` in `.env` to point at your PostgreSQL instance before running migrations.
 
 ## Run
 
