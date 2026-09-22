@@ -1,0 +1,13 @@
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue
+
+  if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+    since="$(git rev-list --max-parents=0 "$local_sha" | tail -1)"
+  else
+    since="$remote_sha"
+  fi
+
+  docker run --rm -v "$(pwd):/repo" trufflesecurity/trufflehog:latest \
+    git file:///repo --since-commit="$since" --branch="$local_sha" --fail --no-update \
+    || exit 1
+done

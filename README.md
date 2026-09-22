@@ -16,6 +16,7 @@ NestJS backend service.
 | Object storage | [MinIO](https://min.io/) via the [`minio`](https://www.npmjs.com/package/minio) SDK | S3-compatible object storage, runs locally, same client API as AWS S3 in production |
 | Search | [OpenSearch](https://opensearch.org/) via [`@opensearch-project/opensearch`](https://www.npmjs.com/package/@opensearch-project/opensearch) | Full-text search / analytics, Elasticsearch-compatible API, open-source license |
 | Local infra | [Docker Compose](https://docs.docker.com/compose/) | One command to run Postgres + Redis + MinIO + OpenSearch for local development |
+| Secret scanning | [TruffleHog](https://github.com/trufflesecurity/trufflehog) (Docker image) | Blocks `git push` if a commit being pushed contains a credential |
 
 ### Linting: ESLint vs Oxlint
 
@@ -76,6 +77,10 @@ pnpm run docker:up     # start postgres + redis + minio + opensearch in the back
 pnpm run docker:down   # stop and remove them
 ```
 
+### Secret scanning: TruffleHog
+
+`.husky/pre-push` runs [TruffleHog](https://github.com/trufflesecurity/trufflehog) (via its Docker image, no local install needed) over the commits being pushed and blocks the push if it finds a credential. Requires Docker running locally.
+
 ## Project setup
 
 ```bash
@@ -97,5 +102,5 @@ pnpm run start:prod  # production build
 ```bash
 pnpm run test        # unit tests
 pnpm run test:e2e    # e2e tests
-pnpm run test:cov    # coverage
+pnpm run test:cov    # coverage (98% threshold on statements/branches/functions/lines)
 ```
