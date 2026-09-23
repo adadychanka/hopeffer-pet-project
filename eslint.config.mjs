@@ -64,11 +64,6 @@ export default tseslint.config(
     rules: {
       ...vitest.configs.recommended.rules,
     },
-    languageOptions: {
-      globals: {
-        ...vitest.environments.env.globals,
-      },
-    },
   },
   {
     // supertest assertions are chained `.expect(...)` calls, which

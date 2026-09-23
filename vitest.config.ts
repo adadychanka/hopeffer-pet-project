@@ -6,7 +6,6 @@ export default defineConfig({
   // added by `nest g library`.
   plugins: [tsconfigPaths()],
   test: {
-    globals: true,
     root: './',
     include: ['**/*.spec.ts'],
     coverage: {
