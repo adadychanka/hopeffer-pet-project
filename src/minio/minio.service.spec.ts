@@ -1,8 +1,15 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Client } from 'minio';
 import { MinioService } from './minio.service.js';
+
+vi.mock('minio', () => ({ Client: vi.fn() }));
 
 describe('MinioService', () => {
   const originalEnv = { ...process.env };
+
+  beforeEach(() => {
+    vi.mocked(Client).mockClear();
+  });
 
   afterEach(() => {
     process.env = { ...originalEnv };
@@ -15,24 +22,32 @@ describe('MinioService', () => {
     process.env.MINIO_ACCESS_KEY = 'access';
     process.env.MINIO_SECRET_KEY = 'secret';
 
-    const service = new MinioService();
+    new MinioService();
 
-    expect(service.host).toBe('minio.internal');
-    expect(service.port).toBe(9500);
-    expect(service.protocol).toBe('https:');
-    expect(service.accessKey).toBe('access');
-    expect(service.secretKey).toBe('secret');
+    expect(Client).toHaveBeenCalledWith({
+      endPoint: 'minio.internal',
+      port: 9500,
+      useSSL: true,
+      accessKey: 'access',
+      secretKey: 'secret',
+    });
   });
 
   it('falls back to local defaults when MINIO_* env vars are unset', () => {
     delete process.env.MINIO_ENDPOINT;
     delete process.env.MINIO_PORT;
     delete process.env.MINIO_USE_SSL;
+    delete process.env.MINIO_ACCESS_KEY;
+    delete process.env.MINIO_SECRET_KEY;
 
-    const service = new MinioService();
+    new MinioService();
 
-    expect(service.host).toBe('localhost');
-    expect(service.port).toBe(9000);
-    expect(service.protocol).toBe('http:');
+    expect(Client).toHaveBeenCalledWith({
+      endPoint: 'localhost',
+      port: 9000,
+      useSSL: false,
+      accessKey: '',
+      secretKey: '',
+    });
   });
 });
