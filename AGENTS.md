@@ -6,7 +6,7 @@ This file provides guidance to AI coding agents working with code in this reposi
 
 NestJS 12 backend (TypeScript, pure ESM) using pnpm. Backing services: PostgreSQL via TypeORM, Redis cache, MinIO object storage, OpenSearch. `docker-compose.yml` runs all four locally, and its defaults match `.env.example`.
 
-Requires Node >=24 and pnpm ^12. `devEngines` in `package.json` sets `onFail: error`, so older versions fail the install.
+Requires Node >=24 and pnpm ^12. `devEngines` in `package.json` sets `onFail: error`, so older versions fail the install. CI reads the pnpm version from `devEngines`, but pins Node separately (`runtime: node@24` in `.github/workflows/ci.yml`): update both when moving to a new Node major.
 
 ## Commands
 
@@ -21,7 +21,7 @@ pnpm run test:cov         # coverage; fails below 98% statements/branches/functi
 pnpm exec vitest run src/minio/minio.service.spec.ts   # single file
 pnpm exec vitest run -t "builds its client from the MINIO_\* env vars"   # single test by name
 
-pnpm run lint             # oxlint (fast; same as pre-commit)
+pnpm run lint             # oxlint (fast; same as pre-commit); warnings do not fail it
 pnpm run lint:eslint      # full type-aware eslint, with --fix
 pnpm run typecheck
 pnpm run commitlint:check # commit messages in origin/main..HEAD
@@ -34,11 +34,11 @@ pnpm run migration:run            # apply pending
 pnpm run migration:revert         # undo last
 ```
 
-`pnpm run format` and `format:check` cover only `src/**/*.ts` and `test/**/*.ts`. Run `pnpm exec prettier --write <file>` on root config files you change (`vitest.config.ts`, `*.mjs`, `*.json`, `*.md`).
+`pnpm run format` and `format:check` cover only `src/**/*.ts` and `test/**/*.ts`. Run `pnpm exec prettier --write <file>` on root config files you change (`vitest.config.ts`, `*.mjs`, `*.json`, `*.md`, `.github/**/*.yml`).
 
 ### Definition of done
 
-Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails, the task is not complete.** Fix the failure and run it again, or report the task as unfinished with the failing output. Do not mark the task done, and do not weaken a check (thresholds, lint rules, skipped tests) to make it pass. GitHub Actions (`.github/workflows/ci.yml`) runs the same `pnpm run ci` on pull requests and pushes to `main`, and checks nothing beyond it. Add new checks to the `ci` script, never as separate workflow steps. The command runs the e2e tests and the TruffleHog scan, so Docker must be running. `commitlint:check` compares against `origin/main`, so run `git fetch` if it is stale.
+Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails, the task is not complete.** Fix the failure and run it again, or report the task as unfinished with the failing output. Do not mark the task done, and do not weaken a check (thresholds, lint rules, skipped tests) to make it pass. GitHub Actions (`.github/workflows/ci.yml`) runs the same `pnpm run ci` on pull requests and pushes to `main`. Add new checks to the `ci` script, never as separate workflow steps. Before `pnpm run ci`, CI installs with `--frozen-lockfile`, so commit `pnpm-lock.yaml` together with any dependency change in `package.json`. The command runs the e2e tests and the TruffleHog scan, so Docker must be running. `commitlint:check` compares against `origin/main`: run `git fetch` if it is stale, and it fails if `origin/main` does not exist. `lint` (oxlint) passes on warnings, but `lint:eslint:check` fails on any warning (`--max-warnings 0`), so a clean `pnpm run lint` does not mean `pnpm run ci` passes.
 
 ### Dependencies
 
@@ -73,4 +73,5 @@ Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails
 - Vitest globals are disabled. Import `describe`/`it`/`expect`/`vi` from `vitest` explicitly.
 - Unit tests sit next to the source as `*.spec.ts`. E2E tests go in `test/` as `*.e2e-spec.ts`. Coverage ignores `main.ts`, `*.module.ts`, `src/database/data-source.ts` and `src/database/migrations/**` (reasons are in `vitest.config.ts`). Put logic in services, not module factories, and test it to keep the 98% threshold.
 - To mark an unused variable or argument, prefix it with `_`. Floating promises are an error in both linters.
-- Commits follow Conventional Commits, enforced by commitlint. Git hooks: pre-commit runs lint-staged (`oxlint --fix` + `prettier`). Pre-push runs TruffleHog through Docker, so Docker must be running to push. `scripts/trufflehog.sh` is the only place that pins the TruffleHog image (version and digest); both `.husky/pre-push` and `secrets:scan` call it. Bump the version and digest together by hand. Dependabot updates the pinned action SHAs in `.github/workflows/`.
+- Commits follow Conventional Commits, enforced by commitlint. Git hooks: pre-commit runs lint-staged (`oxlint --fix` + `prettier`). Pre-push runs TruffleHog through Docker, so Docker must be running to push. `scripts/trufflehog.sh` is the only place that pins the TruffleHog image (version and digest); both `.husky/pre-push` and `secrets:scan` call it. Bump the version and digest together by hand. It also works from git worktrees. Dependabot updates the pinned action SHAs in `.github/workflows/`. When you add an action, pin it by full commit SHA with the version as a comment (`uses: owner/action@<40-char sha> # v1.2.3`), never by tag alone.
+- To test the secret scan, generate a random fake key (for example `AKIA` plus 16 characters from `/dev/urandom`). Never write a key from memory or from docs: it can be a real key or a canary token that alerts its owner.
