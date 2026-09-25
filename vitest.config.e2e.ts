@@ -6,5 +6,8 @@ export default defineConfig({
   test: {
     root: './',
     include: ['**/*.e2e-spec.ts'],
+    // Testcontainers: one Postgres and one Redis container for the whole run.
+    globalSetup: ['./test/setup/global-setup.ts'],
+    setupFiles: ['./test/setup/env.ts'],
   },
 });

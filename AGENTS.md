@@ -16,7 +16,7 @@ pnpm run docker:up        # start postgres, redis, minio, opensearch
 pnpm run start:dev        # watch mode
 
 pnpm run test             # unit tests (*.spec.ts)
-pnpm run test:e2e         # e2e tests (*.e2e-spec.ts, vitest.config.e2e.ts)
+pnpm run test:e2e         # e2e tests (*.e2e-spec.ts, vitest.config.e2e.ts); needs Docker
 pnpm run test:cov         # coverage; fails below 98% statements/branches/functions/lines
 pnpm exec vitest run src/minio/minio.service.spec.ts   # single file
 pnpm exec vitest run -t "builds its client from the MINIO_\* env vars"   # single test by name
@@ -24,7 +24,7 @@ pnpm exec vitest run -t "builds its client from the MINIO_\* env vars"   # singl
 pnpm run lint             # oxlint (fast; same as pre-commit)
 pnpm run lint:eslint      # full type-aware eslint, with --fix
 pnpm run typecheck
-pnpm run ci               # format:check, lint, typecheck, eslint (0 warnings), build, test:cov
+pnpm run ci               # format:check, lint, typecheck, eslint (0 warnings), build, test:cov, test:e2e
 
 pnpm run migration:generate src/database/migrations/<Name>   # diff entities vs DB
 pnpm run migration:create src/database/migrations/<Name>     # empty migration
@@ -36,7 +36,7 @@ pnpm run migration:revert         # undo last
 
 ### Definition of done
 
-Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails, the task is not complete.** Fix the failure and run it again, or report the task as unfinished with the failing output. Do not mark the task done, and do not weaken a check (thresholds, lint rules, skipped tests) to make it pass. There is no remote CI (no `.github/` workflows), so this command is the only gate.
+Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails, the task is not complete.** Fix the failure and run it again, or report the task as unfinished with the failing output. Do not mark the task done, and do not weaken a check (thresholds, lint rules, skipped tests) to make it pass. There is no remote CI (no `.github/` workflows), so this command is the only gate. It runs the e2e tests, so Docker must be running.
 
 ### Dependencies
 
@@ -54,7 +54,8 @@ Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails
 - Configuration comes from `process.env` inside each service constructor. There is no `@nestjs/config`. **The app does not load `.env` itself.** Only `src/database/data-source.ts` (the TypeORM CLI) imports `dotenv/config`. When running the app, export the variables or use `node --env-file=.env`.
 - TypeORM setup: `DatabaseModule` registers `TypeOrmModule.forRootAsync` with `autoLoadEntities: true` and `synchronize` off. A feature module registers its entities with `TypeOrmModule.forFeature([...])` and injects repositories with `@InjectRepository()`. Schema changes go through migrations only.
 - The TypeORM CLI uses `src/database/data-source.ts` and runs against compiled `dist/` output, because tsx/esbuild cannot emit decorator metadata. Every `migration:*` script except `migration:create` builds first. The CLI data source finds entities by the `*.entity.ts` file name, so name entity files that way. Generated migrations are not Prettier-formatted: run `pnpm run format` (lint-staged also fixes them on commit).
-- The e2e tests boot the full `AppModule`, which connects to Postgres, so the docker infra must be running and `DATABASE_URL` must be exported.
+- The e2e tests boot the full `AppModule` against throwaway Testcontainers, not the docker-compose services. `test/setup/global-setup.ts` starts Postgres and Redis once per run (same images as `docker-compose.yml`), runs the migrations, and passes the URLs to workers. `test/setup/env.ts` then sets `DATABASE_URL` and `REDIS_URL`. Docker must be running. No `.env` or docker-compose is needed. MinIO and OpenSearch have no containers yet: their clients connect lazily. Add a container in `global-setup.ts` when a test starts to call them.
+- Tests that need the database use the real Postgres container, not mocked repositories. Mock only third-party APIs you do not control. All test files in a run share one database, so each test must create its own data and not depend on rows from other tests.
 
 ## Conventions
 

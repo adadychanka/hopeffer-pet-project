@@ -1,6 +1,11 @@
 allowBuilds:
   esbuild: true
   unrs-resolver: true
+  # Pulled in by testcontainers. Their build scripts only add optional native
+  # speedups (ssh2, cpu-features) or print a notice (protobufjs), so skip them.
+  cpu-features: false
+  protobufjs: false
+  ssh2: false
 
 # Supply chain protection: refuse versions published less than 3 days ago.
 # Setting it explicitly also turns on minimumReleaseAgeStrict, so an immature
