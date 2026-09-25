@@ -111,6 +111,8 @@ pnpm run start:prod  # production build
 
 ## Run in a Docker sandbox
 
+Why Docker Sandboxes: they are easy to set up and run, and ship ready-made images for Claude Code. They still isolate the agent from the host well. Credentials such as the GitHub token stay on the host, and the sandbox proxy injects them, so they are never stored inside the sandbox. Network access is easy to control. Machine resources have no fixed static limits, so the developer experience is close to native development. For local development, this is the best option I found.
+
 The project can be developed inside a [Docker Sandbox](https://docs.docker.com/ai/sandboxes/) together with a coding agent (e.g. Claude Code). The sandbox gets its own Docker daemon, so `pnpm run docker:up` starts Postgres, Redis, MinIO and OpenSearch inside it, and `localhost` in `.env.example` works unchanged. From the project root on the host, start the agent with `sbx run claude`. By default the working tree is mounted directly, so edits and commits show up on the host immediately. With `--clone` the sandbox works on a separate clone instead, and you fetch its commits with `git fetch sandbox-<name>`. Inside the sandbox, run the usual setup (`pnpm install`, `pnpm run docker:up`, `cp .env.example .env`, `pnpm run start:dev`). The app listens on port 3000 inside the sandbox; to reach it from the host, publish the port from a host terminal:
 
 ```bash
