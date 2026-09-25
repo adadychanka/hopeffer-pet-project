@@ -15,6 +15,7 @@ NestJS backend service.
 | Cache | Redis via [@nestjs/cache-manager](https://docs.nestjs.com/techniques/caching) + [@keyv/redis](https://github.com/jaredwray/keyv) | Standard Nest caching abstraction, backed by Redis |
 | Object storage | [MinIO](https://min.io/) via the [`minio`](https://www.npmjs.com/package/minio) SDK | S3-compatible object storage, runs locally, same client API as AWS S3 in production |
 | Search | [OpenSearch](https://opensearch.org/) via [`@opensearch-project/opensearch`](https://www.npmjs.com/package/@opensearch-project/opensearch) | Full-text search / analytics, Elasticsearch-compatible API, open-source license |
+| Logging | [Pino](https://getpino.io/) via [nestjs-pino](https://github.com/iamolegga/nestjs-pino) | Fast structured JSON logs, automatic request logging with a request ID on every line |
 | Local infra | [Docker Compose](https://docs.docker.com/compose/) | One command to run Postgres + Redis + MinIO + OpenSearch for local development |
 | Secret scanning | [TruffleHog](https://github.com/trufflesecurity/trufflehog) (Docker image) | Blocks `git push` if a commit being pushed contains a credential |
 
@@ -71,6 +72,14 @@ pnpm run migration:revert                                    # undo the last mig
 
 `OpensearchService` (`src/opensearch/`) extends the official client's `Client` directly, configured from `OPENSEARCH_NODE` (`.env`), exported globally via `OpensearchModule`. Local Compose instance runs with the security plugin disabled (dev only).
 
+### Logging: Pino
+
+`LoggerModule` (`src/logger/logger.module.ts`) plugs [nestjs-pino](https://github.com/iamolegga/nestjs-pino) in as the Nest logger. Why Pino over Nest's built-in `ConsoleLogger` or Winston: it is the fastest Node.js logger, it writes JSON lines to stdout that a collector can ship to OpenSearch as they are, and `pino-http` logs every request and attaches the request ID to every log line made while handling it. The `Authorization` and `Cookie` headers are redacted.
+
+Keep using Nest's `Logger` from `@nestjs/common` in services (`new Logger(MyService.name)`); its output goes through Pino. Set the level with `LOG_LEVEL` (default `info`, `silent` under tests). Output is pretty-printed with `pino-pretty` in a terminal, and plain JSON when `NODE_ENV=production` or stdout is not a TTY.
+
+To also write logs to files, set `LOG_FILE` (for example `logs/app`). [pino-roll](https://github.com/mcollina/pino-roll) then writes JSON lines to `logs/app.<date>.<n>.log`, starts a new file every day or at 10 MB, keeps the 14 newest files, and points `logs/current.log` at the active one. Rotation deletes old files in that folder even if another process wrote them, so give the logs a folder of their own. Leave `LOG_FILE` unset in containers and let Docker collect stdout.
+
 ### Local infra: Docker Compose
 
 `docker-compose.yml` runs Postgres, Redis, MinIO and OpenSearch for local development, matching the default `.env` connection strings.
@@ -101,6 +110,8 @@ pnpm run start:prod  # production build
 ```
 
 ## Run in a Docker sandbox
+
+Why Docker Sandboxes: they are easy to set up and run, and ship ready-made images for Claude Code. They still isolate the agent from the host well. Credentials such as the GitHub token stay on the host, and the sandbox proxy injects them, so they are never stored inside the sandbox. Network access is easy to control. Machine resources have no fixed static limits, so the developer experience is close to native development. For local development, this is the best option I found.
 
 The project can be developed inside a [Docker Sandbox](https://docs.docker.com/ai/sandboxes/) together with a coding agent (e.g. Claude Code). The sandbox gets its own Docker daemon, so `pnpm run docker:up` starts Postgres, Redis, MinIO and OpenSearch inside it, and `localhost` in `.env.example` works unchanged. From the project root on the host, start the agent with `sbx run claude`. By default the working tree is mounted directly, so edits and commits show up on the host immediately. With `--clone` the sandbox works on a separate clone instead, and you fetch its commits with `git fetch sandbox-<name>`. Inside the sandbox, run the usual setup (`pnpm install`, `pnpm run docker:up`, `cp .env.example .env`, `pnpm run start:dev`). The app listens on port 3000 inside the sandbox; to reach it from the host, publish the port from a host terminal:
 
