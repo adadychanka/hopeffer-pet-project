@@ -26,7 +26,7 @@ pnpm run lint:eslint      # full type-aware eslint, with --fix
 pnpm run typecheck
 pnpm run commitlint:check # commit messages in origin/main..HEAD
 pnpm run secrets:scan     # TruffleHog over all history reachable from HEAD (Docker)
-pnpm run ci               # format:check, lint, typecheck, eslint (0 warnings), build, test:cov, test:e2e, commitlint:check, secrets:scan
+pnpm run ci               # format:check, commitlint:check, secrets:scan, lint, typecheck, eslint (0 warnings), build, test:cov, test:e2e
 
 pnpm run migration:generate src/database/migrations/<Name>   # diff entities vs DB
 pnpm run migration:create src/database/migrations/<Name>     # empty migration
