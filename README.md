@@ -100,6 +100,26 @@ pnpm run start:dev   # watch mode
 pnpm run start:prod  # production build
 ```
 
+## Run in a Docker sandbox
+
+The project can be developed inside a [Docker Sandbox](https://docs.docker.com/ai/sandboxes/) together with a coding agent (e.g. Claude Code). The sandbox gets its own Docker daemon, so `pnpm run docker:up` starts Postgres, Redis, MinIO and OpenSearch inside it, and `localhost` in `.env.example` works unchanged. From the project root on the host, start the agent with `sbx run claude`. By default the working tree is mounted directly, so edits and commits show up on the host immediately. With `--clone` the sandbox works on a separate clone instead, and you fetch its commits with `git fetch sandbox-<name>`. Inside the sandbox, run the usual setup (`pnpm install`, `pnpm run docker:up`, `cp .env.example .env`, `pnpm run start:dev`). The app listens on port 3000 inside the sandbox; to reach it from the host, publish the port from a host terminal:
+
+```bash
+sbx run claude                                               # start the agent in a sandbox for this repo
+sbx ports <sandbox-name> --publish 3000:3000/tcp             # expose the Nest app on host port 3000
+sbx secret set github --sandbox claude-hopeffer-pet-project  # allow git push from the sandbox (PAT, see below)
+```
+
+The sandbox name is shown by `sbx ls` (or `echo $SANDBOX_NAME` inside the sandbox). Outbound network access is deny-by-default: if `pnpm install` or another request is blocked, allow the domain with `sbx policy allow network <domain>`. The TruffleHog pre-push hook uses the sandbox's Docker daemon, so `git push` works from inside the sandbox.
+
+Disable SSH agent forwarding for the sandbox by setting `ssh.agentForwardingEnabled = false`. Otherwise the agent inside the sandbox can use the host's SSH keys. Git push does not need them, because the sandbox proxy injects the GitHub token for HTTPS remotes.
+
+For that GitHub token, use a fine-grained personal access token made only for agent work in this project. Do not reuse `gh auth token`, which has your full account access. Limit the token to this repository, with only the **Contents: Read and write** permission. Pass it to the sandbox from a host terminal:
+
+```bash
+sbx secret set github --sandbox claude-hopeffer-pet-project
+```
+
 ## Test
 
 ```bash
