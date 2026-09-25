@@ -1,3 +1,18 @@
 allowBuilds:
   esbuild: true
   unrs-resolver: true
+
+# Supply chain protection: refuse versions published less than 3 days ago.
+# Setting it explicitly also turns on minimumReleaseAgeStrict, so an immature
+# version fails the install instead of being silently excluded.
+minimumReleaseAge: 4320
+
+# Supply chain protection: fail when a version was published with weaker
+# evidence (trusted publisher > provenance > none) than an earlier version of
+# the same package, a common sign of a stolen publish token.
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  # Flagged by the check but likely false positives: old release lines that
+  # were patched without provenance after newer versions had it.
+  - semver@6.3.1 # via eslint-plugin-import (dev only)
+  - undici@6.20.1 # via @nestjs/mau (dev only)
