@@ -7,7 +7,5 @@ while read -r local_ref local_sha remote_ref remote_sha; do
     since="$remote_sha"
   fi
 
-  docker run --rm -v "$(pwd):/repo" trufflesecurity/trufflehog:3.97.5@sha256:1cec88f18ca39e26e04e61fe9d886c9c4e5f2fc0ba4f2ed185cac0722bd8a076 \
-    git file:///repo --since-commit="$since" --branch="$local_sha" --fail --no-update \
-    || exit 1
+  sh scripts/trufflehog.sh --since-commit="$since" --branch="$local_sha" || exit 1
 done
