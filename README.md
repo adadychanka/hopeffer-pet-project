@@ -96,7 +96,7 @@ pnpm run docker:down   # stop and remove them
 
 `.husky/pre-push` runs [TruffleHog](https://github.com/trufflesecurity/trufflehog) (via its Docker image, no local install needed) over the commits being pushed and blocks the push if it finds a credential. Requires Docker running locally.
 
-`pnpm run secrets:scan` scans every commit reachable from `HEAD` (other branches are ignored) and runs in `pnpm run ci`. Both use `scripts/trufflehog.sh`, which pins the image by version and digest and mounts the repo read-only.
+`pnpm run secrets:scan` scans every commit reachable from `HEAD` (other branches are ignored) and runs in `pnpm run ci`. Both use `scripts/trufflehog.sh`, which pins the image by version and digest and runs it locked down: read-only repo mount, non-root user, no capabilities, read-only filesystem. The comments in the script explain each choice.
 
 ### CI: GitHub Actions
 
