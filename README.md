@@ -18,7 +18,7 @@ NestJS backend service.
 | Search          | [OpenSearch](https://opensearch.org/) via [`@opensearch-project/opensearch`](https://www.npmjs.com/package/@opensearch-project/opensearch) | Full-text search / analytics, Elasticsearch-compatible API, open-source license                                                                                 |
 | Logging         | [Pino](https://getpino.io/) via [nestjs-pino](https://github.com/iamolegga/nestjs-pino)                                                    | Fast structured JSON logs, automatic request logging with a request ID on every line                                                                            |
 | Local infra     | [Docker Compose](https://docs.docker.com/compose/)                                                                                         | One command to run Postgres + Redis + MinIO + OpenSearch for local development                                                                                  |
-| Secret scanning | [TruffleHog](https://github.com/trufflesecurity/trufflehog) (Docker image)                                                                 | Blocks `git push` if a commit being pushed contains a credential; scans the full history in `pnpm run ci`                                                       |
+| Secret scanning | [TruffleHog](https://github.com/trufflesecurity/trufflehog) (Docker image)                                                                 | Blocks `git push` if a commit being pushed contains a credential; scans all history of the checked-out commit in `pnpm run ci`                                  |
 
 ### Linting: ESLint vs Oxlint
 
@@ -96,7 +96,7 @@ pnpm run docker:down   # stop and remove them
 
 `.husky/pre-push` runs [TruffleHog](https://github.com/trufflesecurity/trufflehog) (via its Docker image, no local install needed) over the commits being pushed and blocks the push if it finds a credential. Requires Docker running locally.
 
-`pnpm run secrets:scan` scans the full git history with the same pinned image and runs in `pnpm run ci`.
+`pnpm run secrets:scan` scans every commit reachable from `HEAD` (other branches are ignored) with the same pinned image and runs in `pnpm run ci`.
 
 ### CI: GitHub Actions
 
