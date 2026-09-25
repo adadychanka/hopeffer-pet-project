@@ -34,7 +34,7 @@
     "lint:eslint": "eslint \"{src,test}/**/*.ts\" --fix",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint:eslint:check": "eslint \"{src,test}/**/*.ts\" --max-warnings 0",
-    "commitlint:check": "[ \"$(git rev-list --count origin/main..HEAD)\" = 0 ] || commitlint --from origin/main --to HEAD",
+    "commitlint:check": "sh scripts/commitlint-check.sh",
     "secrets:scan": "sh scripts/trufflehog.sh --branch=HEAD",
     "test": "vitest run",
     "test:watch": "vitest",
