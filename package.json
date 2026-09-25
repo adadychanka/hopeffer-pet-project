@@ -34,7 +34,7 @@
     "lint:eslint": "eslint \"{src,test}/**/*.ts\" --fix",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint:eslint:check": "eslint \"{src,test}/**/*.ts\" --max-warnings 0",
-    "commitlint:check": "commitlint --from origin/main --to HEAD",
+    "commitlint:check": "[ \"$(git rev-list --count origin/main..HEAD)\" = 0 ] || commitlint --from origin/main --to HEAD",
     "secrets:scan": "docker run --rm -v \"$PWD:/repo\" trufflesecurity/trufflehog:3.97.5@sha256:1cec88f18ca39e26e04e61fe9d886c9c4e5f2fc0ba4f2ed185cac0722bd8a076 git file:///repo --fail --no-update",
     "test": "vitest run",
     "test:watch": "vitest",
