@@ -7,7 +7,8 @@ NestJS backend service.
 | Area | Choice | Why |
 | --- | --- | --- |
 | Framework | [NestJS](https://nestjs.com/) | Structured, opinionated Node.js framework; built-in DI, module system, testing support |
-| Package manager | [pnpm](https://pnpm.io/) | Fast installs, disk-efficient via content-addressable store, strict dependency resolution |
+| Runtime | [Node.js](https://nodejs.org/) 24 LTS | Current Active LTS; `engines.node` in `package.json` tells CI and hosts which Node to use; `devEngines.runtime` blocks local installs and scripts on older Node |
+| Package manager | [pnpm](https://pnpm.io/) 12 | Fast installs, disk-efficient via content-addressable store, strict dependency resolution |
 | Language | TypeScript | Type safety, matches NestJS defaults |
 | Test runner | [Vitest](https://vitest.dev/) | Fast, native ESM support, Jest-compatible API |
 | Formatter | [Prettier](https://prettier.io/) | Consistent code style, no formatting debates |
