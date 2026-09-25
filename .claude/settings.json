@@ -6,7 +6,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/ask-before-git-push.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/ask-before-git-push.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-dangerous-commands.sh"
           }
         ]
       }
