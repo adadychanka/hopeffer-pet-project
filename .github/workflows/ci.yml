@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Cancel outdated runs on a PR, but let every push to main finish.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    # Guard against a hung container; the whole run takes about a minute.
+    timeout-minutes: 15
+    steps:
+      # Full history: the secret scan reads every commit, and
+      # commitlint:check needs origin/main.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Installs pnpm (version from devEngines.packageManager) and Node 24,
+      # restores the store cache, and runs pnpm install --frozen-lockfile.
+      - uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
+        with:
+          runtime: node@24
+          cache: true
+          require-lockfile: true
+
+      # The only check step. Add checks to the ci script, not here.
+      - run: pnpm run ci

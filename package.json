@@ -34,6 +34,8 @@
     "lint:eslint": "eslint \"{src,test}/**/*.ts\" --fix",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint:eslint:check": "eslint \"{src,test}/**/*.ts\" --max-warnings 0",
+    "commitlint:check": "sh scripts/commitlint-check.sh",
+    "secrets:scan": "sh scripts/trufflehog.sh --branch=HEAD",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
@@ -46,7 +48,7 @@
     "migration:revert": "pnpm run build && typeorm migration:revert -d dist/database/data-source.js",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
-    "ci": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run lint:eslint:check && pnpm run build && pnpm run test:cov && pnpm run test:e2e"
+    "ci": "pnpm run format:check && pnpm run commitlint:check && pnpm run secrets:scan && pnpm run lint && pnpm run typecheck && pnpm run lint:eslint:check && pnpm run build && pnpm run test:cov && pnpm run test:e2e"
   },
   "lint-staged": {
     "*.ts": [

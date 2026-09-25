@@ -51,3 +51,6 @@ pids
 *.seed
 *.pid.lock
 
+
+# Local agent specs and plans (see AGENTS.md)
+/reports

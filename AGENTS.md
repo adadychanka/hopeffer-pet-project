@@ -6,7 +6,7 @@ This file provides guidance to AI coding agents working with code in this reposi
 
 NestJS 12 backend (TypeScript, pure ESM) using pnpm. Backing services: PostgreSQL via TypeORM, Redis cache, MinIO object storage, OpenSearch. `docker-compose.yml` runs all four locally, and its defaults match `.env.example`.
 
-Requires Node >=24 and pnpm ^12. `devEngines` in `package.json` sets `onFail: error`, so older versions fail the install.
+Requires Node >=24 and pnpm ^12. `devEngines` in `package.json` sets `onFail: error`, so older versions fail the install. CI reads the pnpm version from `devEngines`, but pins Node separately (`runtime: node@24` in `.github/workflows/ci.yml`): update both when moving to a new Node major.
 
 ## Commands
 
@@ -21,10 +21,12 @@ pnpm run test:cov         # coverage; fails below 98% statements/branches/functi
 pnpm exec vitest run src/minio/minio.service.spec.ts   # single file
 pnpm exec vitest run -t "builds its client from the MINIO_\* env vars"   # single test by name
 
-pnpm run lint             # oxlint (fast; same as pre-commit)
+pnpm run lint             # oxlint (fast; same as pre-commit); warnings do not fail it
 pnpm run lint:eslint      # full type-aware eslint, with --fix
 pnpm run typecheck
-pnpm run ci               # format:check, lint, typecheck, eslint (0 warnings), build, test:cov, test:e2e
+pnpm run commitlint:check # commit messages in origin/main..HEAD
+pnpm run secrets:scan     # TruffleHog over all history reachable from HEAD (Docker)
+pnpm run ci               # format:check, commitlint:check, secrets:scan, lint, typecheck, eslint (0 warnings), build, test:cov, test:e2e
 
 pnpm run migration:generate src/database/migrations/<Name>   # diff entities vs DB
 pnpm run migration:create src/database/migrations/<Name>     # empty migration
@@ -32,11 +34,11 @@ pnpm run migration:run            # apply pending
 pnpm run migration:revert         # undo last
 ```
 
-`pnpm run format` and `format:check` cover only `src/**/*.ts` and `test/**/*.ts`. Run `pnpm exec prettier --write <file>` on root config files you change (`vitest.config.ts`, `*.mjs`, `*.json`, `*.md`).
+`pnpm run format` and `format:check` cover only `src/**/*.ts` and `test/**/*.ts`. Run `pnpm exec prettier --write <file>` on root config files you change (`vitest.config.ts`, `*.mjs`, `*.json`, `*.md`, `.github/**/*.yml`).
 
 ### Definition of done
 
-Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails, the task is not complete.** Fix the failure and run it again, or report the task as unfinished with the failing output. Do not mark the task done, and do not weaken a check (thresholds, lint rules, skipped tests) to make it pass. There is no remote CI (no `.github/` workflows), so this command is the only gate. It runs the e2e tests, so Docker must be running.
+Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails, the task is not complete.** Fix the failure and run it again, or report the task as unfinished with the failing output. Do not mark the task done, and do not weaken a check (thresholds, lint rules, skipped tests) to make it pass. GitHub Actions (`.github/workflows/ci.yml`) runs the same `pnpm run ci` on pull requests and pushes to `main`. Add new checks to the `ci` script, never as separate workflow steps. Before `pnpm run ci`, CI installs with `--frozen-lockfile`, so commit `pnpm-lock.yaml` together with any dependency change in `package.json`. The command runs the e2e tests and the TruffleHog scan, so Docker must be running. `commitlint:check` compares against `origin/main`: run `git fetch` if it is stale, and it fails if `origin/main` does not exist. `lint` (oxlint) passes on warnings, but `lint:eslint:check` fails on any warning (`--max-warnings 0`), so a clean `pnpm run lint` does not mean `pnpm run ci` passes.
 
 ### Dependencies
 
@@ -57,10 +59,19 @@ Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails
 - The e2e tests boot the full `AppModule` against throwaway Testcontainers, not the docker-compose services. `test/setup/global-setup.ts` starts Postgres and Redis once per run (same images as `docker-compose.yml`), runs the migrations, and passes the URLs to workers. `test/setup/env.ts` then sets `DATABASE_URL` and `REDIS_URL`. Docker must be running. No `.env` or docker-compose is needed. MinIO and OpenSearch have no containers yet: their clients connect lazily. Add a container in `global-setup.ts` when a test starts to call them.
 - Tests that need the database use the real Postgres container, not mocked repositories. Mock only third-party APIs you do not control. All test files in a run share one database, so each test must create its own data and not depend on rows from other tests.
 
+## Specs and plans
+
+- Save design specs and implementation plans in `reports/<task-name>/`, not in `docs/`. `<task-name>` is a short kebab-case name, for example `reports/github-actions-ci/`.
+- Name files `YYYY-MM-DD-design.md` for specs and `YYYY-MM-DD-plan.md` for plans. A later revision gets a new dated file, so the folder keeps the history.
+- After a plan is executed, save each review round of the result in the same folder as `YYYY-MM-DD-review.md`. Record the findings with severity and `file:line`, what was fixed (with the commit), what was deferred, and the rulings made. A second review on the same day gets a suffix: `YYYY-MM-DD-review-2.md`.
+- `reports/` is in `.gitignore`. Never commit specs, plans or reviews, and never reference them from committed files.
+- This overrides the default locations of planning and review skills (for example `docs/superpowers/specs/` and `docs/superpowers/plans/`).
+
 ## Conventions
 
 - ESM with `module: nodenext`: relative imports **must** use a `.js` extension (`./app.service.js`).
 - Vitest globals are disabled. Import `describe`/`it`/`expect`/`vi` from `vitest` explicitly.
 - Unit tests sit next to the source as `*.spec.ts`. E2E tests go in `test/` as `*.e2e-spec.ts`. Coverage ignores `main.ts`, `*.module.ts`, `src/database/data-source.ts` and `src/database/migrations/**` (reasons are in `vitest.config.ts`). Put logic in services, not module factories, and test it to keep the 98% threshold.
 - To mark an unused variable or argument, prefix it with `_`. Floating promises are an error in both linters.
-- Commits follow Conventional Commits, enforced by commitlint. Git hooks: pre-commit runs lint-staged (`oxlint --fix` + `prettier`). Pre-push runs TruffleHog through Docker, so Docker must be running to push.
+- Commits follow Conventional Commits, enforced by commitlint. Git hooks: pre-commit runs lint-staged (`oxlint --fix` + `prettier`). Pre-push runs TruffleHog through Docker, so Docker must be running to push. `scripts/trufflehog.sh` is the only place that pins the TruffleHog image (version and digest); both `.husky/pre-push` and `secrets:scan` call it. Bump the version and digest together by hand. It also works from git worktrees. Dependabot updates the pinned action SHAs in `.github/workflows/`. When you add an action, pin it by full commit SHA with the version as a comment (`uses: owner/action@<40-char sha> # v1.2.3`), never by tag alone.
+- To test the secret scan, generate a random fake key (for example `AKIA` plus 16 characters from `/dev/urandom`). Never write a key from memory or from docs: it can be a real key or a canary token that alerts its owner.

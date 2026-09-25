@@ -4,21 +4,21 @@ NestJS backend service.
 
 ## Tech stack decisions
 
-| Area | Choice | Why |
-| --- | --- | --- |
-| Framework | [NestJS](https://nestjs.com/) | Structured, opinionated Node.js framework; built-in DI, module system, testing support |
-| Runtime | [Node.js](https://nodejs.org/) 24 LTS | Current Active LTS; `engines.node` in `package.json` tells CI and hosts which Node to use; `devEngines.runtime` blocks local installs and scripts on older Node |
-| Package manager | [pnpm](https://pnpm.io/) 12 | Fast installs, disk-efficient via content-addressable store, strict dependency resolution |
-| Language | TypeScript | Type safety, matches NestJS defaults |
-| Test runner | [Vitest](https://vitest.dev/) | Fast, native ESM support, Jest-compatible API |
-| Formatter | [Prettier](https://prettier.io/) | Consistent code style, no formatting debates |
-| ORM / database | [TypeORM](https://typeorm.io/) via [@nestjs/typeorm](https://docs.nestjs.com/techniques/database) + PostgreSQL | Decorator-based entities that fit Nest's DI, repository injection per module, migration CLI built in |
-| Cache | Redis via [@nestjs/cache-manager](https://docs.nestjs.com/techniques/caching) + [@keyv/redis](https://github.com/jaredwray/keyv) | Standard Nest caching abstraction, backed by Redis |
-| Object storage | [MinIO](https://min.io/) via the [`minio`](https://www.npmjs.com/package/minio) SDK | S3-compatible object storage, runs locally, same client API as AWS S3 in production |
-| Search | [OpenSearch](https://opensearch.org/) via [`@opensearch-project/opensearch`](https://www.npmjs.com/package/@opensearch-project/opensearch) | Full-text search / analytics, Elasticsearch-compatible API, open-source license |
-| Logging | [Pino](https://getpino.io/) via [nestjs-pino](https://github.com/iamolegga/nestjs-pino) | Fast structured JSON logs, automatic request logging with a request ID on every line |
-| Local infra | [Docker Compose](https://docs.docker.com/compose/) | One command to run Postgres + Redis + MinIO + OpenSearch for local development |
-| Secret scanning | [TruffleHog](https://github.com/trufflesecurity/trufflehog) (Docker image) | Blocks `git push` if a commit being pushed contains a credential |
+| Area            | Choice                                                                                                                                     | Why                                                                                                                                                             |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Framework       | [NestJS](https://nestjs.com/)                                                                                                              | Structured, opinionated Node.js framework; built-in DI, module system, testing support                                                                          |
+| Runtime         | [Node.js](https://nodejs.org/) 24 LTS                                                                                                      | Current Active LTS; `engines.node` in `package.json` tells CI and hosts which Node to use; `devEngines.runtime` blocks local installs and scripts on older Node |
+| Package manager | [pnpm](https://pnpm.io/) 12                                                                                                                | Fast installs, disk-efficient via content-addressable store, strict dependency resolution                                                                       |
+| Language        | TypeScript                                                                                                                                 | Type safety, matches NestJS defaults                                                                                                                            |
+| Test runner     | [Vitest](https://vitest.dev/)                                                                                                              | Fast, native ESM support, Jest-compatible API                                                                                                                   |
+| Formatter       | [Prettier](https://prettier.io/)                                                                                                           | Consistent code style, no formatting debates                                                                                                                    |
+| ORM / database  | [TypeORM](https://typeorm.io/) via [@nestjs/typeorm](https://docs.nestjs.com/techniques/database) + PostgreSQL                             | Decorator-based entities that fit Nest's DI, repository injection per module, migration CLI built in                                                            |
+| Cache           | Redis via [@nestjs/cache-manager](https://docs.nestjs.com/techniques/caching) + [@keyv/redis](https://github.com/jaredwray/keyv)           | Standard Nest caching abstraction, backed by Redis                                                                                                              |
+| Object storage  | [MinIO](https://min.io/) via the [`minio`](https://www.npmjs.com/package/minio) SDK                                                        | S3-compatible object storage, runs locally, same client API as AWS S3 in production                                                                             |
+| Search          | [OpenSearch](https://opensearch.org/) via [`@opensearch-project/opensearch`](https://www.npmjs.com/package/@opensearch-project/opensearch) | Full-text search / analytics, Elasticsearch-compatible API, open-source license                                                                                 |
+| Logging         | [Pino](https://getpino.io/) via [nestjs-pino](https://github.com/iamolegga/nestjs-pino)                                                    | Fast structured JSON logs, automatic request logging with a request ID on every line                                                                            |
+| Local infra     | [Docker Compose](https://docs.docker.com/compose/)                                                                                         | One command to run Postgres + Redis + MinIO + OpenSearch for local development                                                                                  |
+| Secret scanning | [TruffleHog](https://github.com/trufflesecurity/trufflehog) (Docker image)                                                                 | Blocks `git push` if a commit being pushed contains a credential; scans all history of the checked-out commit in `pnpm run ci`                                  |
 
 ### Linting: ESLint vs Oxlint
 
@@ -39,6 +39,8 @@ On commit, [lint-staged](https://github.com/lint-staged/lint-staged) runs `oxlin
 ### Commit messages: Commitlint
 
 Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/) (`type(scope?): subject`), enforced by [Commitlint](https://commitlint.js.org/) on the Husky `commit-msg` hook.
+
+`pnpm run commitlint:check` checks every commit on the current branch that `origin/main` does not have. It runs in `pnpm run ci`, so commits made with `--no-verify` or in the GitHub web UI are still checked.
 
 ```
 feat: add user login endpoint
@@ -93,6 +95,12 @@ pnpm run docker:down   # stop and remove them
 ### Secret scanning: TruffleHog
 
 `.husky/pre-push` runs [TruffleHog](https://github.com/trufflesecurity/trufflehog) (via its Docker image, no local install needed) over the commits being pushed and blocks the push if it finds a credential. Requires Docker running locally.
+
+`pnpm run secrets:scan` scans every commit reachable from `HEAD` (other branches are ignored) and runs in `pnpm run ci`. Both use `scripts/trufflehog.sh`, which pins the image by version and digest and runs it locked down: read-only repo mount, non-root user, no capabilities, read-only filesystem. The comments in the script explain each choice.
+
+### CI: GitHub Actions
+
+`.github/workflows/ci.yml` runs `pnpm run ci` on pull requests and pushes to `main`, so CI and local checks are the same command. Actions are pinned by commit SHA; Dependabot (`.github/dependabot.yml`) proposes updates after a 3-day cooldown.
 
 ## Project setup
 
