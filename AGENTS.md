@@ -24,7 +24,9 @@ pnpm exec vitest run -t "builds its client from the MINIO_\* env vars"   # singl
 pnpm run lint             # oxlint (fast; same as pre-commit)
 pnpm run lint:eslint      # full type-aware eslint, with --fix
 pnpm run typecheck
-pnpm run ci               # format:check, lint, typecheck, eslint (0 warnings), build, test:cov, test:e2e
+pnpm run commitlint:check # commit messages in origin/main..HEAD
+pnpm run secrets:scan     # TruffleHog over the full git history (Docker)
+pnpm run ci               # format:check, lint, typecheck, eslint (0 warnings), build, test:cov, test:e2e, commitlint:check, secrets:scan
 
 pnpm run migration:generate src/database/migrations/<Name>   # diff entities vs DB
 pnpm run migration:create src/database/migrations/<Name>     # empty migration
@@ -36,7 +38,7 @@ pnpm run migration:revert         # undo last
 
 ### Definition of done
 
-Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails, the task is not complete.** Fix the failure and run it again, or report the task as unfinished with the failing output. Do not mark the task done, and do not weaken a check (thresholds, lint rules, skipped tests) to make it pass. There is no remote CI (no `.github/` workflows), so this command is the only gate. It runs the e2e tests, so Docker must be running.
+Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails, the task is not complete.** Fix the failure and run it again, or report the task as unfinished with the failing output. Do not mark the task done, and do not weaken a check (thresholds, lint rules, skipped tests) to make it pass. GitHub Actions (`.github/workflows/ci.yml`) runs the same `pnpm run ci` on pull requests and pushes to `main`, and checks nothing beyond it. Add new checks to the `ci` script, never as separate workflow steps. The command runs the e2e tests and the TruffleHog scan, so Docker must be running. `commitlint:check` compares against `origin/main`, so run `git fetch` if it is stale.
 
 ### Dependencies
 
@@ -70,4 +72,4 @@ Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails
 - Vitest globals are disabled. Import `describe`/`it`/`expect`/`vi` from `vitest` explicitly.
 - Unit tests sit next to the source as `*.spec.ts`. E2E tests go in `test/` as `*.e2e-spec.ts`. Coverage ignores `main.ts`, `*.module.ts`, `src/database/data-source.ts` and `src/database/migrations/**` (reasons are in `vitest.config.ts`). Put logic in services, not module factories, and test it to keep the 98% threshold.
 - To mark an unused variable or argument, prefix it with `_`. Floating promises are an error in both linters.
-- Commits follow Conventional Commits, enforced by commitlint. Git hooks: pre-commit runs lint-staged (`oxlint --fix` + `prettier`). Pre-push runs TruffleHog through Docker, so Docker must be running to push.
+- Commits follow Conventional Commits, enforced by commitlint. Git hooks: pre-commit runs lint-staged (`oxlint --fix` + `prettier`). Pre-push runs TruffleHog through Docker, so Docker must be running to push. The TruffleHog image is pinned by version and digest in both `.husky/pre-push` and the `secrets:scan` script; bump both together. Dependabot updates the pinned action SHAs in `.github/workflows/`.
