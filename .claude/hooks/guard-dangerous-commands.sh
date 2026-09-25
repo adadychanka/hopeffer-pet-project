@@ -160,13 +160,33 @@ emit() {
   exit 0
 }
 
+# Print the part of the command that matched, so the dangerous operation is easy
+# to find in a long command. Uses the original text even when the match came from
+# $lower (lowercasing keeps the length, so the offset is the same).
+matched_text() {
+  local match=${BASH_REMATCH[0]} source=$1
+  local prefix=${source%%"$match"*}
+  local text=${command:${#prefix}:${#match}}
+  # Extend to the end of the simple command, so `rm -rf` also shows its target.
+  local rest=${command:${#prefix}+${#match}}
+  text+=${rest%%[;&|]*}
+  # Drop the boundary character that ${S} consumes and surrounding whitespace.
+  text=${text#[^[:alnum:]_./-]}
+  text=${text#"${text%%[![:space:]]*}"}
+  text=${text%"${text##*[![:space:]]}"}
+  ((${#text} > 200)) && text="${text:0:200}..."
+  printf '%s' "$text"
+}
+
 check() {
   local decision=$1
   shift
   local rules=("$@")
   for ((i = 0; i < ${#rules[@]}; i += 2)); do
-    if [[ $command =~ ${rules[i]} || $lower =~ ${rules[i]} ]]; then
-      emit "$decision" "Blocked by .claude/hooks/guard-dangerous-commands.sh: ${rules[i + 1]}"
+    if [[ $command =~ ${rules[i]} ]]; then
+      emit "$decision" "Blocked by .claude/hooks/guard-dangerous-commands.sh: ${rules[i + 1]}. Matched: $(matched_text "$command")"
+    elif [[ $lower =~ ${rules[i]} ]]; then
+      emit "$decision" "Blocked by .claude/hooks/guard-dangerous-commands.sh: ${rules[i + 1]}. Matched: $(matched_text "$lower")"
     fi
   done
 }
