@@ -57,6 +57,13 @@ Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails
 - The e2e tests boot the full `AppModule` against throwaway Testcontainers, not the docker-compose services. `test/setup/global-setup.ts` starts Postgres and Redis once per run (same images as `docker-compose.yml`), runs the migrations, and passes the URLs to workers. `test/setup/env.ts` then sets `DATABASE_URL` and `REDIS_URL`. Docker must be running. No `.env` or docker-compose is needed. MinIO and OpenSearch have no containers yet: their clients connect lazily. Add a container in `global-setup.ts` when a test starts to call them.
 - Tests that need the database use the real Postgres container, not mocked repositories. Mock only third-party APIs you do not control. All test files in a run share one database, so each test must create its own data and not depend on rows from other tests.
 
+## Specs and plans
+
+- Save design specs and implementation plans in `reports/<task-name>/`, not in `docs/`. `<task-name>` is a short kebab-case name, for example `reports/github-actions-ci/`.
+- Name files `YYYY-MM-DD-design.md` for specs and `YYYY-MM-DD-plan.md` for plans. A later revision gets a new dated file, so the folder keeps the history.
+- `reports/` is in `.gitignore`. Never commit specs or plans, and never reference them from committed files.
+- This overrides the default locations of planning skills (for example `docs/superpowers/specs/` and `docs/superpowers/plans/`).
+
 ## Conventions
 
 - ESM with `module: nodenext`: relative imports **must** use a `.js` extension (`./app.service.js`).
