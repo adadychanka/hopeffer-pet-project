@@ -11,7 +11,7 @@ NestJS backend service.
 | Language | TypeScript | Type safety, matches NestJS defaults |
 | Test runner | [Vitest](https://vitest.dev/) | Fast, native ESM support, Jest-compatible API |
 | Formatter | [Prettier](https://prettier.io/) | Consistent code style, no formatting debates |
-| ORM / database | [Prisma](https://www.prisma.io/) + PostgreSQL | Type-safe queries generated from schema, migration tooling built in |
+| ORM / database | [TypeORM](https://typeorm.io/) via [@nestjs/typeorm](https://docs.nestjs.com/techniques/database) + PostgreSQL | Decorator-based entities that fit Nest's DI, repository injection per module, migration CLI built in |
 | Cache | Redis via [@nestjs/cache-manager](https://docs.nestjs.com/techniques/caching) + [@keyv/redis](https://github.com/jaredwray/keyv) | Standard Nest caching abstraction, backed by Redis |
 | Object storage | [MinIO](https://min.io/) via the [`minio`](https://www.npmjs.com/package/minio) SDK | S3-compatible object storage, runs locally, same client API as AWS S3 in production |
 | Search | [OpenSearch](https://opensearch.org/) via [`@opensearch-project/opensearch`](https://www.npmjs.com/package/@opensearch-project/opensearch) | Full-text search / analytics, Elasticsearch-compatible API, open-source license |
@@ -46,14 +46,17 @@ chore: bump dependencies
 
 Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
 
-### Database: Prisma + PostgreSQL
+### Database: TypeORM + PostgreSQL
 
-Schema lives in `prisma/schema.prisma`, config in `prisma.config.ts`, connection string in `DATABASE_URL` (`.env`, gitignored). Client generates into `src/generated/prisma` (gitignored, regenerated on `pnpm install` via `postinstall`), wired into Nest through `PrismaModule`/`PrismaService` (`src/prisma/`), imported globally in `AppModule`.
+`DatabaseModule` (`src/database/database.module.ts`) registers `TypeOrmModule.forRootAsync` with the connection string from `DATABASE_URL` (`.env`, gitignored). `autoLoadEntities` is on, so each feature module registers its entities with `TypeOrmModule.forFeature([...])` and injects repositories with `@InjectRepository()`. `synchronize` is off: schema changes go through migrations.
+
+Migrations live in `src/database/migrations/`. The TypeORM CLI uses `src/database/data-source.ts` and runs against the compiled `dist/` output, so every migration script except `migration:create` builds first.
 
 ```bash
-pnpm run prisma:generate   # regenerate client after schema changes
-pnpm run prisma:migrate    # create + apply a migration (dev)
-pnpm run prisma:studio     # browse data in Prisma Studio
+pnpm run migration:generate src/database/migrations/<Name>   # diff entities vs DB into a new migration
+pnpm run migration:create src/database/migrations/<Name>     # empty migration
+pnpm run migration:run                                       # apply pending migrations
+pnpm run migration:revert                                    # undo the last migration
 ```
 
 ### Cache: Redis

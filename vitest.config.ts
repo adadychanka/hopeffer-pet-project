@@ -15,7 +15,8 @@ export default defineConfig({
       exclude: [
         'src/main.ts',
         'src/**/*.module.ts',
-        'src/generated/**',
+        'src/database/data-source.ts',
+        'src/database/migrations/**',
         'src/**/*.spec.ts',
       ],
       thresholds: {
