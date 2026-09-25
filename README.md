@@ -78,6 +78,8 @@ pnpm run migration:revert                                    # undo the last mig
 
 Keep using Nest's `Logger` from `@nestjs/common` in services (`new Logger(MyService.name)`); its output goes through Pino. Set the level with `LOG_LEVEL` (default `info`, `silent` under tests). Output is pretty-printed with `pino-pretty` in a terminal, and plain JSON when `NODE_ENV=production` or stdout is not a TTY.
 
+To also write logs to files, set `LOG_FILE` (for example `logs/app`). [pino-roll](https://github.com/mcollina/pino-roll) then writes JSON lines to `logs/app.<date>.<n>.log`, starts a new file every day or at 10 MB, keeps the 14 newest files, and points `logs/current.log` at the active one. Rotation deletes old files in that folder even if another process wrote them, so give the logs a folder of their own. Leave `LOG_FILE` unset in containers and let Docker collect stdout.
+
 ### Local infra: Docker Compose
 
 `docker-compose.yml` runs Postgres, Redis, MinIO and OpenSearch for local development, matching the default `.env` connection strings.
