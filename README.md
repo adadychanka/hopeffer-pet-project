@@ -11,7 +11,7 @@ NestJS backend service.
 | Language | TypeScript | Type safety, matches NestJS defaults |
 | Test runner | [Vitest](https://vitest.dev/) | Fast, native ESM support, Jest-compatible API |
 | Formatter | [Prettier](https://prettier.io/) | Consistent code style, no formatting debates |
-| ORM / database | [Prisma](https://www.prisma.io/) + PostgreSQL | Type-safe queries generated from schema, migration tooling built in |
+| ORM / database | [TypeORM](https://typeorm.io/) via [@nestjs/typeorm](https://docs.nestjs.com/techniques/database) + PostgreSQL | Decorator-based entities that fit Nest's DI, repository injection per module, migration CLI built in |
 | Cache | Redis via [@nestjs/cache-manager](https://docs.nestjs.com/techniques/caching) + [@keyv/redis](https://github.com/jaredwray/keyv) | Standard Nest caching abstraction, backed by Redis |
 | Object storage | [MinIO](https://min.io/) via the [`minio`](https://www.npmjs.com/package/minio) SDK | S3-compatible object storage, runs locally, same client API as AWS S3 in production |
 | Search | [OpenSearch](https://opensearch.org/) via [`@opensearch-project/opensearch`](https://www.npmjs.com/package/@opensearch-project/opensearch) | Full-text search / analytics, Elasticsearch-compatible API, open-source license |
@@ -46,14 +46,17 @@ chore: bump dependencies
 
 Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
 
-### Database: Prisma + PostgreSQL
+### Database: TypeORM + PostgreSQL
 
-Schema lives in `prisma/schema.prisma`, config in `prisma.config.ts`, connection string in `DATABASE_URL` (`.env`, gitignored). Client generates into `src/generated/prisma` (gitignored, regenerated on `pnpm install` via `postinstall`), wired into Nest through `PrismaModule`/`PrismaService` (`src/prisma/`), imported globally in `AppModule`.
+`DatabaseModule` (`src/database/database.module.ts`) registers `TypeOrmModule.forRootAsync` with the connection string from `DATABASE_URL` (`.env`, gitignored). `autoLoadEntities` is on, so each feature module registers its entities with `TypeOrmModule.forFeature([...])` and injects repositories with `@InjectRepository()`. `synchronize` is off: schema changes go through migrations.
+
+Migrations live in `src/database/migrations/`. The TypeORM CLI uses `src/database/data-source.ts` and runs against the compiled `dist/` output, so every migration script except `migration:create` builds first.
 
 ```bash
-pnpm run prisma:generate   # regenerate client after schema changes
-pnpm run prisma:migrate    # create + apply a migration (dev)
-pnpm run prisma:studio     # browse data in Prisma Studio
+pnpm run migration:generate src/database/migrations/<Name>   # diff entities vs DB into a new migration
+pnpm run migration:create src/database/migrations/<Name>     # empty migration
+pnpm run migration:run                                       # apply pending migrations
+pnpm run migration:revert                                    # undo the last migration
 ```
 
 ### Cache: Redis
@@ -95,6 +98,26 @@ Set `DATABASE_URL`, `REDIS_URL`, the `MINIO_*` vars and `OPENSEARCH_NODE` in `.e
 ```bash
 pnpm run start:dev   # watch mode
 pnpm run start:prod  # production build
+```
+
+## Run in a Docker sandbox
+
+The project can be developed inside a [Docker Sandbox](https://docs.docker.com/ai/sandboxes/) together with a coding agent (e.g. Claude Code). The sandbox gets its own Docker daemon, so `pnpm run docker:up` starts Postgres, Redis, MinIO and OpenSearch inside it, and `localhost` in `.env.example` works unchanged. From the project root on the host, start the agent with `sbx run claude`. By default the working tree is mounted directly, so edits and commits show up on the host immediately. With `--clone` the sandbox works on a separate clone instead, and you fetch its commits with `git fetch sandbox-<name>`. Inside the sandbox, run the usual setup (`pnpm install`, `pnpm run docker:up`, `cp .env.example .env`, `pnpm run start:dev`). The app listens on port 3000 inside the sandbox; to reach it from the host, publish the port from a host terminal:
+
+```bash
+sbx run claude                                               # start the agent in a sandbox for this repo
+sbx ports <sandbox-name> --publish 3000:3000/tcp             # expose the Nest app on host port 3000
+sbx secret set github --sandbox claude-hopeffer-pet-project  # allow git push from the sandbox (PAT, see below)
+```
+
+The sandbox name is shown by `sbx ls` (or `echo $SANDBOX_NAME` inside the sandbox). Outbound network access is deny-by-default: if `pnpm install` or another request is blocked, allow the domain with `sbx policy allow network <domain>`. The TruffleHog pre-push hook uses the sandbox's Docker daemon, so `git push` works from inside the sandbox.
+
+Disable SSH agent forwarding for the sandbox by setting `ssh.agentForwardingEnabled = false`. Otherwise the agent inside the sandbox can use the host's SSH keys. Git push does not need them, because the sandbox proxy injects the GitHub token for HTTPS remotes.
+
+For that GitHub token, use a fine-grained personal access token made only for agent work in this project. Do not reuse `gh auth token`, which has your full account access. Limit the token to this repository, with only the **Contents: Read and write** permission. Pass it to the sandbox from a host terminal:
+
+```bash
+sbx secret set github --sandbox claude-hopeffer-pet-project
 ```
 
 ## Test
