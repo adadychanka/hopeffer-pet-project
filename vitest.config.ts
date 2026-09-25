@@ -13,10 +13,17 @@ export default defineConfig({
       reporter: ['text', 'html'],
       include: ['src/**/*.ts'],
       exclude: [
+        // Bootstrap entry point: starts a real HTTP server. The e2e tests
+        // cover the app wiring instead.
         'src/main.ts',
+        // Declarative Nest wiring (imports/providers). Keep logic out of
+        // module factories and in services, where it gets tested.
         'src/**/*.module.ts',
+        // TypeORM CLI config. Only the migration scripts load it, never the app.
         'src/database/data-source.ts',
+        // Generated schema changes. Exercised by `migration:run`, not by unit tests.
         'src/database/migrations/**',
+        // Test files themselves, not code under test.
         'src/**/*.spec.ts',
       ],
       thresholds: {
