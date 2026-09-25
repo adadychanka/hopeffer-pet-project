@@ -15,6 +15,7 @@ NestJS backend service.
 | Cache | Redis via [@nestjs/cache-manager](https://docs.nestjs.com/techniques/caching) + [@keyv/redis](https://github.com/jaredwray/keyv) | Standard Nest caching abstraction, backed by Redis |
 | Object storage | [MinIO](https://min.io/) via the [`minio`](https://www.npmjs.com/package/minio) SDK | S3-compatible object storage, runs locally, same client API as AWS S3 in production |
 | Search | [OpenSearch](https://opensearch.org/) via [`@opensearch-project/opensearch`](https://www.npmjs.com/package/@opensearch-project/opensearch) | Full-text search / analytics, Elasticsearch-compatible API, open-source license |
+| Logging | [Pino](https://getpino.io/) via [nestjs-pino](https://github.com/iamolegga/nestjs-pino) | Fast structured JSON logs, automatic request logging with a request ID on every line |
 | Local infra | [Docker Compose](https://docs.docker.com/compose/) | One command to run Postgres + Redis + MinIO + OpenSearch for local development |
 | Secret scanning | [TruffleHog](https://github.com/trufflesecurity/trufflehog) (Docker image) | Blocks `git push` if a commit being pushed contains a credential |
 
@@ -70,6 +71,12 @@ pnpm run migration:revert                                    # undo the last mig
 ### Search: OpenSearch
 
 `OpensearchService` (`src/opensearch/`) extends the official client's `Client` directly, configured from `OPENSEARCH_NODE` (`.env`), exported globally via `OpensearchModule`. Local Compose instance runs with the security plugin disabled (dev only).
+
+### Logging: Pino
+
+`LoggerModule` (`src/logger/logger.module.ts`) plugs [nestjs-pino](https://github.com/iamolegga/nestjs-pino) in as the Nest logger. Why Pino over Nest's built-in `ConsoleLogger` or Winston: it is the fastest Node.js logger, it writes JSON lines to stdout that a collector can ship to OpenSearch as they are, and `pino-http` logs every request and attaches the request ID to every log line made while handling it. The `Authorization` and `Cookie` headers are redacted.
+
+Keep using Nest's `Logger` from `@nestjs/common` in services (`new Logger(MyService.name)`); its output goes through Pino. Set the level with `LOG_LEVEL` (default `info`, `silent` under tests). Output is pretty-printed with `pino-pretty` in a terminal, and plain JSON when `NODE_ENV=production` or stdout is not a TTY.
 
 ### Local infra: Docker Compose
 
