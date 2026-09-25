@@ -63,8 +63,9 @@ Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails
 
 - Save design specs and implementation plans in `reports/<task-name>/`, not in `docs/`. `<task-name>` is a short kebab-case name, for example `reports/github-actions-ci/`.
 - Name files `YYYY-MM-DD-design.md` for specs and `YYYY-MM-DD-plan.md` for plans. A later revision gets a new dated file, so the folder keeps the history.
-- `reports/` is in `.gitignore`. Never commit specs or plans, and never reference them from committed files.
-- This overrides the default locations of planning skills (for example `docs/superpowers/specs/` and `docs/superpowers/plans/`).
+- After a plan is executed, save each review round of the result in the same folder as `YYYY-MM-DD-review.md`. Record the findings with severity and `file:line`, what was fixed (with the commit), what was deferred, and the rulings made. A second review on the same day gets a suffix: `YYYY-MM-DD-review-2.md`.
+- `reports/` is in `.gitignore`. Never commit specs, plans or reviews, and never reference them from committed files.
+- This overrides the default locations of planning and review skills (for example `docs/superpowers/specs/` and `docs/superpowers/plans/`).
 
 ## Conventions
 
