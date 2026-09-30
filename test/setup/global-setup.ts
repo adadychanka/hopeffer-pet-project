@@ -1,6 +1,6 @@
 // Starts throwaway Postgres and Redis containers once per e2e run, applies the
 // migrations, and hands the connection URLs to the test workers through
-// `provide`. MinIO and OpenSearch are not started: their clients do not
+// `provide`. RustFS (S3) and OpenSearch are not started: their clients do not
 // connect until a test calls them.
 /// <reference types="vite/client" />
 import { PostgreSqlContainer } from '@testcontainers/postgresql';
@@ -16,8 +16,10 @@ declare module 'vitest' {
 }
 
 // Same images as docker-compose.yml, so tests run against the dev versions.
-const POSTGRES_IMAGE = 'postgres:17-alpine';
-const REDIS_IMAGE = 'redis:8-alpine';
+const POSTGRES_IMAGE =
+  'postgres:17.11-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24';
+const REDIS_IMAGE =
+  'redis:8.10.2-alpine@sha256:3811787313eba226a2ef38658c6ccb91cd5e110edc89c37767de373120a0e5a0';
 
 type MigrationClass = new () => MigrationInterface;
 
