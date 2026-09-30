@@ -106,7 +106,7 @@ ask_rules=(
   "${GIT}push${R}[[:space:]](--force|--force-with-lease|--mirror|--delete|-[[:alnum:]]*[fd][[:alnum:]]*([[:space:]]|$)|:[^[:space:]])"
   "git push rewrites or deletes a remote branch"
 
-  # Backing services (Postgres, Redis, MinIO, OpenSearch, Docker volumes).
+  # Backing services (Postgres, Redis, RustFS, OpenSearch, Docker volumes).
   "${S}docker([[:space:]]+|-)compose[[:space:]]${R}down${R}([[:space:]]-v([[:space:]]|$)|--volumes|--rmi)"
   "docker compose down -v deletes the database, cache and storage volumes"
   "docker:down${R}([[:space:]]-v([[:space:]]|$)|--volumes)"
@@ -118,9 +118,11 @@ ask_rules=(
   "${S}(dropdb|pg_resetwal)[[:space:]]"
   "command deletes a Postgres database"
   "${S}mc[[:space:]]+(rb|rm)[[:space:]]"
-  "mc rb/rm deletes MinIO buckets or objects"
+  "mc rb/rm deletes S3 buckets or objects"
+  "${S}aws[[:space:]]${R}(s3[[:space:]]+(rb|rm)|s3api[[:space:]]+delete-)"
+  "aws s3 rb/rm deletes S3 buckets or objects"
   "${S}curl[[:space:]]${R}(-[xX][[:space:]]*|--request[[:space:]]+)[\"']?delete"
-  "HTTP DELETE (for example an OpenSearch index or MinIO object)"
+  "HTTP DELETE (for example an OpenSearch index or S3 object)"
 
   # Weakening supply chain policy (pnpm-workspace.yaml).
   "minimum-?release-?age|trust-?policy|dangerously-allow-all-builds"

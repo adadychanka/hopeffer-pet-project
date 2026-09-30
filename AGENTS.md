@@ -4,7 +4,7 @@ This file provides guidance to AI coding agents working with code in this reposi
 
 ## Project
 
-NestJS 12 backend (TypeScript, pure ESM) using pnpm. Backing services: PostgreSQL via TypeORM, Redis cache, MinIO object storage, OpenSearch. `docker-compose.yml` runs all four locally, and its defaults match `.env.example`.
+NestJS 12 backend (TypeScript, pure ESM) using pnpm. Backing services: PostgreSQL via TypeORM, Redis cache, RustFS object storage (S3 API), OpenSearch. `docker-compose.yml` runs all four locally, and its defaults match `.env.example`.
 
 Requires Node >=24 and pnpm ^12. `devEngines` in `package.json` sets `onFail: error`, so older versions fail the install. CI reads the pnpm version from `devEngines`, but pins Node separately (`runtime: node@24` in `.github/workflows/ci.yml`): update both when moving to a new Node major.
 
@@ -12,14 +12,14 @@ Requires Node >=24 and pnpm ^12. `devEngines` in `package.json` sets `onFail: er
 
 ```bash
 pnpm install
-pnpm run docker:up        # start postgres, redis, minio, opensearch
+pnpm run docker:up        # start postgres, redis, rustfs, opensearch
 pnpm run start:dev        # watch mode
 
 pnpm run test             # unit tests (*.spec.ts)
 pnpm run test:e2e         # e2e tests (*.e2e-spec.ts, vitest.config.e2e.ts); needs Docker
 pnpm run test:cov         # coverage; fails below 98% statements/branches/functions/lines
-pnpm exec vitest run src/minio/minio.service.spec.ts   # single file
-pnpm exec vitest run -t "builds its client from the MINIO_\* env vars"   # single test by name
+pnpm exec vitest run src/s3/s3.service.spec.ts   # single file
+pnpm exec vitest run -t "builds its client from the S3_\* env vars"   # single test by name
 
 pnpm run lint             # oxlint (fast; same as pre-commit); warnings do not fail it
 pnpm run lint:eslint      # full type-aware eslint, with --fix
@@ -49,14 +49,14 @@ Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails
 
 ## Architecture
 
-- `AppModule` imports `LoggerModule` and four global infra modules: `DatabaseModule`, `RedisCacheModule`, `MinioModule` and `OpensearchModule`. Feature modules inject the infra providers (`DataSource`, `CACHE_MANAGER`, `MinioService`, `OpensearchService`) without importing the modules.
+- `AppModule` imports `LoggerModule` and four global infra modules: `DatabaseModule`, `RedisCacheModule`, `S3Module` and `OpensearchModule`. Feature modules inject the infra providers (`DataSource`, `CACHE_MANAGER`, `S3Service`, `OpensearchService`) without importing the modules.
 - Logging uses Pino through `nestjs-pino`. `main.ts` sets it as the app logger with `bufferLogs: true`, so Nest's `Logger` from `@nestjs/common` writes through Pino. `LOG_LEVEL` sets the level (default `info`, and `silent` when `NODE_ENV=test`). Output is pretty only in a TTY outside production; otherwise it is JSON lines on stdout. `LOG_FILE` (for example `logs/app`) also writes rotating files. That folder must hold only these logs, because rotation deletes other files in it. Authorization and cookie headers are redacted.
-- `MinioService` and `OpensearchService` **extend the SDK client classes directly** (minio `Client`, opensearch `Client`). Call SDK methods on the injected service. There is no wrapper API.
+- `S3Service` and `OpensearchService` **extend the SDK client classes directly** (AWS SDK `S3Client`, opensearch `Client`). Call SDK methods on the injected service. There is no wrapper API.
 - Redis is not a custom service. Inject Nest's `CACHE_MANAGER` (the store is `@keyv/redis`).
 - Configuration comes from `process.env` inside each service constructor. There is no `@nestjs/config`. **The app does not load `.env` itself.** Only `src/database/data-source.ts` (the TypeORM CLI) imports `dotenv/config`. When running the app, export the variables or use `node --env-file=.env`.
 - TypeORM setup: `DatabaseModule` registers `TypeOrmModule.forRootAsync` with `autoLoadEntities: true` and `synchronize` off. A feature module registers its entities with `TypeOrmModule.forFeature([...])` and injects repositories with `@InjectRepository()`. Schema changes go through migrations only.
 - The TypeORM CLI uses `src/database/data-source.ts` and runs against compiled `dist/` output, because tsx/esbuild cannot emit decorator metadata. Every `migration:*` script except `migration:create` builds first. The CLI data source finds entities by the `*.entity.ts` file name, so name entity files that way. Generated migrations are not Prettier-formatted: run `pnpm run format` (lint-staged also fixes them on commit).
-- The e2e tests boot the full `AppModule` against throwaway Testcontainers, not the docker-compose services. `test/setup/global-setup.ts` starts Postgres and Redis once per run (same images as `docker-compose.yml`), runs the migrations, and passes the URLs to workers. `test/setup/env.ts` then sets `DATABASE_URL` and `REDIS_URL`. Docker must be running. No `.env` or docker-compose is needed. MinIO and OpenSearch have no containers yet: their clients connect lazily. Add a container in `global-setup.ts` when a test starts to call them.
+- The e2e tests boot the full `AppModule` against throwaway Testcontainers, not the docker-compose services. `test/setup/global-setup.ts` starts Postgres and Redis once per run (same images as `docker-compose.yml`), runs the migrations, and passes the URLs to workers. `test/setup/env.ts` then sets `DATABASE_URL` and `REDIS_URL`. Docker must be running. No `.env` or docker-compose is needed. RustFS and OpenSearch have no containers yet: their clients connect lazily. Add a container in `global-setup.ts` when a test starts to call them.
 - Tests that need the database use the real Postgres container, not mocked repositories. Mock only third-party APIs you do not control. All test files in a run share one database, so each test must create its own data and not depend on rows from other tests.
 
 ## Specs and plans
@@ -73,5 +73,5 @@ Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails
 - Vitest globals are disabled. Import `describe`/`it`/`expect`/`vi` from `vitest` explicitly.
 - Unit tests sit next to the source as `*.spec.ts`. E2E tests go in `test/` as `*.e2e-spec.ts`. Coverage ignores `main.ts`, `*.module.ts`, `src/database/data-source.ts` and `src/database/migrations/**` (reasons are in `vitest.config.ts`). Put logic in services, not module factories, and test it to keep the 98% threshold.
 - To mark an unused variable or argument, prefix it with `_`. Floating promises are an error in both linters.
-- Commits follow Conventional Commits, enforced by commitlint. Git hooks: pre-commit runs lint-staged (`oxlint --fix` + `prettier`). Pre-push runs TruffleHog through Docker, so Docker must be running to push. `scripts/trufflehog.sh` is the only place that pins the TruffleHog image (version and digest); both `.husky/pre-push` and `secrets:scan` call it. Bump the version and digest together by hand. It also works from git worktrees. Dependabot updates the pinned action SHAs in `.github/workflows/`. When you add an action, pin it by full commit SHA with the version as a comment (`uses: owner/action@<40-char sha> # v1.2.3`), never by tag alone.
+- Commits follow Conventional Commits, enforced by commitlint. Git hooks: pre-commit runs lint-staged (`oxlint --fix` + `prettier`). Pre-push runs TruffleHog through Docker, so Docker must be running to push. `scripts/trufflehog.sh` is the only place that pins the TruffleHog image (version and digest); both `.husky/pre-push` and `secrets:scan` call it. Bump the version and digest together by hand. It also works from git worktrees. Dependabot updates the pinned action SHAs in `.github/workflows/`. When you add an action, pin it by full commit SHA with the version as a comment (`uses: owner/action@<40-char sha> # v1.2.3`), never by tag alone. Pin Docker images in `docker-compose.yml` the same way, by version and multi-arch index digest (`image: name:1.2.3@sha256:<digest>`; get the digest with `docker buildx imagetools inspect name:1.2.3`). Dependabot updates them. `test/setup/global-setup.ts` must use the same Postgres and Redis pins.
 - To test the secret scan, generate a random fake key (for example `AKIA` plus 16 characters from `/dev/urandom`). Never write a key from memory or from docs: it can be a real key or a canary token that alerts its owner.

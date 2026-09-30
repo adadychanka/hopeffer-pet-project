@@ -4,21 +4,21 @@ NestJS backend service.
 
 ## Tech stack decisions
 
-| Area            | Choice                                                                                                                                     | Why                                                                                                                                                             |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Framework       | [NestJS](https://nestjs.com/)                                                                                                              | Structured, opinionated Node.js framework; built-in DI, module system, testing support                                                                          |
-| Runtime         | [Node.js](https://nodejs.org/) 24 LTS                                                                                                      | Current Active LTS; `engines.node` in `package.json` tells CI and hosts which Node to use; `devEngines.runtime` blocks local installs and scripts on older Node |
-| Package manager | [pnpm](https://pnpm.io/) 12                                                                                                                | Fast installs, disk-efficient via content-addressable store, strict dependency resolution                                                                       |
-| Language        | TypeScript                                                                                                                                 | Type safety, matches NestJS defaults                                                                                                                            |
-| Test runner     | [Vitest](https://vitest.dev/)                                                                                                              | Fast, native ESM support, Jest-compatible API                                                                                                                   |
-| Formatter       | [Prettier](https://prettier.io/)                                                                                                           | Consistent code style, no formatting debates                                                                                                                    |
-| ORM / database  | [TypeORM](https://typeorm.io/) via [@nestjs/typeorm](https://docs.nestjs.com/techniques/database) + PostgreSQL                             | Decorator-based entities that fit Nest's DI, repository injection per module, migration CLI built in                                                            |
-| Cache           | Redis via [@nestjs/cache-manager](https://docs.nestjs.com/techniques/caching) + [@keyv/redis](https://github.com/jaredwray/keyv)           | Standard Nest caching abstraction, backed by Redis                                                                                                              |
-| Object storage  | [MinIO](https://min.io/) via the [`minio`](https://www.npmjs.com/package/minio) SDK                                                        | S3-compatible object storage, runs locally, same client API as AWS S3 in production                                                                             |
-| Search          | [OpenSearch](https://opensearch.org/) via [`@opensearch-project/opensearch`](https://www.npmjs.com/package/@opensearch-project/opensearch) | Full-text search / analytics, Elasticsearch-compatible API, open-source license                                                                                 |
-| Logging         | [Pino](https://getpino.io/) via [nestjs-pino](https://github.com/iamolegga/nestjs-pino)                                                    | Fast structured JSON logs, automatic request logging with a request ID on every line                                                                            |
-| Local infra     | [Docker Compose](https://docs.docker.com/compose/)                                                                                         | One command to run Postgres + Redis + MinIO + OpenSearch for local development                                                                                  |
-| Secret scanning | [TruffleHog](https://github.com/trufflesecurity/trufflehog) (Docker image)                                                                 | Blocks `git push` if a commit being pushed contains a credential; scans all history of the checked-out commit in `pnpm run ci`                                  |
+| Area            | Choice                                                                                                                                     | Why                                                                                                                                                               |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Framework       | [NestJS](https://nestjs.com/)                                                                                                              | Structured, opinionated Node.js framework; built-in DI, module system, testing support                                                                            |
+| Runtime         | [Node.js](https://nodejs.org/) 24 LTS                                                                                                      | Current Active LTS; `engines.node` in `package.json` tells CI and hosts which Node to use; `devEngines.runtime` blocks local installs and scripts on older Node   |
+| Package manager | [pnpm](https://pnpm.io/) 12                                                                                                                | Fast installs, disk-efficient via content-addressable store, strict dependency resolution                                                                         |
+| Language        | TypeScript                                                                                                                                 | Type safety, matches NestJS defaults                                                                                                                              |
+| Test runner     | [Vitest](https://vitest.dev/)                                                                                                              | Fast, native ESM support, Jest-compatible API                                                                                                                     |
+| Formatter       | [Prettier](https://prettier.io/)                                                                                                           | Consistent code style, no formatting debates                                                                                                                      |
+| ORM / database  | [TypeORM](https://typeorm.io/) via [@nestjs/typeorm](https://docs.nestjs.com/techniques/database) + PostgreSQL                             | Decorator-based entities that fit Nest's DI, repository injection per module, migration CLI built in                                                              |
+| Cache           | Redis via [@nestjs/cache-manager](https://docs.nestjs.com/techniques/caching) + [@keyv/redis](https://github.com/jaredwray/keyv)           | Standard Nest caching abstraction, backed by Redis                                                                                                                |
+| Object storage  | [RustFS](https://github.com/rustfs/rustfs) via the AWS SDK [`@aws-sdk/client-s3`](https://www.npmjs.com/package/@aws-sdk/client-s3)        | S3-compatible object storage under Apache 2.0 that runs locally; the app uses the standard AWS S3 client, so production can point it at any S3-compatible service |
+| Search          | [OpenSearch](https://opensearch.org/) via [`@opensearch-project/opensearch`](https://www.npmjs.com/package/@opensearch-project/opensearch) | Full-text search / analytics, Elasticsearch-compatible API, open-source license                                                                                   |
+| Logging         | [Pino](https://getpino.io/) via [nestjs-pino](https://github.com/iamolegga/nestjs-pino)                                                    | Fast structured JSON logs, automatic request logging with a request ID on every line                                                                              |
+| Local infra     | [Docker Compose](https://docs.docker.com/compose/)                                                                                         | One command to run Postgres + Redis + RustFS + OpenSearch for local development                                                                                   |
+| Secret scanning | [TruffleHog](https://github.com/trufflesecurity/trufflehog) (Docker image)                                                                 | Blocks `git push` if a commit being pushed contains a credential; scans all history of the checked-out commit in `pnpm run ci`                                    |
 
 ### Linting: ESLint vs Oxlint
 
@@ -67,9 +67,9 @@ pnpm run migration:revert                                    # undo the last mig
 
 `RedisCacheModule` (`src/cache/redis-cache.module.ts`) registers Nest's `CacheModule` globally with a `@keyv/redis` store, connection string in `REDIS_URL` (`.env`). Inject `CACHE_MANAGER` where caching is needed.
 
-### Object storage: MinIO
+### Object storage: RustFS
 
-`MinioService` (`src/minio/`) extends the `minio` SDK's `Client` directly, configured from `MINIO_ENDPOINT`/`MINIO_PORT`/`MINIO_USE_SSL`/`MINIO_ACCESS_KEY`/`MINIO_SECRET_KEY` (`.env`), exported globally via `MinioModule`. Console at `http://localhost:9001` (default creds `minioadmin`/`minioadmin`).
+`S3Service` (`src/s3/`) extends the AWS SDK's `S3Client` directly, configured from `S3_ENDPOINT`/`S3_REGION`/`S3_ACCESS_KEY`/`S3_SECRET_KEY` (`.env`), exported globally via `S3Module`. It uses path-style URLs (`host/bucket/key`), which self-hosted S3 servers expect. Locally it talks to [RustFS](https://github.com/rustfs/rustfs); MinIO no longer publishes Docker images. Console at `http://localhost:9001` (default creds `rustfsadmin`/`rustfsadmin`).
 
 ### Search: OpenSearch
 
@@ -85,10 +85,10 @@ To also write logs to files, set `LOG_FILE` (for example `logs/app`). [pino-roll
 
 ### Local infra: Docker Compose
 
-`docker-compose.yml` runs Postgres, Redis, MinIO and OpenSearch for local development, matching the default `.env` connection strings.
+`docker-compose.yml` runs Postgres, Redis, RustFS and OpenSearch for local development, matching the default `.env` connection strings. Every image is pinned to a version and its digest, so a retagged or compromised upstream image cannot change what runs. Dependabot proposes updates; keep the Postgres and Redis pins in `test/setup/global-setup.ts` the same.
 
 ```bash
-pnpm run docker:up     # start postgres + redis + minio + opensearch in the background
+pnpm run docker:up     # start postgres + redis + rustfs + opensearch in the background
 pnpm run docker:down   # stop and remove them
 ```
 
@@ -109,7 +109,7 @@ pnpm install
 pnpm run docker:up
 ```
 
-Set `DATABASE_URL`, `REDIS_URL`, the `MINIO_*` vars and `OPENSEARCH_NODE` in `.env` before running migrations or starting the app; defaults match `docker-compose.yml`.
+Set `DATABASE_URL`, `REDIS_URL`, the `S3_*` vars and `OPENSEARCH_NODE` in `.env` before running migrations or starting the app; defaults match `docker-compose.yml`.
 
 ## Run
 
@@ -122,7 +122,7 @@ pnpm run start:prod  # production build
 
 Why Docker Sandboxes: they are easy to set up and run, and ship ready-made images for Claude Code. They still isolate the agent from the host well. Credentials such as the GitHub token stay on the host, and the sandbox proxy injects them, so they are never stored inside the sandbox. Network access is easy to control. Machine resources have no fixed static limits, so the developer experience is close to native development. For local development, this is the best option I found.
 
-The project can be developed inside a [Docker Sandbox](https://docs.docker.com/ai/sandboxes/) together with a coding agent (e.g. Claude Code). The sandbox gets its own Docker daemon, so `pnpm run docker:up` starts Postgres, Redis, MinIO and OpenSearch inside it, and `localhost` in `.env.example` works unchanged. From the project root on the host, start the agent with `sbx run claude`. By default the working tree is mounted directly, so edits and commits show up on the host immediately. With `--clone` the sandbox works on a separate clone instead, and you fetch its commits with `git fetch sandbox-<name>`. Inside the sandbox, run the usual setup (`pnpm install`, `pnpm run docker:up`, `cp .env.example .env`, `pnpm run start:dev`). The app listens on port 3000 inside the sandbox; to reach it from the host, publish the port from a host terminal:
+The project can be developed inside a [Docker Sandbox](https://docs.docker.com/ai/sandboxes/) together with a coding agent (e.g. Claude Code). The sandbox gets its own Docker daemon, so `pnpm run docker:up` starts Postgres, Redis, RustFS and OpenSearch inside it, and `localhost` in `.env.example` works unchanged. From the project root on the host, start the agent with `sbx run claude`. By default the working tree is mounted directly, so edits and commits show up on the host immediately. With `--clone` the sandbox works on a separate clone instead, and you fetch its commits with `git fetch sandbox-<name>`. Inside the sandbox, run the usual setup (`pnpm install`, `pnpm run docker:up`, `cp .env.example .env`, `pnpm run start:dev`). The app listens on port 3000 inside the sandbox; to reach it from the host, publish the port from a host terminal:
 
 ```bash
 sbx run claude                                               # start the agent in a sandbox for this repo
