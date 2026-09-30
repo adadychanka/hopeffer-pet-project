@@ -1,12 +1,15 @@
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import type { Env } from '../config/env.js';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      useFactory: () => ({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService<Env, true>) => ({
         type: 'postgres',
-        url: process.env.DATABASE_URL,
+        url: config.get('DATABASE_URL', { infer: true }),
         // Entities register through TypeOrmModule.forFeature() in feature modules.
         autoLoadEntities: true,
       }),
