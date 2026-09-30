@@ -10,6 +10,7 @@ NestJS backend service.
 | Runtime         | [Node.js](https://nodejs.org/) 24 LTS                                                                                                      | Current Active LTS; `engines.node` in `package.json` tells CI and hosts which Node to use; `devEngines.runtime` blocks local installs and scripts on older Node   |
 | Package manager | [pnpm](https://pnpm.io/) 12                                                                                                                | Fast installs, disk-efficient via content-addressable store, strict dependency resolution                                                                         |
 | Language        | TypeScript                                                                                                                                 | Type safety, matches NestJS defaults                                                                                                                              |
+| Configuration   | [@nestjs/config](https://docs.nestjs.com/techniques/configuration) + [zod](https://zod.dev/)                                               | Standard Nest configuration: loads `.env`, and the zod schema stops the app at startup when a setting is missing or malformed                                     |
 | Test runner     | [Vitest](https://vitest.dev/)                                                                                                              | Fast, native ESM support, Jest-compatible API                                                                                                                     |
 | Formatter       | [Prettier](https://prettier.io/)                                                                                                           | Consistent code style, no formatting debates                                                                                                                      |
 | ORM / database  | [TypeORM](https://typeorm.io/) via [@nestjs/typeorm](https://docs.nestjs.com/techniques/database) + PostgreSQL                             | Decorator-based entities that fit Nest's DI, repository injection per module, migration CLI built in                                                              |
@@ -50,9 +51,15 @@ chore: bump dependencies
 
 Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
 
+### Configuration: @nestjs/config
+
+`ConfigModule` (registered globally in `AppModule`) reads the settings from environment variables and, when the file exists, from `.env`. Real environment variables win over `.env`, so containers and CI set them directly. At startup the values are validated against the zod schema in `src/config/env.ts`: the app refuses to start and lists every missing or invalid variable, instead of silently connecting to the wrong place. `.env.example` documents every setting with the local values.
+
+Services read settings by injecting `ConfigService<Env, true>` and calling `config.get('NAME', { infer: true })`. The TypeORM CLI (`src/database/data-source.ts`) runs outside Nest, so it loads `.env` itself.
+
 ### Database: TypeORM + PostgreSQL
 
-`DatabaseModule` (`src/database/database.module.ts`) registers `TypeOrmModule.forRootAsync` with the connection string from `DATABASE_URL` (`.env`, gitignored). `autoLoadEntities` is on, so each feature module registers its entities with `TypeOrmModule.forFeature([...])` and injects repositories with `@InjectRepository()`. `synchronize` is off: schema changes go through migrations.
+`DatabaseModule` (`src/database/database.module.ts`) registers `TypeOrmModule.forRootAsync` with the connection string from `DATABASE_URL`. `autoLoadEntities` is on, so each feature module registers its entities with `TypeOrmModule.forFeature([...])` and injects repositories with `@InjectRepository()`. `synchronize` is off: schema changes go through migrations.
 
 Migrations live in `src/database/migrations/`. The TypeORM CLI uses `src/database/data-source.ts` and runs against the compiled `dist/` output, so every migration script except `migration:create` builds first.
 
@@ -65,15 +72,15 @@ pnpm run migration:revert                                    # undo the last mig
 
 ### Cache: Redis
 
-`RedisCacheModule` (`src/cache/redis-cache.module.ts`) registers Nest's `CacheModule` globally with a `@keyv/redis` store, connection string in `REDIS_URL` (`.env`). Inject `CACHE_MANAGER` where caching is needed.
+`RedisCacheModule` (`src/cache/redis-cache.module.ts`) registers Nest's `CacheModule` globally with a `@keyv/redis` store, connection string in `REDIS_URL`. Inject `CACHE_MANAGER` where caching is needed.
 
 ### Object storage: RustFS
 
-`S3Service` (`src/s3/`) extends the AWS SDK's `S3Client` directly, configured from `S3_ENDPOINT`/`S3_REGION`/`S3_ACCESS_KEY`/`S3_SECRET_KEY` (`.env`), exported globally via `S3Module`. It uses path-style URLs (`host/bucket/key`), which self-hosted S3 servers expect. Locally it talks to [RustFS](https://github.com/rustfs/rustfs); MinIO no longer publishes Docker images. Console at `http://localhost:9001` (default creds `rustfsadmin`/`rustfsadmin`).
+`S3Service` (`src/s3/`) extends the AWS SDK's `S3Client` directly, configured from `S3_ENDPOINT`/`S3_REGION`/`S3_ACCESS_KEY`/`S3_SECRET_KEY`, exported globally via `S3Module`. It uses path-style URLs (`host/bucket/key`), which self-hosted S3 servers expect. Locally it talks to [RustFS](https://github.com/rustfs/rustfs); MinIO no longer publishes Docker images. Console at `http://localhost:9001` (default creds `rustfsadmin`/`rustfsadmin`).
 
 ### Search: OpenSearch
 
-`OpensearchService` (`src/opensearch/`) extends the official client's `Client` directly, configured from `OPENSEARCH_NODE` (`.env`), exported globally via `OpensearchModule`. Local Compose instance runs with the security plugin disabled (dev only).
+`OpensearchService` (`src/opensearch/`) extends the official client's `Client` directly, configured from `OPENSEARCH_NODE`, exported globally via `OpensearchModule`. Local Compose instance runs with the security plugin disabled (dev only).
 
 ### Logging: Pino
 
@@ -102,48 +109,63 @@ pnpm run docker:down   # stop and remove them
 
 `.github/workflows/ci.yml` runs `pnpm run ci` on pull requests and pushes to `main`, so CI and local checks are the same command. Actions are pinned by commit SHA; Dependabot (`.github/dependabot.yml`) proposes updates after a 3-day cooldown.
 
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) 24. An older Node fails `pnpm install`.
+- [pnpm](https://pnpm.io/installation) 12, for example `npm install --global pnpm@12`. Any 12.x works: pnpm switches itself to the exact version that `pnpm-lock.yaml` records. pnpm 10 and older do not, and install with the wrong version.
+- [Docker](https://docs.docker.com/get-docker/) with Compose, running. It hosts the backing services, the e2e test containers and the TruffleHog scan in the `pre-push` hook.
+
 ## Project setup
 
 ```bash
-pnpm install
-pnpm run docker:up
+git clone https://github.com/adadychanka/hopeffer-pet-project.git
+cd hopeffer-pet-project
+pnpm install              # also installs the git hooks
+cp .env.example .env      # local settings; the defaults match docker-compose.yml
+pnpm run docker:up        # postgres, redis, rustfs, opensearch
+pnpm run migration:run    # apply the database migrations
 ```
-
-Set `DATABASE_URL`, `REDIS_URL`, the `S3_*` vars and `OPENSEARCH_NODE` in `.env` before running migrations or starting the app; defaults match `docker-compose.yml`.
 
 ## Run
 
 ```bash
-pnpm run start:dev   # watch mode
-pnpm run start:prod  # production build
+pnpm run start:dev              # watch mode
+curl http://localhost:3000/     # {"message":"Hello World!"}
+
+pnpm run build && pnpm run start:prod   # production build
 ```
+
+The app reads `.env` from the current directory. Without it, or with a setting missing, it stops at startup and names the variables to fix.
 
 ## Run in a Docker sandbox
 
 Why Docker Sandboxes: they are easy to set up and run, and ship ready-made images for Claude Code. They still isolate the agent from the host well. Credentials such as the GitHub token stay on the host, and the sandbox proxy injects them, so they are never stored inside the sandbox. Network access is easy to control. Machine resources have no fixed static limits, so the developer experience is close to native development. For local development, this is the best option I found.
 
-The project can be developed inside a [Docker Sandbox](https://docs.docker.com/ai/sandboxes/) together with a coding agent (e.g. Claude Code). The sandbox gets its own Docker daemon, so `pnpm run docker:up` starts Postgres, Redis, RustFS and OpenSearch inside it, and `localhost` in `.env.example` works unchanged. From the project root on the host, start the agent with `sbx run claude`. By default the working tree is mounted directly, so edits and commits show up on the host immediately. With `--clone` the sandbox works on a separate clone instead, and you fetch its commits with `git fetch sandbox-<name>`. Inside the sandbox, run the usual setup (`pnpm install`, `pnpm run docker:up`, `cp .env.example .env`, `pnpm run start:dev`). The app listens on port 3000 inside the sandbox; to reach it from the host, publish the port from a host terminal:
+The project can be developed inside a [Docker Sandbox](https://docs.docker.com/ai/sandboxes/) together with a coding agent (e.g. Claude Code). The sandbox gets its own Docker daemon, so `pnpm run docker:up` starts Postgres, Redis, RustFS and OpenSearch inside it, and `localhost` in `.env.example` works unchanged. From the project root on the host, start the agent with `sbx run claude`. By default the working tree is mounted directly, so edits and commits show up on the host immediately. With `--clone` the sandbox works on a separate clone instead, and you fetch its commits with `git fetch sandbox-<name>`. The sandbox image ships Node 22 and no pnpm, so install the toolchain first with `sh scripts/sandbox-setup.sh` (Node 24 from nodejs.org, checked against its SHA-256 sums, and pnpm 12). Then follow [Project setup](#project-setup) from `pnpm install` on. The app listens on port 3000 inside the sandbox; to reach it from the host, publish the port from a host terminal:
 
 ```bash
-sbx run claude                                               # start the agent in a sandbox for this repo
-sbx ports <sandbox-name> --publish 3000:3000/tcp             # expose the Nest app on host port 3000
-sbx secret set github --sandbox claude-hopeffer-pet-project  # allow git push from the sandbox (PAT, see below)
+sbx run claude                                    # start the agent in a sandbox for this repo
+sbx ports <sandbox-name> --publish 3000:3000/tcp  # expose the Nest app on host port 3000
+sbx secret set github --sandbox <sandbox-name>    # GitHub access from the sandbox (PAT, see below)
 ```
 
-The sandbox name is shown by `sbx ls` (or `echo $SANDBOX_NAME` inside the sandbox). Outbound network access is deny-by-default: if `pnpm install` or another request is blocked, allow the domain with `sbx policy allow network <domain>`. The TruffleHog pre-push hook uses the sandbox's Docker daemon, so `git push` works from inside the sandbox.
+The sandbox name is shown by `sbx ls` (or `echo $SANDBOX_NAME` inside the sandbox). It is `claude-<folder>` for the first sandbox of a folder, and later ones get a suffix such as `claude-hopeffer-pet-project-1`, so check it rather than copying a name. Outbound network access is deny-by-default: if `pnpm install` or another request is blocked, allow the domain with `sbx policy allow network <domain>`. The TruffleHog pre-push hook uses the sandbox's Docker daemon, so `git push` works from inside the sandbox.
 
 Disable SSH agent forwarding for the sandbox by setting `ssh.agentForwardingEnabled = false`. Otherwise the agent inside the sandbox can use the host's SSH keys. Git push does not need them, because the sandbox proxy injects the GitHub token for HTTPS remotes.
 
-For that GitHub token, use a fine-grained personal access token made only for agent work in this project. Do not reuse `gh auth token`, which has your full account access. Limit the token to this repository, with only the **Contents: Read and write** permission. Pass it to the sandbox from a host terminal:
+For that GitHub token, use a fine-grained personal access token made only for agent work in this project. Do not reuse `gh auth token`, which has your full account access. Limit the token to this repository, with only the **Contents: Read and write** permission. The repository is private, so the sandbox needs the token to clone or fetch it too, not only to push. The secret is scoped to one sandbox, so each new sandbox needs it again. The proxy picks it up when the sandbox starts, so restart a running sandbox after setting it. Pass it from a host terminal:
 
 ```bash
-sbx secret set github --sandbox claude-hopeffer-pet-project
+sbx secret set github --sandbox <sandbox-name>
 ```
 
 ## Test
 
 ```bash
 pnpm run test        # unit tests
-pnpm run test:e2e    # e2e tests
+pnpm run test:e2e    # e2e tests; Docker must be running (Testcontainers)
 pnpm run test:cov    # coverage (98% threshold on statements/branches/functions/lines)
+pnpm run ci          # everything CI runs; needs Docker
 ```
+
+The tests do not read `.env`: the e2e setup starts its own Postgres and Redis containers and points the app at them.

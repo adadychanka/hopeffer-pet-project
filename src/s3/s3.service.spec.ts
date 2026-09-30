@@ -1,20 +1,18 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { ConfigService } from '@nestjs/config';
+import type { Env } from '../config/env.js';
 import { S3Service } from './s3.service.js';
 
 describe('S3Service', () => {
-  const originalEnv = { ...process.env };
-
-  afterEach(() => {
-    process.env = { ...originalEnv };
-  });
-
-  it('builds its client from the S3_* env vars', async () => {
-    process.env.S3_ENDPOINT = 'https://s3.internal:9500';
-    process.env.S3_REGION = 'eu-central-1';
-    process.env.S3_ACCESS_KEY = 'access';
-    process.env.S3_SECRET_KEY = 'secret';
-
-    const { config } = new S3Service();
+  it('builds its client from the S3_* settings', async () => {
+    const { config } = new S3Service(
+      new ConfigService<Env, true>({
+        S3_ENDPOINT: 'https://s3.internal:9500',
+        S3_REGION: 'eu-central-1',
+        S3_ACCESS_KEY: 'access',
+        S3_SECRET_KEY: 'secret',
+      }),
+    );
 
     expect(await config.endpoint?.()).toMatchObject({
       protocol: 'https:',
@@ -27,25 +25,5 @@ describe('S3Service', () => {
       secretAccessKey: 'secret',
     });
     expect(config.forcePathStyle).toBe(true);
-  });
-
-  it('falls back to local defaults when S3_* env vars are unset', async () => {
-    delete process.env.S3_ENDPOINT;
-    delete process.env.S3_REGION;
-    delete process.env.S3_ACCESS_KEY;
-    delete process.env.S3_SECRET_KEY;
-
-    const { config } = new S3Service();
-
-    expect(await config.endpoint?.()).toMatchObject({
-      protocol: 'http:',
-      hostname: 'localhost',
-      port: 9000,
-    });
-    expect(await config.region()).toBe('us-east-1');
-    expect(await config.credentials()).toMatchObject({
-      accessKeyId: '',
-      secretAccessKey: '',
-    });
   });
 });
