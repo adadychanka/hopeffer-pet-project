@@ -131,6 +131,8 @@ pnpm run migration:run    # apply the database migrations
 ```bash
 pnpm run start:dev              # watch mode
 curl http://localhost:3000/     # {"message":"Hello World!"}
+curl http://localhost:3000/live    # liveness: no dependency checks
+curl http://localhost:3000/ready   # readiness: 503 if postgres, redis, rustfs or opensearch is down
 
 pnpm run build && pnpm run start:prod   # production build
 ```
