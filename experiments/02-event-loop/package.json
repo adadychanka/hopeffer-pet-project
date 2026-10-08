@@ -1,0 +1,42 @@
+{
+  "name": "event-loop-experiment",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=24",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.5.1",
+      "onFail": "download"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/main.js",
+    "start:cluster": "node dist/cluster.js",
+    "check:cluster": "pnpm run build && node bench/check-cluster.mjs",
+    "bench": "pnpm run build && node bench/run.mjs"
+  },
+  "dependencies": {
+    "@nestjs/common": "^12.0.4",
+    "@nestjs/core": "^12.0.4",
+    "@nestjs/platform-express": "^12.0.4",
+    "piscina": "^5.3.2",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "autocannon": "^8.0.0",
+    "typescript": "^6.0.3"
+  }
+}

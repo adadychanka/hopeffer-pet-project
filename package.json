@@ -52,7 +52,7 @@
   },
   "lint-staged": {
     "*.ts": [
-      "oxlint --type-aware --fix",
+      "oxlint --type-aware --fix --no-error-on-unmatched-pattern",
       "prettier --write"
     ]
   },
