@@ -10,7 +10,8 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['dist', 'node_modules', 'coverage'],
+    // experiments/ holds separate apps with their own package.json.
+    ignores: ['dist', 'node_modules', 'coverage', 'experiments'],
   },
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
