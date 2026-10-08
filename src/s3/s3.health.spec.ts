@@ -37,7 +37,7 @@ describe('S3HealthIndicator', () => {
 
   it('is down with the error message when S3 rejects the request', async () => {
     const s3 = s3Service();
-    vi.spyOn(s3, 'send').mockRejectedValue(new Error('Access Denied') as never);
+    vi.spyOn(s3, 'send').mockRejectedValue(new Error('Access Denied'));
     const indicator = new S3HealthIndicator(s3, new HealthIndicatorService());
 
     expect(await indicator.isHealthy('s3')).toMatchObject({

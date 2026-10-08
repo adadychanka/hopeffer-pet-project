@@ -48,7 +48,7 @@ describe('OpensearchHealthIndicator', () => {
   it('is down with the error message when ping throws', async () => {
     const opensearch = opensearchService();
     vi.spyOn(opensearch, 'ping').mockRejectedValue(
-      new Error('connect ECONNREFUSED') as never,
+      new Error('connect ECONNREFUSED'),
     );
     const indicator = new OpensearchHealthIndicator(
       opensearch,
