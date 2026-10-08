@@ -1,0 +1,4 @@
+# Separate pnpm root, so the main project's install and lockfile never see
+# this experiment. The supply chain rules match the root pnpm-workspace.yaml.
+minimumReleaseAge: 4320
+trustPolicy: no-downgrade
