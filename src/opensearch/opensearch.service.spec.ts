@@ -15,17 +15,13 @@ function connection(settings: Partial<Env>) {
 
 describe('OpensearchService', () => {
   it('connects to the node from OPENSEARCH_NODE without auth or a custom CA', () => {
-    const service = new OpensearchService(
-      new ConfigService<Env, true>({
-        OPENSEARCH_NODE: 'http://opensearch.internal:9200',
-      }),
-    );
+    const { url, headers, ssl } = connection({
+      OPENSEARCH_NODE: 'http://opensearch.internal:9200',
+    });
 
-    expect(service.connectionPool.connections.map((c) => c.url.href)).toEqual([
-      'http://opensearch.internal:9200/',
-    ]);
-    expect(connection({}).headers).not.toHaveProperty('authorization');
-    expect(connection({}).ssl).toBeNull();
+    expect(url.href).toBe('http://opensearch.internal:9200/');
+    expect(headers).not.toHaveProperty('authorization');
+    expect(ssl).toBeNull();
   });
 
   it('sends basic auth from OPENSEARCH_USERNAME and OPENSEARCH_PASSWORD', () => {
@@ -40,8 +36,8 @@ describe('OpensearchService', () => {
   });
 
   it('trusts the CA certificate from OPENSEARCH_CA_CERT', () => {
-    const { ssl } = connection({ OPENSEARCH_CA_CERT: 'test CA' });
+    const pem = '-----BEGIN CERTIFICATE-----\ntest\n-----END CERTIFICATE-----';
 
-    expect(ssl?.ca).toBe('test CA');
+    expect(connection({ OPENSEARCH_CA_CERT: pem }).ssl?.ca).toBe(pem);
   });
 });
