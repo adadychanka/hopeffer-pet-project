@@ -55,7 +55,7 @@ Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `buil
 
 `ConfigModule` (registered globally in `AppModule`) reads the settings from environment variables and, when the file exists, from `.env`. Real environment variables win over `.env`, so containers and CI set them directly. At startup the values are validated against the zod schema in `src/config/env.ts`: the app refuses to start and lists every missing or invalid variable, instead of silently connecting to the wrong place. `.env.example` documents every setting with the local values.
 
-Services read settings by injecting `ConfigService<Env, true>` and calling `config.get('NAME', { infer: true })`. The TypeORM CLI (`src/database/data-source.ts`) runs outside Nest, so it loads `.env` itself.
+Services read settings by injecting `ConfigService<Env, true>` and calling `config.get('NAME', { infer: true })`. The TypeORM CLI (`src/database/data-source.ts`) runs outside Nest, so it loads `.env` itself and validates only `DATABASE_URL`, with the same schema.
 
 ### Database: TypeORM + PostgreSQL
 
@@ -76,11 +76,11 @@ pnpm run migration:revert                                    # undo the last mig
 
 ### Object storage: RustFS
 
-`S3Service` (`src/s3/`) extends the AWS SDK's `S3Client` directly, configured from `S3_ENDPOINT`/`S3_REGION`/`S3_ACCESS_KEY`/`S3_SECRET_KEY`, exported globally via `S3Module`. It uses path-style URLs (`host/bucket/key`), which self-hosted S3 servers expect. Locally it talks to [RustFS](https://github.com/rustfs/rustfs); MinIO no longer publishes Docker images. Console at `http://localhost:9001` (default creds `rustfsadmin`/`rustfsadmin`).
+`S3Service` (`src/s3/`) extends the AWS SDK's `S3Client` directly, configured from `S3_ENDPOINT`/`S3_REGION`/`S3_ACCESS_KEY`/`S3_SECRET_KEY`, exported globally via `S3Module`. For AWS S3, leave `S3_ENDPOINT` unset. Leave both keys unset to let the SDK find credentials itself (`AWS_*` env vars, IRSA or workload identity, container or instance role); setting only one of them stops the app at startup. It uses path-style URLs (`host/bucket/key`), which self-hosted S3 servers expect. Locally it talks to [RustFS](https://github.com/rustfs/rustfs); MinIO no longer publishes Docker images. Console at `http://localhost:9001` (default creds `rustfsadmin`/`rustfsadmin`).
 
 ### Search: OpenSearch
 
-`OpensearchService` (`src/opensearch/`) extends the official client's `Client` directly, configured from `OPENSEARCH_NODE`, exported globally via `OpensearchModule`. Local Compose instance runs with the security plugin disabled (dev only).
+`OpensearchService` (`src/opensearch/`) extends the official client's `Client` directly, configured from `OPENSEARCH_NODE`, exported globally via `OpensearchModule`. For a secured cluster, set `OPENSEARCH_USERNAME` and `OPENSEARCH_PASSWORD` together for basic auth, and `OPENSEARCH_CA_CERT` to the PEM text of the CA when a public CA did not sign the cluster's certificate. Local Compose instance runs with the security plugin disabled (dev only).
 
 ### Logging: Pino
 

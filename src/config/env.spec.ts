@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validateEnv } from './env.js';
+import { validateEnv, validateMigrationEnv } from './env.js';
 
 const validEnv = {
   DATABASE_URL: 'postgresql://user:pass@localhost:5432/db',
@@ -51,6 +51,69 @@ describe('validateEnv', () => {
     expect(() => validateEnv({ ...validEnv, PORT: '0' })).toThrow(/PORT/);
     expect(() => validateEnv({ ...validEnv, LOG_LEVEL: 'loud' })).toThrow(
       /LOG_LEVEL/,
+    );
+  });
+
+  it('leaves the S3 endpoint and keys to the AWS SDK when they are unset', () => {
+    const {
+      S3_ENDPOINT: _endpoint,
+      S3_ACCESS_KEY: _accessKey,
+      S3_SECRET_KEY: _secretKey,
+      ...withoutS3
+    } = validEnv;
+
+    expect(validateEnv(withoutS3)).toEqual({
+      ...withoutS3,
+      PORT: 3000,
+      S3_REGION: 'us-east-1',
+    });
+  });
+
+  it('keeps the OpenSearch credentials and CA certificate', () => {
+    const openSearch = {
+      OPENSEARCH_USERNAME: 'admin',
+      OPENSEARCH_PASSWORD: 'secret',
+      OPENSEARCH_CA_CERT: '-----BEGIN CERTIFICATE-----\\n...',
+    };
+
+    expect(validateEnv({ ...validEnv, ...openSearch })).toMatchObject(
+      openSearch,
+    );
+  });
+
+  it.each([
+    ['S3_ACCESS_KEY', 'S3_SECRET_KEY', { S3_SECRET_KEY: undefined }],
+    ['S3_ACCESS_KEY', 'S3_SECRET_KEY', { S3_ACCESS_KEY: undefined }],
+    [
+      'OPENSEARCH_USERNAME',
+      'OPENSEARCH_PASSWORD',
+      { OPENSEARCH_USERNAME: 'a' },
+    ],
+    [
+      'OPENSEARCH_USERNAME',
+      'OPENSEARCH_PASSWORD',
+      { OPENSEARCH_PASSWORD: 'p' },
+    ],
+  ])('rejects %s without %s', (a, b, change) => {
+    expect(() => validateEnv({ ...validEnv, ...change })).toThrow(
+      `Set ${a} and ${b} together, or leave both unset`,
+    );
+  });
+});
+
+describe('validateMigrationEnv', () => {
+  it('needs only DATABASE_URL', () => {
+    expect(
+      validateMigrationEnv({ DATABASE_URL: validEnv.DATABASE_URL }),
+    ).toEqual({ DATABASE_URL: validEnv.DATABASE_URL });
+  });
+
+  it('names a missing or invalid DATABASE_URL', () => {
+    expect(() => validateMigrationEnv({})).toThrow(
+      /Invalid environment variables:[\s\S]*DATABASE_URL/,
+    );
+    expect(() => validateMigrationEnv({ DATABASE_URL: 'nope' })).toThrow(
+      /DATABASE_URL/,
     );
   });
 });
