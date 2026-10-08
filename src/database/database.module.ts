@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { TerminusModule } from '@nestjs/terminus';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import type { Env } from '../config/env.js';
+import { DatabaseHealthIndicator } from './database.health.js';
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import type { Env } from '../config/env.js';
         autoLoadEntities: true,
       }),
     }),
+    TerminusModule,
   ],
+  providers: [DatabaseHealthIndicator],
 })
 export class DatabaseModule {}
