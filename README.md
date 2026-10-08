@@ -76,7 +76,7 @@ pnpm run migration:revert                                    # undo the last mig
 
 ### Object storage: RustFS
 
-`S3Service` (`src/s3/`) extends the AWS SDK's `S3Client` directly, configured from `S3_ENDPOINT`/`S3_REGION`/`S3_ACCESS_KEY`/`S3_SECRET_KEY`, exported globally via `S3Module`. For AWS S3, leave `S3_ENDPOINT` unset, and leave `S3_REGION` unset to use `AWS_REGION`. Leave both keys unset to let the SDK find credentials itself (`AWS_*` env vars, IRSA or workload identity, container or instance role); setting only one of them stops the app at startup. With `S3_ENDPOINT` set it uses path-style URLs (`host/bucket/key`), which self-hosted S3 servers expect. Locally it talks to [RustFS](https://github.com/rustfs/rustfs); MinIO no longer publishes Docker images. Console at `http://localhost:9001` (default creds `rustfsadmin`/`rustfsadmin`).
+`S3Service` (`src/s3/`) extends the AWS SDK's `S3Client` directly, configured from `S3_ENDPOINT`/`S3_REGION`/`S3_ACCESS_KEY`/`S3_SECRET_KEY`, exported globally via `S3Module`. For AWS S3, leave `S3_ENDPOINT` unset, and leave `S3_REGION` unset to use `AWS_REGION`. Leave both keys unset to let the SDK find credentials itself (`AWS_*` env vars, IRSA or workload identity, container or instance role); setting only one of them stops the app at startup. With `S3_ENDPOINT` set it uses path-style URLs (`host/bucket/key`), which self-hosted S3 servers expect. Locally it talks to [RustFS](https://github.com/rustfs/rustfs); MinIO no longer publishes Docker images. Console at `http://localhost:9001` (default creds `rustfsadmin`/`rustfsadmin`). The `/ready` check calls `ListBuckets`, so on AWS the app's role needs `s3:ListAllMyBuckets`; without it, no pod becomes ready.
 
 ### Search: OpenSearch
 
