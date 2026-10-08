@@ -10,6 +10,7 @@ import type { Env } from '../config/env.js';
       useFactory: (config: ConfigService<Env, true>) => ({
         type: 'postgres',
         url: config.get('DATABASE_URL', { infer: true }),
+        extra: { max: config.get('DB_POOL_SIZE', { infer: true }) },
         // Entities register through TypeOrmModule.forFeature() in feature modules.
         autoLoadEntities: true,
       }),

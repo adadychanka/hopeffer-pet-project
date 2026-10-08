@@ -1,10 +1,33 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ConfigService } from '@nestjs/config';
 import type { Env } from '../config/env.js';
 import { S3Service } from './s3.service.js';
 
+// Settings the AWS SDK reads on its own. Clear them, so the machine that runs
+// the tests cannot change what the client resolves.
+const sdkEnv = [
+  'AWS_REGION',
+  'AWS_DEFAULT_REGION',
+  'AWS_ACCESS_KEY_ID',
+  'AWS_SECRET_ACCESS_KEY',
+  'AWS_SESSION_TOKEN',
+  'AWS_PROFILE',
+  'AWS_ENDPOINT_URL',
+  'AWS_ENDPOINT_URL_S3',
+];
+
 describe('S3Service', () => {
-  it('builds its client from the S3_* settings', async () => {
+  beforeEach(() => {
+    for (const name of sdkEnv) vi.stubEnv(name, undefined);
+    vi.stubEnv('AWS_CONFIG_FILE', '/nonexistent/aws-config');
+    vi.stubEnv('AWS_SHARED_CREDENTIALS_FILE', '/nonexistent/aws-credentials');
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('builds a path-style client from the S3_* settings', async () => {
     const { config } = new S3Service(
       new ConfigService<Env, true>({
         S3_ENDPOINT: 'https://s3.internal:9500',
@@ -25,5 +48,21 @@ describe('S3Service', () => {
       secretAccessKey: 'secret',
     });
     expect(config.forcePathStyle).toBe(true);
+  });
+
+  it('leaves the endpoint, region and credentials to the AWS SDK when S3_* are unset', async () => {
+    vi.stubEnv('AWS_REGION', 'eu-west-1');
+    vi.stubEnv('AWS_ACCESS_KEY_ID', 'chain-access');
+    vi.stubEnv('AWS_SECRET_ACCESS_KEY', 'chain-secret');
+
+    const { config } = new S3Service(new ConfigService<Env, true>({}));
+
+    expect(config.isCustomEndpoint).toBe(false);
+    expect(config.forcePathStyle).toBe(false);
+    expect(await config.region()).toBe('eu-west-1');
+    expect(await config.credentials()).toMatchObject({
+      accessKeyId: 'chain-access',
+      secretAccessKey: 'chain-secret',
+    });
   });
 });
