@@ -6,10 +6,13 @@ import { z } from 'zod';
 // wrong place. Connection settings have no defaults on purpose: .env.example
 // holds the local values.
 const settings = z.object({
-  NODE_ENV: z.string().optional(),
+  NODE_ENV: z.enum(['development', 'production', 'test']).optional(),
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
 
   DATABASE_URL: z.url(),
+  // Connections per app instance. Size it so replicas × DB_POOL_SIZE stays under
+  // the server's max_connections. Same default as node-postgres.
+  DB_POOL_SIZE: z.coerce.number().int().min(1).default(10),
   REDIS_URL: z.url(),
 
   // Leave S3_ENDPOINT unset for AWS S3. Leave S3_REGION unset to let the AWS

@@ -12,19 +12,27 @@ const validEnv = {
 
 describe('validateEnv', () => {
   it('accepts a complete environment and fills in the defaults', () => {
-    expect(validateEnv(validEnv)).toEqual({ ...validEnv, PORT: 3000 });
+    expect(validateEnv(validEnv)).toEqual({
+      ...validEnv,
+      PORT: 3000,
+      DB_POOL_SIZE: 10,
+    });
   });
 
   it('parses PORT as a number and keeps optional settings', () => {
     const env = validateEnv({
       ...validEnv,
       PORT: '8080',
+      NODE_ENV: 'production',
+      DB_POOL_SIZE: '25',
       LOG_LEVEL: 'debug',
       LOG_FILE: 'logs/app',
     });
 
     expect(env).toMatchObject({
       PORT: 8080,
+      NODE_ENV: 'production',
+      DB_POOL_SIZE: 25,
       LOG_LEVEL: 'debug',
       LOG_FILE: 'logs/app',
     });
@@ -48,6 +56,12 @@ describe('validateEnv', () => {
     expect(() => validateEnv({ ...validEnv, LOG_LEVEL: 'loud' })).toThrow(
       /LOG_LEVEL/,
     );
+    expect(() => validateEnv({ ...validEnv, NODE_ENV: 'prod' })).toThrow(
+      /NODE_ENV/,
+    );
+    expect(() => validateEnv({ ...validEnv, DB_POOL_SIZE: '0' })).toThrow(
+      /DB_POOL_SIZE/,
+    );
   });
 
   it('leaves the S3 endpoint and keys to the AWS SDK when they are unset', () => {
@@ -58,7 +72,11 @@ describe('validateEnv', () => {
       ...withoutS3
     } = validEnv;
 
-    expect(validateEnv(withoutS3)).toEqual({ ...withoutS3, PORT: 3000 });
+    expect(validateEnv(withoutS3)).toEqual({
+      ...withoutS3,
+      PORT: 3000,
+      DB_POOL_SIZE: 10,
+    });
   });
 
   it('rejects input that is not an object without throwing', () => {
