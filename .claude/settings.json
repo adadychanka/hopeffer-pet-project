@@ -1,4 +1,11 @@
 {
+  "permissions": {
+    "deny": [
+      "Edit(/.claude/settings.json)",
+      "Edit(/.claude/settings.local.json)",
+      "Edit(/.claude/hooks/**)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -15,5 +22,36 @@
         ]
       }
     ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "failIfUnavailable": true,
+    "allowUnsandboxedCommands": false,
+    "excludedCommands": [
+      "docker compose *",
+      "pnpm run ci *",
+      "rtk pnpm run ci *",
+      "pnpm run test:e2e *",
+      "rtk pnpm run test:e2e *",
+      "pnpm run secrets:scan *",
+      "rtk pnpm run secrets:scan *",
+      "pnpm run docker:up *",
+      "rtk pnpm run docker:up *",
+      "pnpm run docker:down *",
+      "rtk pnpm run docker:down *",
+      "git push *",
+      "rtk git push *"
+    ],
+    "filesystem": {
+      "allowWrite": ["~/Library/pnpm", "~/Library/Caches/pnpm"],
+      "denyWrite": [
+        "./.husky",
+        "./scripts/trufflehog.sh",
+        "./pnpm-workspace.yaml"
+      ]
+    },
+    "network": {
+      "allowedDomains": ["registry.npmjs.org", "github.com", "api.github.com"]
+    }
   }
 }
