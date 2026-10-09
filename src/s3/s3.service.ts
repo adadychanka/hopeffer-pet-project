@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, type OnApplicationShutdown } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { S3Client } from '@aws-sdk/client-s3';
 import type { Env } from '../config/env.js';
@@ -6,7 +6,7 @@ import type { Env } from '../config/env.js';
 /* v8 ignore start -- TS __decorate helper branch, not app logic */
 @Injectable()
 /* v8 ignore stop */
-export class S3Service extends S3Client {
+export class S3Service extends S3Client implements OnApplicationShutdown {
   constructor(config: ConfigService<Env, true>) {
     // The env schema allows both keys or neither.
     const accessKeyId = config.get('S3_ACCESS_KEY', { infer: true });
@@ -27,5 +27,11 @@ export class S3Service extends S3Client {
       // and deprecates the path style.
       forcePathStyle: endpoint !== undefined,
     });
+  }
+
+  // Nest runs this after the HTTP server has closed. Frees the SDK's
+  // keep-alive sockets.
+  onApplicationShutdown(): void {
+    this.destroy();
   }
 }

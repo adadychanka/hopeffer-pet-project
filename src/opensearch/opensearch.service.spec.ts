@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ConfigService } from '@nestjs/config';
 import type { Env } from '../config/env.js';
 import { OpensearchService } from './opensearch.service.js';
@@ -39,5 +39,18 @@ describe('OpensearchService', () => {
     const pem = '-----BEGIN CERTIFICATE-----\ntest\n-----END CERTIFICATE-----';
 
     expect(connection({ OPENSEARCH_CA_CERT: pem }).ssl?.ca).toBe(pem);
+  });
+
+  it('closes its connections when the app shuts down', async () => {
+    const opensearch = new OpensearchService(
+      new ConfigService<Env, true>({
+        OPENSEARCH_NODE: 'http://localhost:9200',
+      }),
+    );
+    const close = vi.spyOn(opensearch, 'close').mockResolvedValue(undefined);
+
+    await opensearch.onApplicationShutdown();
+
+    expect(close).toHaveBeenCalledOnce();
   });
 });
