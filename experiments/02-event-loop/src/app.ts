@@ -1,9 +1,10 @@
 import 'reflect-metadata';
+import type { INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 import { HeavyService } from './heavy.service.js';
 
-export async function bootstrap(): Promise<void> {
+export async function bootstrap(): Promise<INestApplication> {
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn'],
   });
@@ -22,4 +23,5 @@ export async function bootstrap(): Promise<void> {
       poolThreads: heavy.poolThreads,
     }),
   );
+  return app;
 }

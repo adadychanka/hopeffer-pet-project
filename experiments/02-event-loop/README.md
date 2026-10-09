@@ -17,9 +17,8 @@ does not belong in the product.
   `HEAVY_MODE=pool` runs it in a [piscina](https://github.com/piscinajs/piscina)
   thread pool (`src/heavy.service.ts`, `src/heavy.worker.ts`).
 - `dist/main.js` starts one process. `dist/cluster.js` starts a `node:cluster`
-  primary with `WEB_CONCURRENCY` workers (default 1). The primary forks a new
-  worker when one dies. On SIGTERM or SIGINT it stops all workers and forks
-  none (`src/cluster.ts`).
+  primary with `WEB_CONCURRENCY` workers (default 1), see
+  [Cluster: restart and shutdown](#cluster-restart-and-shutdown).
 
 ```bash
 pnpm install
@@ -30,6 +29,54 @@ WEB_CONCURRENCY=4 pnpm run start:cluster   # cluster, 4 workers
 pnpm run check:cluster                     # checks restart and SIGTERM rules
 pnpm run bench                             # all measurements, about 16 min
 ```
+
+## Cluster: restart and shutdown
+
+`src/cluster.ts` follows two rules:
+
+- **A worker that dies is replaced.** On the `exit` event the primary forks a
+  new worker, unless the worker was stopped on purpose.
+- **SIGTERM or SIGINT stops all workers and starts none.** The primary calls
+  `worker.disconnect()` on each worker. The worker stops accepting
+  connections, finishes the requests it has, closes the Nest app and exits. A
+  second signal during shutdown is ignored. A worker still running after
+  `SHUTDOWN_TIMEOUT_MS` (default 10 000) gets SIGKILL. The primary exits with
+  code 0 after the last worker.
+
+"Stopped on purpose" is `worker.exitedAfterDisconnect`. It is `true` only when
+the worker exited after `worker.disconnect()`. After `worker.kill()` or
+`worker.process.kill('SIGTERM')` it stays `false`, so a primary that uses those
+cannot tell a shutdown from a crash by this flag.
+
+Two traps found while building it:
+
+- `worker.disconnect()` sends no signal, so Nest's `enableShutdownHooks()`
+  does not fire and `onApplicationShutdown` hooks do not run. The worker calls
+  `app.close()` on its `disconnect` event.
+- Node removes a worker from `cluster.workers` on `disconnect`, before the
+  process exits. A primary that exits when `cluster.workers` is empty exits
+  while a worker still answers a request. In Docker the primary is PID 1, so
+  its exit kills the container and that request. The primary keeps its own
+  set of workers it waits for.
+
+`pnpm run check:cluster` checks this automatically. To see it yourself:
+
+```bash
+pnpm run build
+PORT=3000 WEB_CONCURRENCY=2 HEAVY_ITERATIONS=3000000 node dist/cluster.js
+# the log shows the primary pid ("primary-started") and the worker pids ("listening")
+# in a second terminal
+kill -9 <worker pid>                          # log: worker-restart, a new "listening"
+curl localhost:3000/heavy &                   # takes about 0.5 s
+kill -TERM <primary pid>; sleep 0.1; kill -TERM <primary pid>
+# curl prints {"length":128}; log: stopping, stopping-already,
+# worker-stopped with exitedAfterDisconnect true for each worker,
+# primary-stopped, and no new "listening"
+```
+
+Without the `sleep`, the kernel can merge the two signals into one, because a
+second SIGTERM that arrives before the first is handled is not queued. The log
+then has no `stopping-already` line.
 
 ## Method
 
