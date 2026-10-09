@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import type { HealthIndicatorResult } from '@nestjs/terminus';
 import { Test } from '@nestjs/testing';
 import { HealthController } from './health.controller.js';
@@ -26,7 +27,10 @@ async function controllerWith(
   ...indicators: (typeof HealthyIndicator | typeof FailingIndicator)[]
 ): Promise<HealthController> {
   const moduleRef = await Test.createTestingModule({
-    imports: [HealthModule],
+    imports: [
+      ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true }),
+      HealthModule,
+    ],
     providers: indicators,
   }).compile();
   moduleRef.useLogger(false);

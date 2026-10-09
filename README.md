@@ -139,6 +139,10 @@ pnpm run build && pnpm run start:prod   # production build
 
 The app reads `.env` from the current directory. Without it, or with a setting missing, it stops at startup and names the variables to fix.
 
+## Shutdown
+
+On SIGTERM, `/ready` answers 503 for `SHUTDOWN_DRAIN_MS` (default 5000) while the app still serves, so the load balancer stops sending traffic. Then the server stops taking connections, finishes the requests in flight, closes Postgres, Redis, S3 and OpenSearch, and exits with code 0. Ctrl+C (SIGINT) skips the drain wait. In Kubernetes, keep `terminationGracePeriodSeconds` (default 30 s) well above `SHUTDOWN_DRAIN_MS`: a request that never finishes holds the shutdown until Kubernetes kills the pod, and keep-alive connections can add up to 5 s.
+
 ## Run in a Docker sandbox
 
 Why Docker Sandboxes: they are easy to set up and run, and ship ready-made images for Claude Code. They still isolate the agent from the host well. Credentials such as the GitHub token stay on the host, and the sandbox proxy injects them, so they are never stored inside the sandbox. Network access is easy to control. Machine resources have no fixed static limits, so the developer experience is close to native development. For local development, this is the best option I found.
