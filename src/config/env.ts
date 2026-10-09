@@ -8,6 +8,11 @@ import { z } from 'zod';
 const settings = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).optional(),
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+  // After SIGTERM, /ready answers 503 for this long while the app still
+  // serves, so the load balancer stops sending traffic before the server
+  // closes. Terminus waits only on SIGTERM, so Ctrl+C stops at once. Keep it
+  // well under the orchestrator's grace period (Kubernetes: 30 s).
+  SHUTDOWN_DRAIN_MS: z.coerce.number().int().min(0).default(5000),
 
   DATABASE_URL: z.url(),
   // Connections per app instance. Size it so replicas × DB_POOL_SIZE stays under

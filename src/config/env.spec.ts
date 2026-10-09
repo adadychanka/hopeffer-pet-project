@@ -16,7 +16,23 @@ describe('validateEnv', () => {
       ...validEnv,
       PORT: 3000,
       DB_POOL_SIZE: 10,
+      SHUTDOWN_DRAIN_MS: 5000,
     });
+  });
+
+  it('parses SHUTDOWN_DRAIN_MS as a number, and accepts 0', () => {
+    expect(validateEnv({ ...validEnv, SHUTDOWN_DRAIN_MS: '0' })).toMatchObject({
+      SHUTDOWN_DRAIN_MS: 0,
+    });
+  });
+
+  it('rejects a negative or fractional SHUTDOWN_DRAIN_MS', () => {
+    expect(() => validateEnv({ ...validEnv, SHUTDOWN_DRAIN_MS: '-1' })).toThrow(
+      /SHUTDOWN_DRAIN_MS/,
+    );
+    expect(() =>
+      validateEnv({ ...validEnv, SHUTDOWN_DRAIN_MS: '1.5' }),
+    ).toThrow(/SHUTDOWN_DRAIN_MS/);
   });
 
   it('parses PORT as a number and keeps optional settings', () => {
@@ -76,6 +92,7 @@ describe('validateEnv', () => {
       ...withoutS3,
       PORT: 3000,
       DB_POOL_SIZE: 10,
+      SHUTDOWN_DRAIN_MS: 5000,
     });
   });
 
