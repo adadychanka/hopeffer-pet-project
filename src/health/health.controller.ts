@@ -15,12 +15,16 @@ export class HealthController {
     private readonly readiness: ReadinessRegistry,
   ) {}
 
-  // Liveness: 200 while the process serves HTTP. It checks no dependency, so
-  // an outage of Postgres or Redis never makes Kubernetes restart the pod.
+  // Liveness: 200 while the process serves HTTP, also during the shutdown
+  // drain. It checks no dependency, so an outage of Postgres or Redis never
+  // makes Kubernetes restart the pod. It does not call terminus: after SIGTERM
+  // terminus reports every check as shutting_down (503), and a failing
+  // liveness probe can make Kubernetes kill the pod mid-drain. The body has
+  // the same shape as /ready.
   @Get('live')
   @HealthCheck()
-  live(): Promise<HealthCheckResult> {
-    return this.health.check([]);
+  live(): HealthCheckResult {
+    return { status: 'ok', info: {}, error: {}, details: {} };
   }
 
   // Readiness: 200 while every registered check is up, 503 otherwise. Each

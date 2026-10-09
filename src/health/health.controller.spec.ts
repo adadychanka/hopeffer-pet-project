@@ -42,7 +42,7 @@ describe('HealthController', () => {
   it('live() reports ok and runs no checks', async () => {
     const controller = await controllerWith(FailingIndicator);
 
-    expect(await controller.live()).toEqual({
+    expect(controller.live()).toEqual({
       status: 'ok',
       info: {},
       error: {},
@@ -69,6 +69,35 @@ describe('HealthController', () => {
       status: 'error',
       info: { healthy: { status: 'up' } },
       error: { failing: { status: 'down', message: 'refused' } },
+    });
+  });
+
+  it('live() keeps reporting ok after shutdown has started, while ready() reports shutting_down', async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true }),
+        HealthModule,
+      ],
+      providers: [HealthyIndicator],
+    }).compile();
+    moduleRef.useLogger(false);
+    await moduleRef.init();
+    const controller = moduleRef.get(HealthController);
+
+    // close() runs beforeApplicationShutdown, where terminus marks itself as
+    // shutting down. SHUTDOWN_DRAIN_MS is unset, so it does not wait.
+    await moduleRef.close();
+
+    expect(controller.live()).toEqual({
+      status: 'ok',
+      info: {},
+      error: {},
+      details: {},
+    });
+    const error = await controller.ready().catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(ServiceUnavailableException);
+    expect((error as ServiceUnavailableException).getResponse()).toMatchObject({
+      status: 'shutting_down',
     });
   });
 });

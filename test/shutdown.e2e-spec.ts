@@ -69,7 +69,7 @@ describe('Graceful shutdown (e2e)', () => {
     child = undefined;
   });
 
-  it('on SIGTERM answers /ready with 503 during the drain, then exits with code 0', async () => {
+  it('on SIGTERM answers /ready with 503 and /live with 200 during the drain, then exits with code 0', async () => {
     const { app, url } = await startApp();
     const exited = exitOf(app);
 
@@ -80,6 +80,7 @@ describe('Graceful shutdown (e2e)', () => {
     const ready = await fetch(`${url}/ready`);
     expect(ready.status).toBe(503);
     expect(await ready.json()).toMatchObject({ status: 'shutting_down' });
+    expect((await fetch(`${url}/live`)).status).toBe(200);
 
     expect(await exited).toEqual({ code: 0, signal: null });
     await expect(fetch(`${url}/ready`)).rejects.toThrow();
