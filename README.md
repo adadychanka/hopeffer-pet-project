@@ -14,6 +14,8 @@ Containers: what the system consists of today. `docker-compose.yml` runs the fou
 
 ![Container diagram](docs/architecture/c4-container.drawio.svg)
 
+Everything that is planned is in a separate case: [Marketplace v1](docs/system-design/marketplace-v1/README.md).
+
 ## Tech stack decisions
 
 | Area            | Choice                                                                                                                                     | Why                                                                                                                                                               |
