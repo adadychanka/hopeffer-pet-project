@@ -16,6 +16,7 @@ describe('validateEnv', () => {
       ...validEnv,
       PORT: 3000,
       DB_POOL_SIZE: 10,
+      DB_SLOW_QUERY_MS: 500,
       SHUTDOWN_DRAIN_MS: 5000,
     });
   });
@@ -60,6 +61,18 @@ describe('validateEnv', () => {
     expect(
       validateEnv({ ...validEnv, LOG_FILE: 'logs/app' }),
     ).not.toHaveProperty('LOG_FILE');
+  });
+
+  it('parses DB_SLOW_QUERY_MS as a number, and accepts 0 to turn the log off', () => {
+    expect(validateEnv({ ...validEnv, DB_SLOW_QUERY_MS: '250' })).toMatchObject(
+      { DB_SLOW_QUERY_MS: 250 },
+    );
+    expect(validateEnv({ ...validEnv, DB_SLOW_QUERY_MS: '0' })).toMatchObject({
+      DB_SLOW_QUERY_MS: 0,
+    });
+    expect(() => validateEnv({ ...validEnv, DB_SLOW_QUERY_MS: '-1' })).toThrow(
+      /DB_SLOW_QUERY_MS/,
+    );
   });
 
   it('treats an empty APP_VERSION or APP_ENV as unset', () => {
@@ -107,6 +120,7 @@ describe('validateEnv', () => {
       ...withoutS3,
       PORT: 3000,
       DB_POOL_SIZE: 10,
+      DB_SLOW_QUERY_MS: 500,
       SHUTDOWN_DRAIN_MS: 5000,
     });
   });

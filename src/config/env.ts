@@ -19,6 +19,8 @@ const settings = z.object({
   // Connections per app instance. Size it so replicas × DB_POOL_SIZE stays under
   // the server's max_connections. Same default as node-postgres.
   DB_POOL_SIZE: z.coerce.number().int().min(1).default(10),
+  // Queries slower than this are logged at warn. 0 turns the slow query log off.
+  DB_SLOW_QUERY_MS: z.coerce.number().int().min(0).default(500),
   REDIS_URL: z.url(),
 
   // Leave S3_ENDPOINT unset for AWS S3. Leave S3_REGION unset to let the AWS

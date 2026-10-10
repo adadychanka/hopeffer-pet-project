@@ -4,6 +4,7 @@ import { TerminusModule } from '@nestjs/terminus';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import type { Env } from '../config/env.js';
 import { DatabaseHealthIndicator } from './database.health.js';
+import { TypeOrmLogger } from './typeorm.logger.js';
 
 @Module({
   imports: [
@@ -13,6 +14,8 @@ import { DatabaseHealthIndicator } from './database.health.js';
         type: 'postgres',
         url: config.get('DATABASE_URL', { infer: true }),
         extra: { max: config.get('DB_POOL_SIZE', { infer: true }) },
+        logger: new TypeOrmLogger(),
+        maxQueryExecutionTime: config.get('DB_SLOW_QUERY_MS', { infer: true }),
         // Entities register through TypeOrmModule.forFeature() in feature modules.
         autoLoadEntities: true,
       }),
