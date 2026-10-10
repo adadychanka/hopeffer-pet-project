@@ -42,7 +42,6 @@ describe('validateEnv', () => {
       NODE_ENV: 'production',
       DB_POOL_SIZE: '25',
       LOG_LEVEL: 'debug',
-      LOG_FILE: 'logs/app',
     });
 
     expect(env).toMatchObject({
@@ -50,8 +49,13 @@ describe('validateEnv', () => {
       NODE_ENV: 'production',
       DB_POOL_SIZE: 25,
       LOG_LEVEL: 'debug',
-      LOG_FILE: 'logs/app',
     });
+  });
+
+  it('no longer has a LOG_FILE setting: logs go to stdout only', () => {
+    expect(
+      validateEnv({ ...validEnv, LOG_FILE: 'logs/app' }),
+    ).not.toHaveProperty('LOG_FILE');
   });
 
   it('ignores env vars the app does not use', () => {

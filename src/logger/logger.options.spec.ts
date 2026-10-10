@@ -38,26 +38,6 @@ describe('loggerOptions', () => {
     ).toMatchObject({ pinoHttp: { transport: undefined } });
   });
 
-  it('adds a rotating file target when LOG_FILE is set', () => {
-    const { pinoHttp } = loggerOptions(
-      config({ LOG_FILE: 'logs/app', LOG_LEVEL: 'warn' }),
-      false,
-    );
-
-    expect(pinoHttp).toMatchObject({
-      transport: {
-        targets: [
-          { target: 'pino/file', level: 'warn', options: { destination: 1 } },
-          {
-            target: 'pino-roll',
-            level: 'warn',
-            options: { file: 'logs/app', frequency: 'daily' },
-          },
-        ],
-      },
-    });
-  });
-
   it('reads the TTY state of stdout by default', () => {
     const { pinoHttp } = loggerOptions(config({ NODE_ENV: 'production' }));
 

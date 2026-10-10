@@ -44,7 +44,6 @@ const settings = z.object({
   LOG_LEVEL: z
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
     .optional(),
-  LOG_FILE: z.string().min(1).optional(),
 });
 
 // Deploy templates often render an unset value as "". Treat it as unset, so
