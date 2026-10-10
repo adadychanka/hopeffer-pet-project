@@ -16,6 +16,7 @@ describe('validateEnv', () => {
       ...validEnv,
       PORT: 3000,
       DB_POOL_SIZE: 10,
+      DB_SLOW_QUERY_MS: 500,
       SHUTDOWN_DRAIN_MS: 5000,
     });
   });
@@ -42,7 +43,8 @@ describe('validateEnv', () => {
       NODE_ENV: 'production',
       DB_POOL_SIZE: '25',
       LOG_LEVEL: 'debug',
-      LOG_FILE: 'logs/app',
+      APP_VERSION: 'abc1234',
+      APP_ENV: 'staging',
     });
 
     expect(env).toMatchObject({
@@ -50,8 +52,34 @@ describe('validateEnv', () => {
       NODE_ENV: 'production',
       DB_POOL_SIZE: 25,
       LOG_LEVEL: 'debug',
-      LOG_FILE: 'logs/app',
+      APP_VERSION: 'abc1234',
+      APP_ENV: 'staging',
     });
+  });
+
+  it('no longer has a LOG_FILE setting: logs go to stdout only', () => {
+    expect(
+      validateEnv({ ...validEnv, LOG_FILE: 'logs/app' }),
+    ).not.toHaveProperty('LOG_FILE');
+  });
+
+  it('parses DB_SLOW_QUERY_MS as a number, and accepts 0 to turn the log off', () => {
+    expect(validateEnv({ ...validEnv, DB_SLOW_QUERY_MS: '250' })).toMatchObject(
+      { DB_SLOW_QUERY_MS: 250 },
+    );
+    expect(validateEnv({ ...validEnv, DB_SLOW_QUERY_MS: '0' })).toMatchObject({
+      DB_SLOW_QUERY_MS: 0,
+    });
+    expect(() => validateEnv({ ...validEnv, DB_SLOW_QUERY_MS: '-1' })).toThrow(
+      /DB_SLOW_QUERY_MS/,
+    );
+  });
+
+  it('treats an empty APP_VERSION or APP_ENV as unset', () => {
+    const env = validateEnv({ ...validEnv, APP_VERSION: '', APP_ENV: '' });
+
+    expect(env).not.toHaveProperty('APP_VERSION');
+    expect(env).not.toHaveProperty('APP_ENV');
   });
 
   it('ignores env vars the app does not use', () => {
@@ -92,6 +120,7 @@ describe('validateEnv', () => {
       ...withoutS3,
       PORT: 3000,
       DB_POOL_SIZE: 10,
+      DB_SLOW_QUERY_MS: 500,
       SHUTDOWN_DRAIN_MS: 5000,
     });
   });

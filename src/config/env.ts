@@ -19,6 +19,8 @@ const settings = z.object({
   // Connections per app instance. Size it so replicas × DB_POOL_SIZE stays under
   // the server's max_connections. Same default as node-postgres.
   DB_POOL_SIZE: z.coerce.number().int().min(1).default(10),
+  // Queries slower than this are logged at warn. 0 turns the slow query log off.
+  DB_SLOW_QUERY_MS: z.coerce.number().int().min(0).default(500),
   REDIS_URL: z.url(),
 
   // Leave S3_ENDPOINT unset for AWS S3. Leave S3_REGION unset to let the AWS
@@ -44,7 +46,12 @@ const settings = z.object({
   LOG_LEVEL: z
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
     .optional(),
-  LOG_FILE: z.string().min(1).optional(),
+  // Both go on every log line. APP_VERSION is what the deploy runs, for example
+  // a git SHA or an image tag; without it logs carry the package.json version.
+  // APP_ENV names the deployment (staging, production); without it logs carry
+  // NODE_ENV, which is `production` in every deployed environment.
+  APP_VERSION: z.string().min(1).optional(),
+  APP_ENV: z.string().min(1).optional(),
 });
 
 // Deploy templates often render an unset value as "". Treat it as unset, so

@@ -1,55 +1,53 @@
 import type { ConfigService } from '@nestjs/config';
-import type { Params } from 'nestjs-pino';
-import type { TransportTargetOptions } from 'pino';
+import type { Options } from 'pino-http';
 import type { Env } from '../config/env.js';
+import { isPretty, logFormat } from './log-format.js';
+import { requestId } from './request-id.js';
+import { requestLogLevel } from './request-log-level.js';
+import {
+  serializeError,
+  serializeRequest,
+  serializeResponse,
+} from './serializers.js';
 
 export function loggerOptions(
   config: ConfigService<Env, true>,
   isTTY = Boolean(process.stdout.isTTY),
-): Params {
+): { pinoHttp: Options } {
   const nodeEnv = config.get('NODE_ENV', { infer: true });
   const level =
     config.get('LOG_LEVEL', { infer: true }) ??
     (nodeEnv === 'test' ? 'silent' : 'info');
-  const logFile = config.get('LOG_FILE', { infer: true });
-
-  // Pretty output only for a developer terminal. Containers and CI get JSON lines.
-  const pretty = isTTY && nodeEnv !== 'production';
-
-  const consoleTarget: TransportTargetOptions = pretty
-    ? { target: 'pino-pretty', level, options: { singleLine: true } }
-    : { target: 'pino/file', level, options: { destination: 1 } };
-
-  // Opt-in file output with rotation. LOG_FILE is a path such as `logs/app`,
-  // which gives `logs/app.2026-09-25.1.log`. Its folder must hold only these
-  // logs, because rotation also deletes old files that other processes wrote.
-  const fileTarget: TransportTargetOptions | undefined = logFile
-    ? {
-        target: 'pino-roll',
-        level,
-        options: {
-          file: logFile,
-          frequency: 'daily',
-          dateFormat: 'yyyy-MM-dd',
-          size: '10m',
-          limit: { count: 14, removeOtherLogFiles: true },
-          mkdir: true,
-          symlink: true,
-        },
-      }
-    : undefined;
 
   return {
     pinoHttp: {
       level,
-      redact: ['req.headers.authorization', 'req.headers.cookie'],
-      // Without a file and pretty output, skip transports: Pino then writes
-      // straight to stdout without a worker thread.
-      transport: fileTarget
-        ? { targets: [consoleTarget, fileTarget] }
-        : pretty
-          ? consoleTarget
-          : undefined,
+      ...logFormat({
+        APP_VERSION: config.get('APP_VERSION', { infer: true }),
+        APP_ENV: config.get('APP_ENV', { infer: true }),
+        NODE_ENV: nodeEnv,
+      }),
+      genReqId: requestId,
+      // Logs made while a request runs carry only `reqId`. The full `req`
+      // object is on the "request completed" line.
+      quietReqLogger: true,
+      customLogLevel: requestLogLevel,
+      serializers: {
+        req: serializeRequest,
+        res: serializeResponse,
+        err: serializeError,
+      },
+      // Without pretty output there is no transport: Pino then writes straight
+      // to stdout, without a worker thread.
+      transport: isPretty(nodeEnv, isTTY)
+        ? {
+            target: 'pino-pretty',
+            options: {
+              singleLine: true,
+              ignore: 'pid,hostname,service,version,env',
+            },
+          }
+        : undefined,
     },
   };
 }

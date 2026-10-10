@@ -84,11 +84,46 @@ pnpm run migration:revert                                    # undo the last mig
 
 ### Logging: Pino
 
-`LoggerModule` (`src/logger/logger.module.ts`) plugs [nestjs-pino](https://github.com/iamolegga/nestjs-pino) in as the Nest logger. Why Pino over Nest's built-in `ConsoleLogger` or Winston: it is the fastest Node.js logger, it writes JSON lines to stdout that a collector can ship to OpenSearch as they are, and `pino-http` logs every request and attaches the request ID to every log line made while handling it. The `Authorization` and `Cookie` headers are redacted.
+`LoggerModule` (`src/logger/logger.module.ts`) plugs [nestjs-pino](https://github.com/iamolegga/nestjs-pino) in as the Nest logger. Why Pino over Nest's built-in `ConsoleLogger` or Winston: it is the fastest Node.js logger, it writes JSON lines to stdout that a collector can ship to OpenSearch as they are, and `pino-http` logs every request and attaches the request ID to every log line made while handling it.
 
-Keep using Nest's `Logger` from `@nestjs/common` in services (`new Logger(MyService.name)`); its output goes through Pino. Set the level with `LOG_LEVEL` (default `info`, `silent` under tests). Output is pretty-printed with `pino-pretty` in a terminal, and plain JSON when `NODE_ENV=production` or stdout is not a TTY.
+The app writes logs to stdout only. The platform collects them: Docker, Kubernetes and systemd all capture stdout, and a log agent ships it to the log backend. Output is pretty-printed with `pino-pretty` in a terminal, and JSON lines when `NODE_ENV=production` or stdout is not a TTY. Set the level with `LOG_LEVEL` (default `info`, `silent` under tests).
 
-To also write logs to files, set `LOG_FILE` (for example `logs/app`). [pino-roll](https://github.com/mcollina/pino-roll) then writes JSON lines to `logs/app.<date>.<n>.log`, starts a new file every day or at 10 MB, keeps the 14 newest files, and points `logs/current.log` at the active one. Rotation deletes old files in that folder even if another process wrote them, so give the logs a folder of their own. Leave `LOG_FILE` unset in containers and let Docker collect stdout.
+Every JSON line has the same fields:
+
+```json
+{
+  "level": "info",
+  "time": "2026-10-10T14:06:02.162Z",
+  "service": "hopeffer-pet-project",
+  "version": "abc1234",
+  "env": "staging",
+  "pid": 1,
+  "hostname": "api-7d9f",
+  "reqId": "lb-42",
+  "context": "OrdersService",
+  "orderId": 7,
+  "msg": "Order created"
+}
+```
+
+- `level` is a label (`info`, `warn`, `error`, `fatal`) and `time` is an ISO timestamp, so Loki, ELK and Datadog need no mapping rule.
+- `service` is the `package.json` name. `version` is `APP_VERSION` (set it to what the deploy runs: a git SHA or an image tag), or the `package.json` version. `env` is `APP_ENV` (the name of the deployment, for example `staging`), or `NODE_ENV`.
+- `reqId` is the request ID. The app reuses the `x-request-id` header of the request when it is 1 to 128 characters of `A-Z a-z 0-9 . _ -`, and creates a UUID otherwise. It sends the ID back in the `x-request-id` response header, so a user can report it. One exception: a request that the body parser rejects (malformed JSON, a body over the size limit) is answered before the logger runs, so it gets no request ID and no request line.
+
+**Request lines.** `pino-http` writes one line per request when the response is sent, with `req`, `res` and `responseTime`. The level is `error` for a 5xx or a failed response stream, `warn` for a 4xx, and `info` otherwise. A passing `/live` or `/ready` probe is not logged, and a failing one is logged at `warn`. The line that names the failed check (`Health Check has failed!`) is at `warn` too, so an outage of a backing service does not page through the probes.
+
+**What is never logged.** Request and response headers come from the allowlists in `src/logger/serializers.ts`, so `Authorization`, `Cookie`, `Set-Cookie` and any header nobody listed stay out of the logs. Query string values are replaced with `[Redacted]`; the parameter names stay. Request bodies are not logged. An error under the `err` key is logged with a fixed set of fields (`type`, `message`, `stack`, `code`, the HTTP status and what Postgres says about the failed object; the list is in `src/logger/serializers.ts`). So the parameters of a failed query, and the request that a client library attaches to its error, stay out of the logs, also on the crash line. The SQL of a failed query is cut at 2000 characters.
+
+**Crashes.** An error that stops the app (an invalid environment, a failed start, an uncaught exception, an unhandled promise rejection) is written as one `fatal` JSON line by `src/logger/crash.ts`, and the process exits with code 1. In a developer terminal the error is printed as plain text instead.
+
+**Backing services.** TypeORM logs through the same logger (`src/database/typeorm.logger.ts`): a failed query and a query slower than `DB_SLOW_QUERY_MS` (default 500, 0 turns it off) at `warn`, and every query at `debug`, always without the query parameters. Redis client errors are logged at `error`, at most one line every 10 seconds.
+
+**Logging in your code.** Use Nest's `Logger` from `@nestjs/common` (`private readonly logger = new Logger(MyService.name)`). Its output goes through Pino and carries the request ID. Pass the data as fields, not inside the message, and pass an error as `err`:
+
+```ts
+this.logger.log({ msg: 'Order created', orderId });
+this.logger.error({ msg: 'Payment failed', err, orderId });
+```
 
 ### Local infra: Docker Compose
 

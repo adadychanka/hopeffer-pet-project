@@ -5,6 +5,7 @@ import { TerminusModule } from '@nestjs/terminus';
 import { createKeyv } from '@keyv/redis';
 import { createCache } from 'cache-manager';
 import type { Env } from '../config/env.js';
+import { RedisCacheErrors } from './redis-cache.errors.js';
 import { RedisCacheHealthIndicator } from './redis-cache.health.js';
 import { RedisCacheShutdown } from './redis-cache.shutdown.js';
 
@@ -23,6 +24,7 @@ import { RedisCacheShutdown } from './redis-cache.shutdown.js';
           stores: [createKeyv(config.get('REDIS_URL', { infer: true }))],
         }),
     },
+    RedisCacheErrors,
     RedisCacheShutdown,
     RedisCacheHealthIndicator,
   ],

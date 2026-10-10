@@ -1,5 +1,9 @@
-import { describe, expect, it } from 'vitest';
-import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import {
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import type { HealthIndicatorResult } from '@nestjs/terminus';
 import { Test } from '@nestjs/testing';
@@ -39,6 +43,10 @@ async function controllerWith(
 }
 
 describe('HealthController', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('live() reports ok and runs no checks', async () => {
     const controller = await controllerWith(FailingIndicator);
 
@@ -70,6 +78,19 @@ describe('HealthController', () => {
       info: { healthy: { status: 'up' } },
       error: { failing: { status: 'down', message: 'refused' } },
     });
+  });
+
+  it('logs a failed readiness check at warn with the failed check, never at error', async () => {
+    const error = vi.spyOn(Logger.prototype, 'error');
+    const warn = vi.spyOn(Logger.prototype, 'warn');
+    const controller = await controllerWith(HealthyIndicator, FailingIndicator);
+
+    await controller.ready().catch(() => undefined);
+
+    expect(error).not.toHaveBeenCalled();
+    expect(warn).toHaveBeenCalledExactlyOnceWith(
+      expect.stringMatching(/Health Check has failed![\s\S]*failing/),
+    );
   });
 
   it('live() keeps reporting ok after shutdown has started, while ready() reports shutting_down', async () => {
