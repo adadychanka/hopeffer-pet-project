@@ -42,6 +42,8 @@ describe('validateEnv', () => {
       NODE_ENV: 'production',
       DB_POOL_SIZE: '25',
       LOG_LEVEL: 'debug',
+      APP_VERSION: 'abc1234',
+      APP_ENV: 'staging',
     });
 
     expect(env).toMatchObject({
@@ -49,6 +51,8 @@ describe('validateEnv', () => {
       NODE_ENV: 'production',
       DB_POOL_SIZE: 25,
       LOG_LEVEL: 'debug',
+      APP_VERSION: 'abc1234',
+      APP_ENV: 'staging',
     });
   });
 
@@ -56,6 +60,13 @@ describe('validateEnv', () => {
     expect(
       validateEnv({ ...validEnv, LOG_FILE: 'logs/app' }),
     ).not.toHaveProperty('LOG_FILE');
+  });
+
+  it('treats an empty APP_VERSION or APP_ENV as unset', () => {
+    const env = validateEnv({ ...validEnv, APP_VERSION: '', APP_ENV: '' });
+
+    expect(env).not.toHaveProperty('APP_VERSION');
+    expect(env).not.toHaveProperty('APP_ENV');
   });
 
   it('ignores env vars the app does not use', () => {

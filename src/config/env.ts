@@ -44,6 +44,12 @@ const settings = z.object({
   LOG_LEVEL: z
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
     .optional(),
+  // Both go on every log line. APP_VERSION is what the deploy runs, for example
+  // a git SHA or an image tag; without it logs carry the package.json version.
+  // APP_ENV names the deployment (staging, production); without it logs carry
+  // NODE_ENV, which is `production` in every deployed environment.
+  APP_VERSION: z.string().min(1).optional(),
+  APP_ENV: z.string().min(1).optional(),
 });
 
 // Deploy templates often render an unset value as "". Treat it as unset, so

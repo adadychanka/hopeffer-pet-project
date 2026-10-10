@@ -1,27 +1,36 @@
 import type { ConfigService } from '@nestjs/config';
-import type { Params } from 'nestjs-pino';
+import type { Options } from 'pino-http';
 import type { Env } from '../config/env.js';
+import { isPretty, logFormat } from './log-format.js';
 
 export function loggerOptions(
   config: ConfigService<Env, true>,
   isTTY = Boolean(process.stdout.isTTY),
-): Params {
+): { pinoHttp: Options } {
   const nodeEnv = config.get('NODE_ENV', { infer: true });
   const level =
     config.get('LOG_LEVEL', { infer: true }) ??
     (nodeEnv === 'test' ? 'silent' : 'info');
 
-  // Pretty output only for a developer terminal. Containers and CI get JSON lines.
-  const pretty = isTTY && nodeEnv !== 'production';
-
   return {
     pinoHttp: {
       level,
+      ...logFormat({
+        APP_VERSION: config.get('APP_VERSION', { infer: true }),
+        APP_ENV: config.get('APP_ENV', { infer: true }),
+        NODE_ENV: nodeEnv,
+      }),
       redact: ['req.headers.authorization', 'req.headers.cookie'],
       // Without pretty output there is no transport: Pino then writes straight
       // to stdout, synchronously and without a worker thread.
-      transport: pretty
-        ? { target: 'pino-pretty', options: { singleLine: true } }
+      transport: isPretty(nodeEnv, isTTY)
+        ? {
+            target: 'pino-pretty',
+            options: {
+              singleLine: true,
+              ignore: 'pid,hostname,service,version,env',
+            },
+          }
         : undefined,
     },
   };

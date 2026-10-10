@@ -31,7 +31,12 @@ describe('loggerOptions', () => {
 
   it('pretty-prints in a terminal, but not in production', () => {
     expect(loggerOptions(config({}), true)).toMatchObject({
-      pinoHttp: { transport: { target: 'pino-pretty' } },
+      pinoHttp: {
+        transport: {
+          target: 'pino-pretty',
+          options: { ignore: 'pid,hostname,service,version,env' },
+        },
+      },
     });
     expect(
       loggerOptions(config({ NODE_ENV: 'production' }), true),
@@ -42,5 +47,22 @@ describe('loggerOptions', () => {
     const { pinoHttp } = loggerOptions(config({ NODE_ENV: 'production' }));
 
     expect(pinoHttp).toMatchObject({ transport: undefined });
+  });
+
+  it('puts the deployment on every line', () => {
+    const { pinoHttp } = loggerOptions(
+      config({
+        NODE_ENV: 'production',
+        APP_VERSION: 'abc1234',
+        APP_ENV: 'staging',
+      }),
+      false,
+    );
+
+    expect(pinoHttp.base).toMatchObject({
+      service: 'hopeffer-pet-project',
+      version: 'abc1234',
+      env: 'staging',
+    });
   });
 });
