@@ -5,6 +5,7 @@ import { TerminusModule } from '@nestjs/terminus';
 import type { Env } from '../config/env.js';
 import { HealthController } from './health.controller.js';
 import { ReadinessRegistry } from './readiness-registry.js';
+import { ReadinessLogger } from './readiness.logger.js';
 
 // The only forRootAsync() of TerminusModule. Its HealthCheckService answers
 // /ready, and after SIGTERM it reports shutting_down (503) for
@@ -15,6 +16,7 @@ import { ReadinessRegistry } from './readiness-registry.js';
     TerminusModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService<Env, true>) => ({
+        logger: new ReadinessLogger(),
         gracefulShutdownTimeoutMs: config.get('SHUTDOWN_DRAIN_MS', {
           infer: true,
         }),
