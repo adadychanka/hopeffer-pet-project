@@ -116,4 +116,46 @@ describe('Request logging', () => {
       res: { statusCode: 200 },
     });
   });
+
+  it('reuses the incoming request ID on every line of the request and echoes it', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/orders')
+      .set('x-request-id', 'lb-42')
+      .expect(200);
+
+    expect(res.headers['x-request-id']).toBe('lb-42');
+    expect(lines).toHaveLength(2);
+    expect(lines[0]).toMatchObject({
+      reqId: 'lb-42',
+      context: 'OrdersService',
+      msg: 'Order created',
+      orderId: 7,
+    });
+    // Lines made while the request runs do not repeat the request object.
+    expect(lines[0]).not.toHaveProperty('req');
+    expect(lines[1]).toMatchObject({ reqId: 'lb-42', req: { id: 'lb-42' } });
+  });
+
+  it('gives each request without an ID its own UUID', async () => {
+    const first = await request(app.getHttpServer()).get('/orders');
+    const second = await request(app.getHttpServer()).get('/orders');
+
+    const ids = [first, second].map((res) => res.headers['x-request-id']);
+    expect(ids[0]).toMatch(/^[0-9a-f-]{36}$/);
+    expect(ids[1]).toMatch(/^[0-9a-f-]{36}$/);
+    expect(ids[0]).not.toBe(ids[1]);
+    expect(completed().map((line) => line.reqId as string)).toEqual(ids);
+  });
+
+  it('replaces an unsafe incoming request ID', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/orders')
+      .set('x-request-id', 'bad id"}')
+      .expect(200);
+
+    expect(res.headers['x-request-id']).toMatch(/^[0-9a-f-]{36}$/);
+    expect(completed()[0]).toMatchObject({
+      reqId: res.headers['x-request-id'],
+    });
+  });
 });
