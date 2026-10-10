@@ -154,9 +154,27 @@ describe('Request logging', () => {
       .expect(200);
 
     expect(res.headers['x-request-id']).toMatch(/^[0-9a-f-]{36}$/);
-    expect(completed()[0]).toMatchObject({
-      reqId: res.headers['x-request-id'],
+    expect(JSON.stringify(lines)).not.toContain('bad id');
+  });
+
+  it('never logs credentials from headers or the query string', async () => {
+    await request(app.getHttpServer())
+      .get('/orders?token=s3cret-query')
+      .set('authorization', 'Bearer s3cret-auth')
+      .set('cookie', 'session=s3cret-cookie')
+      .set('x-api-key', 's3cret-key')
+      .set('user-agent', 'vitest')
+      .expect(200);
+
+    const [line] = completed();
+    expect(JSON.stringify(lines)).not.toContain('s3cret');
+    expect(line.req).toMatchObject({
+      method: 'GET',
+      url: '/orders?token=[Redacted]',
+      headers: { 'user-agent': 'vitest' },
     });
+    expect(line.req).not.toHaveProperty('query');
+    expect(line).not.toHaveProperty(['res', 'headers', 'x-powered-by']);
   });
 
   it('logs a 500 at error, with the real error under the same request ID', async () => {
@@ -178,6 +196,17 @@ describe('Request logging', () => {
         stack: expect.stringContaining('kaput') as string,
       },
     });
+  });
+
+  it('redacts the query parameters of a failed database query', async () => {
+    await request(app.getHttpServer()).get('/query-failed').expect(500);
+
+    const line = lines.find((entry) => entry.context === 'ExceptionsHandler');
+    expect(line?.err).toMatchObject({
+      message: 'duplicate key',
+      parameters: '[Redacted]',
+    });
+    expect(JSON.stringify(lines)).not.toContain('s3cret');
   });
 
   it('logs a 404 at warn', async () => {

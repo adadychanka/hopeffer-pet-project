@@ -4,6 +4,7 @@ import type { Env } from '../config/env.js';
 import { isPretty, logFormat } from './log-format.js';
 import { requestId } from './request-id.js';
 import { requestLogLevel } from './request-log-level.js';
+import { serializeRequest, serializeResponse } from './serializers.js';
 
 export function loggerOptions(
   config: ConfigService<Env, true>,
@@ -27,7 +28,10 @@ export function loggerOptions(
       // object is on the "request completed" line.
       quietReqLogger: true,
       customLogLevel: requestLogLevel,
-      redact: ['req.headers.authorization', 'req.headers.cookie'],
+      serializers: { req: serializeRequest, res: serializeResponse },
+      // TypeORM's QueryFailedError carries the query parameters, which can be
+      // passwords, emails or tokens.
+      redact: ['err.parameters'],
       // Without pretty output there is no transport: Pino then writes straight
       // to stdout, synchronously and without a worker thread.
       transport: isPretty(nodeEnv, isTTY)
