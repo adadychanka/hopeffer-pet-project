@@ -158,4 +158,40 @@ describe('Request logging', () => {
       reqId: res.headers['x-request-id'],
     });
   });
+
+  it('logs a 500 at error, with the real error under the same request ID', async () => {
+    const res = await request(app.getHttpServer()).get('/boom').expect(500);
+
+    const reqId = res.headers['x-request-id'];
+    expect(completed()[0]).toMatchObject({
+      level: 'error',
+      reqId,
+      res: { statusCode: 500 },
+    });
+    expect(
+      lines.find((line) => line.context === 'ExceptionsHandler'),
+    ).toMatchObject({
+      level: 'error',
+      reqId,
+      err: {
+        message: 'kaput',
+        stack: expect.stringContaining('kaput') as string,
+      },
+    });
+  });
+
+  it('logs a 404 at warn', async () => {
+    await request(app.getHttpServer()).get('/missing').expect(404);
+
+    expect(completed()[0]).toMatchObject({
+      level: 'warn',
+      res: { statusCode: 404 },
+    });
+  });
+
+  it('does not log a passing health probe', async () => {
+    await request(app.getHttpServer()).get('/live').expect(200);
+
+    expect(lines).toEqual([]);
+  });
 });
