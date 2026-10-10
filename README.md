@@ -2,6 +2,20 @@
 
 NestJS backend service.
 
+## Architecture
+
+C4 diagrams of what this repository has today. Each `.drawio.svg` file is both the picture and the source: open it in [draw.io](https://app.diagrams.net/) to edit it.
+
+System context: who uses the system. It has no external systems yet.
+
+![System context diagram](docs/architecture/c4-context.drawio.svg)
+
+Containers: what the system consists of today. `docker-compose.yml` runs the four backing services. `GET /ready` checks them, and no feature uses them yet.
+
+![Container diagram](docs/architecture/c4-container.drawio.svg)
+
+Everything that is planned is in a separate case: [Marketplace v1](docs/system-design/marketplace-v1/README.md).
+
 ## Tech stack decisions
 
 | Area            | Choice                                                                                                                                     | Why                                                                                                                                                               |
