@@ -4,7 +4,11 @@ import type { Env } from '../config/env.js';
 import { loggerOptions } from './logger.options.js';
 import { requestId } from './request-id.js';
 import { requestLogLevel } from './request-log-level.js';
-import { serializeRequest, serializeResponse } from './serializers.js';
+import {
+  serializeError,
+  serializeRequest,
+  serializeResponse,
+} from './serializers.js';
 
 // ConfigService falls back to process.env for keys it was not given, and
 // Vitest sets NODE_ENV=test there, so every test sets NODE_ENV itself.
@@ -65,15 +69,18 @@ describe('loggerOptions', () => {
     });
   });
 
-  it('wires the request ID, the request log level, the serializers and the redaction', () => {
+  it('wires the request ID, the request log level and the serializers', () => {
     const { pinoHttp } = loggerOptions(config({}), false);
 
     expect(pinoHttp).toMatchObject({
       genReqId: requestId,
       quietReqLogger: true,
       customLogLevel: requestLogLevel,
-      serializers: { req: serializeRequest, res: serializeResponse },
-      redact: ['err.parameters'],
+      serializers: {
+        req: serializeRequest,
+        res: serializeResponse,
+        err: serializeError,
+      },
     });
   });
 });

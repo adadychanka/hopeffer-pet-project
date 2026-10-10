@@ -1,14 +1,6 @@
 import { Logger } from '@nestjs/common';
 import type { Logger as TypeOrmLoggerContract } from 'typeorm';
-
-// A bulk insert can be megabytes of SQL.
-const MAX_QUERY_LENGTH = 2000;
-
-function shorten(query: string): string {
-  return query.length > MAX_QUERY_LENGTH
-    ? `${query.slice(0, MAX_QUERY_LENGTH)}… (${query.length} characters)`
-    : query;
-}
+import { shortenQuery } from '../logger/serializers.js';
 
 // Sends TypeORM's logs through the Nest logger, so they are JSON lines with
 // the request ID like every other log. TypeORM's own loggers write plain text
@@ -18,7 +10,7 @@ export class TypeOrmLogger implements TypeOrmLoggerContract {
 
   // Every query, visible only with LOG_LEVEL=debug.
   logQuery(query: string): void {
-    this.logger.debug({ msg: 'Query', query: shorten(query) });
+    this.logger.debug({ msg: 'Query', query: shortenQuery(query) });
   }
 
   // warn, not error: the caller may handle the failure (a unique violation
@@ -27,7 +19,7 @@ export class TypeOrmLogger implements TypeOrmLoggerContract {
     this.logger.warn({
       msg: 'Query failed',
       err: error,
-      query: shorten(query),
+      query: shortenQuery(query),
     });
   }
 
@@ -35,7 +27,7 @@ export class TypeOrmLogger implements TypeOrmLoggerContract {
     this.logger.warn({
       msg: 'Slow query',
       durationMs: time,
-      query: shorten(query),
+      query: shortenQuery(query),
     });
   }
 

@@ -78,6 +78,27 @@ describe('crashReporter', () => {
     expect(exit).toHaveBeenCalledExactlyOnceWith(1);
   });
 
+  it('never writes query parameters, and cuts the SQL, when a failed query stops the app', () => {
+    const { stream, lines } = capture();
+    const crash = crashReporter({}, { isTTY: false, stream, exit: vi.fn() });
+
+    crash(
+      Object.assign(new Error('duplicate key value'), {
+        query: `INSERT INTO users VALUES ${'($1, $2),'.repeat(100_000)}`,
+        parameters: ['a@b.c', 's3cret'],
+      }),
+      'Unhandled promise rejection',
+    );
+
+    expect(lines()).toHaveLength(1);
+    expect(lines()[0]).not.toContain('s3cret');
+    expect(lines()[0].length).toBeLessThan(10_000);
+    expect(JSON.parse(lines()[0])).toMatchObject({
+      level: 'fatal',
+      err: { message: 'duplicate key value' },
+    });
+  });
+
   it('prints a readable error in a developer terminal, then exits with code 1', () => {
     const { stream, lines } = capture();
     const exit = vi.fn();

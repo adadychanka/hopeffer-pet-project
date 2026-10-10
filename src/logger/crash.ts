@@ -1,5 +1,6 @@
 import pino, { type DestinationStream } from 'pino';
 import { isPretty, logFormat, type LogFields } from './log-format.js';
+import { serializeError } from './serializers.js';
 
 export type CrashReporter = (err: unknown, msg: string) => void;
 
@@ -23,7 +24,10 @@ export function crashReporter(
   const pretty = isPretty(env.NODE_ENV, isTTY);
   const logger = pretty
     ? undefined
-    : pino(logFormat(env), stream ?? pino.destination({ dest: 1, sync: true }));
+    : pino(
+        { ...logFormat(env), serializers: { err: serializeError } },
+        stream ?? pino.destination({ dest: 1, sync: true }),
+      );
 
   return (err, msg) => {
     if (logger) {

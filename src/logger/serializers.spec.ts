@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import type { StdSerializedResults } from 'pino-http';
 import {
   maskQueryValues,
+  serializeError,
   serializeRequest,
   serializeResponse,
+  shortenQuery,
 } from './serializers.js';
 
 // The shape pino-http's own serializer hands over.
@@ -117,5 +119,121 @@ describe('serializeResponse', () => {
         'content-length': '0',
       },
     });
+  });
+});
+
+// The shape of TypeORM's QueryFailedError: the SQL, its parameters and the
+// fields of the Postgres driver error, all as own properties.
+function queryFailedError(query: string): Error {
+  return Object.assign(new Error('duplicate key value'), {
+    query,
+    parameters: ['a@b.c', 's3cret'],
+    driverError: new Error('driver s3cret'),
+    code: '23505',
+    table: 'users',
+    constraint: 'users_email_key',
+  });
+}
+
+describe('shortenQuery', () => {
+  it('keeps a query of up to 2000 characters whole', () => {
+    expect(shortenQuery('x'.repeat(2000))).toBe('x'.repeat(2000));
+  });
+
+  it('cuts a longer query and says how long it was', () => {
+    expect(shortenQuery('x'.repeat(2001))).toBe(
+      `${'x'.repeat(2000)}… (2001 characters)`,
+    );
+  });
+});
+
+describe('serializeError', () => {
+  it('keeps the type, message, stack and the fields that identify the failure', () => {
+    const serialized = serializeError(queryFailedError('INSERT INTO users'));
+
+    expect(serialized).toEqual({
+      type: 'Error',
+      message: 'duplicate key value',
+      stack: expect.stringContaining('duplicate key value') as string,
+      query: 'INSERT INTO users',
+      code: '23505',
+      table: 'users',
+      constraint: 'users_email_key',
+    });
+  });
+
+  it('never logs query parameters or a nested driver error', () => {
+    const serialized = serializeError(queryFailedError('INSERT INTO users'));
+
+    expect(serialized).not.toHaveProperty('parameters');
+    expect(serialized).not.toHaveProperty('driverError');
+    expect(JSON.stringify(serialized)).not.toContain('s3cret');
+  });
+
+  it('cuts megabytes of SQL at 2000 characters', () => {
+    const query = `INSERT INTO t VALUES ${'($1),'.repeat(200_000)}`;
+
+    const serialized = serializeError(queryFailedError(query)) as {
+      query: string;
+    };
+
+    expect(serialized.query).toBe(shortenQuery(query));
+    expect(JSON.stringify(serialized).length).toBeLessThan(5000);
+  });
+
+  it('drops fields nobody listed, such as the request a client library attaches', () => {
+    // The shape of an OpenSearch ResponseError.
+    const error = Object.assign(new Error('search_phase_execution_exception'), {
+      statusCode: 400,
+      meta: {
+        meta: { request: { params: { body: '{"password":"s3cret"}' } } },
+      },
+    });
+
+    expect(serializeError(error)).toEqual({
+      type: 'Error',
+      message: 'search_phase_execution_exception',
+      stack: expect.any(String) as string,
+      statusCode: 400,
+    });
+  });
+
+  it('applies the same rules to every error of an AggregateError', () => {
+    const serialized = serializeError(
+      new AggregateError(
+        [queryFailedError('INSERT INTO users'), new Error('second')],
+        'both failed',
+      ),
+    ) as { aggregateErrors: Record<string, unknown>[] };
+
+    expect(serialized.aggregateErrors).toHaveLength(2);
+    expect(serialized.aggregateErrors[0]).toMatchObject({
+      message: 'duplicate key value',
+      query: 'INSERT INTO users',
+    });
+    expect(JSON.stringify(serialized)).not.toContain('s3cret');
+  });
+
+  it('accepts an error that pino-http has already serialized', () => {
+    const alreadySerialized = {
+      type: 'QueryFailedError',
+      message: 'duplicate key value',
+      stack: 'QueryFailedError: duplicate key value\n    at x',
+      query: 'INSERT INTO users',
+      parameters: ['s3cret'],
+    };
+
+    expect(serializeError(alreadySerialized)).toEqual({
+      type: 'QueryFailedError',
+      message: 'duplicate key value',
+      stack: 'QueryFailedError: duplicate key value\n    at x',
+      query: 'INSERT INTO users',
+    });
+  });
+
+  it('returns a value that is not an error as it is', () => {
+    expect(serializeError('just a string')).toBe('just a string');
+    expect(serializeError(undefined)).toBeUndefined();
+    expect(serializeError(null)).toBeNull();
   });
 });

@@ -56,7 +56,7 @@ class TestController {
   queryFailed(): never {
     // The shape of TypeORM's QueryFailedError.
     throw Object.assign(new Error('duplicate key'), {
-      query: 'INSERT INTO users (email, password) VALUES ($1, $2)',
+      query: `INSERT INTO users (email, password) VALUES ${'($1, $2),'.repeat(100_000)}`,
       parameters: ['a@b.c', 's3cret'],
     });
   }
@@ -198,15 +198,15 @@ describe('Request logging', () => {
     });
   });
 
-  it('redacts the query parameters of a failed database query', async () => {
+  it('logs a failed database query without its parameters and with the SQL cut', async () => {
     await request(app.getHttpServer()).get('/query-failed').expect(500);
 
     const line = lines.find((entry) => entry.context === 'ExceptionsHandler');
-    expect(line?.err).toMatchObject({
-      message: 'duplicate key',
-      parameters: '[Redacted]',
-    });
+    expect(line?.err).toMatchObject({ message: 'duplicate key' });
+    expect(line?.err).not.toHaveProperty('parameters');
     expect(JSON.stringify(lines)).not.toContain('s3cret');
+    // The query is megabytes long. The whole line must stay small.
+    expect(JSON.stringify(line).length).toBeLessThan(10_000);
   });
 
   it('logs a 404 at warn', async () => {

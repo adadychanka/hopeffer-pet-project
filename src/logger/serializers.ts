@@ -1,3 +1,4 @@
+import { stdSerializers } from 'pino';
 import type { StdSerializedResults } from 'pino-http';
 
 const REDACTED = '[Redacted]';
@@ -73,4 +74,59 @@ export function serializeResponse(res: StdSerializedResults['res']) {
     statusCode: res.statusCode,
     headers: pick(res.headers, RESPONSE_HEADERS),
   };
+}
+
+// A bulk insert can be megabytes of SQL.
+const MAX_QUERY_LENGTH = 2000;
+
+export function shortenQuery(query: string): string {
+  return query.length > MAX_QUERY_LENGTH
+    ? `${query.slice(0, MAX_QUERY_LENGTH)}… (${query.length} characters)`
+    : query;
+}
+
+// An allowlist again: Pino's own serializer copies every property of an error
+// into the log. A TypeORM QueryFailedError carries the query parameters, and
+// an OpenSearch ResponseError carries the request it sent, with its body. Only
+// the fields that identify a failure are kept: Node's system error fields, an
+// HTTP status, and what Postgres says about the object that failed.
+const ERROR_FIELDS = new Set([
+  'type',
+  'message',
+  'stack',
+  'code',
+  'errno',
+  'syscall',
+  'address',
+  'port',
+  'status',
+  'statusCode',
+  'severity',
+  'schema',
+  'table',
+  'column',
+  'constraint',
+  'routine',
+]);
+
+// The app logger gets an error that pino-http has already made a plain object
+// (wrapSerializers). The crash reporter's logger gets the Error itself. A
+// `cause` needs no handling: Pino folds its message and stack into the parent.
+export function serializeError(value: unknown): unknown {
+  const error: unknown =
+    value instanceof Error ? stdSerializers.err(value) : value;
+  if (typeof error !== 'object' || error === null) {
+    return error;
+  }
+  return Object.fromEntries(
+    Object.entries(error).flatMap(([key, field]): [string, unknown][] => {
+      if (key === 'query' && typeof field === 'string') {
+        return [[key, shortenQuery(field)]];
+      }
+      if (key === 'aggregateErrors' && Array.isArray(field)) {
+        return [[key, field.map(serializeError)]];
+      }
+      return ERROR_FIELDS.has(key) ? [[key, field]] : [];
+    }),
+  );
 }
