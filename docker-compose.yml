@@ -1,8 +1,7 @@
 # Every image is pinned to a version and its multi-arch index digest, so a
 # retagged or compromised upstream image cannot change what runs here. Docker
 # pulls by the digest; the tag only documents the version. Dependabot proposes
-# updates. Keep the Postgres and Redis pins in test/setup/global-setup.ts the
-# same.
+# updates. Keep the pins in test/setup/global-setup.ts the same.
 services:
   postgres:
     image: postgres:17.11-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24

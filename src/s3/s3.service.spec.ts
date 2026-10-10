@@ -65,4 +65,13 @@ describe('S3Service', () => {
       secretAccessKey: 'chain-secret',
     });
   });
+
+  it('releases its sockets when the app shuts down', () => {
+    const s3 = new S3Service(new ConfigService<Env, true>({}));
+    const destroy = vi.spyOn(s3, 'destroy');
+
+    s3.onApplicationShutdown();
+
+    expect(destroy).toHaveBeenCalledOnce();
+  });
 });

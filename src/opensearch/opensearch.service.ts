@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, type OnApplicationShutdown } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Client } from '@opensearch-project/opensearch';
 import type { Env } from '../config/env.js';
@@ -6,7 +6,7 @@ import type { Env } from '../config/env.js';
 /* v8 ignore start -- TS __decorate helper branch, not app logic */
 @Injectable()
 /* v8 ignore stop */
-export class OpensearchService extends Client {
+export class OpensearchService extends Client implements OnApplicationShutdown {
   constructor(config: ConfigService<Env, true>) {
     // The env schema allows both username and password or neither.
     const username = config.get('OPENSEARCH_USERNAME', { infer: true });
@@ -17,5 +17,11 @@ export class OpensearchService extends Client {
       auth: username && password ? { username, password } : undefined,
       ssl: caCert ? { ca: caCert } : undefined,
     });
+  }
+
+  // Nest runs this after the HTTP server has closed. Closes the
+  // connection pool.
+  async onApplicationShutdown(): Promise<void> {
+    await this.close();
   }
 }

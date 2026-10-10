@@ -76,7 +76,7 @@ pnpm run migration:revert                                    # undo the last mig
 
 ### Object storage: RustFS
 
-`S3Service` (`src/s3/`) extends the AWS SDK's `S3Client` directly, configured from `S3_ENDPOINT`/`S3_REGION`/`S3_ACCESS_KEY`/`S3_SECRET_KEY`, exported globally via `S3Module`. For AWS S3, leave `S3_ENDPOINT` unset, and leave `S3_REGION` unset to use `AWS_REGION`. Leave both keys unset to let the SDK find credentials itself (`AWS_*` env vars, IRSA or workload identity, container or instance role); setting only one of them stops the app at startup. With `S3_ENDPOINT` set it uses path-style URLs (`host/bucket/key`), which self-hosted S3 servers expect. Locally it talks to [RustFS](https://github.com/rustfs/rustfs); MinIO no longer publishes Docker images. Console at `http://localhost:9001` (default creds `rustfsadmin`/`rustfsadmin`).
+`S3Service` (`src/s3/`) extends the AWS SDK's `S3Client` directly, configured from `S3_ENDPOINT`/`S3_REGION`/`S3_ACCESS_KEY`/`S3_SECRET_KEY`, exported globally via `S3Module`. For AWS S3, leave `S3_ENDPOINT` unset, and leave `S3_REGION` unset to use `AWS_REGION`. Leave both keys unset to let the SDK find credentials itself (`AWS_*` env vars, IRSA or workload identity, container or instance role); setting only one of them stops the app at startup. With `S3_ENDPOINT` set it uses path-style URLs (`host/bucket/key`), which self-hosted S3 servers expect. Locally it talks to [RustFS](https://github.com/rustfs/rustfs); MinIO no longer publishes Docker images. Console at `http://localhost:9001` (default creds `rustfsadmin`/`rustfsadmin`). The `/ready` check calls `ListBuckets`, so on AWS the app's role needs `s3:ListAllMyBuckets`; without it, no pod becomes ready.
 
 ### Search: OpenSearch
 
@@ -131,11 +131,17 @@ pnpm run migration:run    # apply the database migrations
 ```bash
 pnpm run start:dev              # watch mode
 curl http://localhost:3000/     # {"message":"Hello World!"}
+curl http://localhost:3000/live    # liveness: no dependency checks
+curl http://localhost:3000/ready   # readiness: 503 if postgres, redis, rustfs or opensearch is down
 
 pnpm run build && pnpm run start:prod   # production build
 ```
 
 The app reads `.env` from the current directory. Without it, or with a setting missing, it stops at startup and names the variables to fix.
+
+## Shutdown
+
+On SIGTERM, `/ready` answers 503 for `SHUTDOWN_DRAIN_MS` (default 5000) while the app still serves, so the load balancer stops sending traffic. `/live` stays 200, so Kubernetes does not restart the pod. Then the server stops taking connections, finishes the requests in flight, closes Postgres, Redis, S3 and OpenSearch, and exits with code 0. Ctrl+C (SIGINT) skips the drain wait. `start:dev` restarts the app with SIGTERM on every rebuild, so set `SHUTDOWN_DRAIN_MS=0` in your local `.env` (as `.env.example` does), or each reload waits the full drain. In Kubernetes, keep `terminationGracePeriodSeconds` (default 30 s) well above `SHUTDOWN_DRAIN_MS`: a request that never finishes holds the shutdown until Kubernetes kills the pod, and keep-alive connections can add up to 5 s.
 
 ## Run in a Docker sandbox
 
