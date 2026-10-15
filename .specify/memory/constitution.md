@@ -1,50 +1,106 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# hopeffer-pet-project Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. CI Defines Done (NON-NEGOTIABLE)
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+- A task is done only when `pnpm run ci` passes. It runs format, commitlint, secret scan, oxlint,
+  typecheck, eslint with zero warnings, build, unit tests with coverage and e2e tests.
+- If `pnpm run ci` fails, the task MUST be reported as unfinished, with the failing output.
+- Checks MUST NOT be weakened to pass: no lowered thresholds, disabled lint rules or skipped tests.
+- New checks go in the `ci` script, never as separate GitHub Actions steps.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+Rationale: one command runs locally and in CI, so "done" means the same thing everywhere.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### II. Tests Against Real Dependencies
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+- Coverage MUST stay at or above 98% for statements, branches, functions and lines.
+- Tests that touch the database MUST use the real Postgres container, not mocked repositories.
+  Only third-party APIs outside the project's control may be mocked.
+- E2E tests boot the full `AppModule` against Testcontainers that use the same image pins as
+  `docker-compose.yml`.
+- Each test MUST create its own data and MUST NOT depend on rows from other tests.
+- Logic lives in services, not module factories, so it is testable.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Rationale: mocked infrastructure hides the failures that matter most in a backend service.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### III. Validated Configuration
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+- Every setting MUST be declared in the zod schema in `src/config/env.ts`. The app refuses to
+  start on a missing or malformed value.
+- Code MUST read settings through `ConfigService<Env, true>`, never through `process.env`.
+  The only exception is code that runs outside Nest (the TypeORM CLI, the crash reporter).
+- Connection settings have no defaults in code. Local values live in `.env.example`.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Rationale: a bad configuration fails at startup, not at the first request that needs it.
+
+### IV. Migrations Own the Schema
+
+- Schema changes MUST go through TypeORM migrations. `synchronize` stays off.
+- Entities are registered per feature module with `TypeOrmModule.forFeature` and live in
+  `*.entity.ts` files.
+- A migration MUST be reversible through `migration:revert` unless the plan justifies otherwise.
+
+Rationale: every environment gets the same schema history, and each change can be reviewed.
+
+### V. Structured, Secret-Free Logging
+
+- Code logs with Nest's `Logger`, which writes through Pino. Data goes in fields, never in the
+  message text. An error goes under the `err` key, and only there.
+- Logs MUST NOT contain secrets, tokens, request bodies or query parameter values.
+- A new logged header or error field MUST be added to an allowlist in
+  `src/logger/serializers.ts`, and only if it can never hold a secret.
+- Logs go to stdout only, as JSON lines outside a TTY.
+
+Rationale: logs are machine-read and widely shared, so they stay parseable and safe to share.
+
+### VI. Operable Lifecycle
+
+- Every backing service MUST provide a readiness check marked with `@ReadinessCheck('<key>')`.
+  `/live` checks nothing. `/ready` fails when any check fails.
+- Clients MUST be closed in `onApplicationShutdown`, never in `onModuleDestroy`, so requests in
+  flight finish during the shutdown drain.
+
+Rationale: an orchestrator can route traffic and restart the service safely.
+
+### VII. Pinned Supply Chain
+
+- Dependencies published less than 3 days ago are rejected (`minimumReleaseAge`). The setting
+  MUST NOT be lowered.
+- GitHub Actions are pinned by full commit SHA, Docker images by version and multi-arch digest.
+- TruffleHog scans the history in CI and before push. Test keys are random fakes, never keys
+  copied from memory or docs.
+
+Rationale: an unpinned or brand-new dependency is the cheapest way into the build.
+
+## Technology & Architecture Constraints
+
+- Runtime: Node 24+, pnpm 12 (exact version from `devEngines`), NestJS 12, TypeScript, pure ESM.
+  Relative imports use a `.js` extension.
+- Backing services: PostgreSQL (TypeORM), Redis (`CACHE_MANAGER`), RustFS through the S3 API,
+  OpenSearch. Their infra modules are global, and feature modules inject their providers without
+  importing the modules.
+- `S3Service` and `OpensearchService` extend the SDK client classes. A new feature calls SDK
+  methods directly and adds no wrapper API.
+- A new dependency or backing service MUST be justified in the feature's `plan.md`.
+
+## Development Workflow
+
+- Feature work follows Spec Kit: specify, clarify if needed, plan, tasks, analyze, implement.
+  Each feature's `specs/<NNN-feature-name>/` folder is committed with its code.
+- `plan.md` MUST pass the Constitution Check before research and again after design. A violation
+  is allowed only with an entry in the plan's Complexity Tracking table.
+- Commits follow Conventional Commits. Work happens on a feature branch and merges by pull request.
+- Review rounds are saved in `reports/<task-name>/` and are not committed.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+- This constitution overrides other practices. `AGENTS.md` holds the detailed runtime guidance
+  and MUST stay consistent with it.
+- Amendments go through `/speckit-constitution` and are committed in their own commit, with the
+  Sync Impact Report removed.
+- Versioning follows semantic versioning: MAJOR removes or redefines a principle, MINOR adds a
+  principle or section or expands guidance, PATCH clarifies wording.
+- Every plan and review checks compliance with these principles. Extra complexity MUST be justified.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-10-15 | **Last Amended**: 2026-10-15
