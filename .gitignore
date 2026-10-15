@@ -52,5 +52,5 @@ pids
 *.pid.lock
 
 
-# Local agent specs and plans (see AGENTS.md)
+# Local review reports (see AGENTS.md)
 /reports

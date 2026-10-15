@@ -65,11 +65,11 @@ Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails
 
 ## Specs and plans
 
-- Save design specs and implementation plans in `reports/<task-name>/`, not in `docs/`. `<task-name>` is a short kebab-case name, for example `reports/github-actions-ci/`.
-- Name files `YYYY-MM-DD-design.md` for specs and `YYYY-MM-DD-plan.md` for plans. A later revision gets a new dated file, so the folder keeps the history.
-- After a plan is executed, save each review round of the result in the same folder as `YYYY-MM-DD-review.md`. Record the findings with severity and `file:line`, what was fixed (with the commit), what was deferred, and the rulings made. A second review on the same day gets a suffix: `YYYY-MM-DD-review-2.md`.
-- `reports/` is in `.gitignore`. Never commit specs, plans or reviews, and never reference them from committed files.
-- This overrides the default locations of planning and review skills (for example `docs/superpowers/specs/` and `docs/superpowers/plans/`).
+- Feature work follows spec-driven development with [Spec Kit](https://github.com/github/spec-kit): `/speckit-constitution`, `/speckit-specify`, `/speckit-clarify`, `/speckit-plan`, `/speckit-tasks`, `/speckit-analyze`, `/speckit-implement`. The skills live in `.claude/skills/speckit-*`, and their scripts and templates in `.specify/`.
+- Spec Kit writes each feature to `specs/<NNN-feature-name>/` (`spec.md`, `plan.md`, `tasks.md` and the design files next to them). Commit that folder with the feature's code. The project principles are in `.specify/memory/constitution.md`; change them with `/speckit-constitution`, not by hand.
+- This overrides the default locations of other planning skills (for example `docs/superpowers/specs/` and `docs/superpowers/plans/`): their specs and plans go in the current feature's `specs/` folder.
+- Save each review round of a finished feature in `reports/<task-name>/` as `YYYY-MM-DD-review.md`. `<task-name>` is a short kebab-case name, for example `reports/github-actions-ci/`. Record the findings with severity and `file:line`, what was fixed (with the commit), what was deferred, and the rulings made. A second review on the same day gets a suffix: `YYYY-MM-DD-review-2.md`.
+- `reports/` is in `.gitignore`. Never commit reviews, and never reference them from committed files.
 
 ## Conventions
 
