@@ -11,13 +11,16 @@ import { Invoice } from '../deals/invoice.entity.js';
 import { Account } from './account.entity.js';
 
 // The operator's record of one bank notification. The bank reference is
-// stored trimmed and in upper case, so one notification is recorded once.
+// stored in its electronic format: upper case, no whitespace, and only the
+// SEPA reference characters. The service removes all whitespace and
+// upper-cases it, so one notification is recorded once however it was typed.
+// Banks store IBANs (ISO 13616) and RF references (ISO 11649) the same way.
 @Entity({ name: 'top_ups' })
 @Unique('top_ups_bank_reference_key', ['bankReference'])
 @Check('top_ups_amount_positive', '"amount_minor" > 0')
 @Check(
   'top_ups_bank_reference_normalized',
-  `"bank_reference" = upper(btrim("bank_reference")) AND "bank_reference" <> ''`,
+  `"bank_reference" ~ '^[A-Z0-9/?:().,''+-]+$'`,
 )
 export class TopUp {
   @PrimaryGeneratedColumn('uuid', { primaryKeyConstraintName: 'top_ups_pkey' })

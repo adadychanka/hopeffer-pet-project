@@ -143,14 +143,14 @@ Required-column (`NOT NULL`) violations have no constraint name in PostgreSQL. T
 
 ## top_ups (M)
 
-| Rule                                | Kind        | Definition                                                               | Spec    |
-| ----------------------------------- | ----------- | ------------------------------------------------------------------------ | ------- |
-| `top_ups_company_id_fkey`           | foreign key | `(company_id) → accounts (company_id)`                                   | FR-006a |
-| `top_ups_invoice_id_fkey`           | foreign key | `→ invoices (id)`                                                        | FR-015  |
-| `top_ups_amount_positive`           | check       | `amount_minor > 0`                                                       | FR-015  |
-| `top_ups_bank_reference_key`        | unique      | `(bank_reference)`                                                       | FR-015  |
-| `top_ups_bank_reference_normalized` | check       | `bank_reference = upper(btrim(bank_reference)) AND bank_reference <> ''` | FR-015  |
-| required                            | not null    | every column except `invoice_id`                                         | FR-004  |
+| Rule                                | Kind        | Definition                                  | Spec    |
+| ----------------------------------- | ----------- | ------------------------------------------- | ------- |
+| `top_ups_company_id_fkey`           | foreign key | `(company_id) → accounts (company_id)`      | FR-006a |
+| `top_ups_invoice_id_fkey`           | foreign key | `→ invoices (id)`                           | FR-015  |
+| `top_ups_amount_positive`           | check       | `amount_minor > 0`                          | FR-015  |
+| `top_ups_bank_reference_key`        | unique      | `(bank_reference)`                          | FR-015  |
+| `top_ups_bank_reference_normalized` | check       | `bank_reference ~ '^[A-Z0-9/?:().,''+-]+$'` | FR-015  |
+| required                            | not null    | every column except `invoice_id`            | FR-004  |
 
 ## corrections (M)
 

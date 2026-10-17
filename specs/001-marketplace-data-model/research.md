@@ -78,8 +78,8 @@ Decisions made before the data model was drawn. Each one resolves a question tha
 
 ## R12. Bank reference uniqueness
 
-- **Decision**: `top_ups.bank_reference` is stored normalized (trimmed, upper case) with a `UNIQUE` constraint.
-- **Rationale**: "trx-1 " and "TRX-1" are the same bank transfer. Normalizing before the unique check is what makes FR-033 hold in practice.
+- **Decision**: `top_ups.bank_reference` is stored in its electronic format (upper case, all whitespace removed, SEPA reference characters only) with a `UNIQUE` constraint (changed by feature 002; it was trimmed and upper case).
+- **Rationale**: "trx-1 ", "TRX-1\n" and "TRX-1" are the same bank transfer. Trimming only spaces lets tabs, newlines and non-breaking spaces through. Normalizing before the unique check is what makes FR-033 hold in practice.
 
 ## R13. Diagram files
 

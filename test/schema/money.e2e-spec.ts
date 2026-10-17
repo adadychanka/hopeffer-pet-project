@@ -244,8 +244,24 @@ describe('top_ups', () => {
     );
   });
 
-  it.each([' TRX-1', 'trx-1', ''])(
-    'stores only a normalized bank reference, rejecting %j',
+  it('stores a reference with every allowed character', async () => {
+    const bank_reference = unique("RF18/'+:().,?").toUpperCase();
+    await expect(
+      insertRow(db, 'top_ups', { ...(await topUpRow()), bank_reference }),
+    ).resolves.toMatchObject({ bank_reference });
+  });
+
+  it.each([
+    ' TRX-1',
+    'trx-1',
+    '',
+    'TRX-1\n',
+    'TRX-1\t',
+    'TRX-1\u00a0',
+    'TRX 1',
+    'TRX_1',
+  ])(
+    'stores only the electronic format of a bank reference, rejecting %j',
     async (bank_reference) => {
       await expectRule(
         insertRow(db, 'top_ups', { ...(await topUpRow()), bank_reference }),

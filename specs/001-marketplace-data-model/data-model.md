@@ -408,19 +408,19 @@ Entries per transfer type:
 
 ### top_ups
 
-| Column           | Type        | Rules                                                          |
-| ---------------- | ----------- | -------------------------------------------------------------- |
-| `id`             | uuid        | PK                                                             |
-| `company_id`     | uuid        | not null, FK `accounts (company_id)`; the wallet that receives |
-| `amount_minor`   | bigint      | not null, `> 0`                                                |
-| `bank_reference` | text        | not null, `UNIQUE`; trimmed and upper case (R12)               |
-| `transfer_date`  | date        | not null; value date from the bank notification                |
-| `invoice_id`     | uuid        | FK `invoices`; the invoice named in the transfer, optional     |
-| `operator_ref`   | text        | not null                                                       |
-| `recorded_at`    | timestamptz | not null                                                       |
+| Column           | Type        | Rules                                                                  |
+| ---------------- | ----------- | ---------------------------------------------------------------------- |
+| `id`             | uuid        | PK                                                                     |
+| `company_id`     | uuid        | not null, FK `accounts (company_id)`; the wallet that receives         |
+| `amount_minor`   | bigint      | not null, `> 0`                                                        |
+| `bank_reference` | text        | not null, `UNIQUE`; electronic format: upper case, no whitespace (R12) |
+| `transfer_date`  | date        | not null; value date from the bank notification                        |
+| `invoice_id`     | uuid        | FK `invoices`; the invoice named in the transfer, optional             |
+| `operator_ref`   | text        | not null                                                               |
+| `recorded_at`    | timestamptz | not null                                                               |
 
 - One `top_up` transfer per row (`ledger_transfers.top_up_id` is `UNIQUE`).
-- `CHECK (bank_reference = upper(btrim(bank_reference)))`: only the normalized form is stored (feature 002).
+- `CHECK (bank_reference ~ '^[A-Z0-9/?:().,''+-]+$')`: only the electronic format is stored (feature 002).
 - If `invoice_id` is set, the invoice is `issued`, belongs to a deal of this company, and the wallet covers it after the top-up, the service also writes the `invoice_payment` transfer in the same transaction (FR-034). Otherwise the money stays in the wallet.
 
 ### corrections

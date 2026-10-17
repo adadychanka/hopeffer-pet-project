@@ -165,7 +165,7 @@ A reader of the README sees the ERD of the tables that exist today, next to the 
 - A second wallet for the same company is rejected.
 - A buyer submits the same purchase twice with one idempotency key: the second deal is rejected. Two different buyers that happen to use the same key both succeed, because the key is unique per buyer.
 - A company with email `Sales@Acme.com` exists. A second company with `sales@acme.com` is rejected.
-- A bank reference with spaces around it or in lower case (`" trx-1"`) is rejected, because the database stores only the normalized form (R12).
+- A bank reference in lower case, or with any whitespace (`" trx-1"`, `"TRX-1\n"`, a non-breaking space, `"TRX 1"`), is rejected, because the database stores only the electronic format: upper case, no whitespace, SEPA reference characters only (R12).
 - The invoice number sequence passes 999,999 in a year. The number keeps growing past 6 digits; it is never cut to 6 digits, so it never collides with an earlier number.
 - A migration is reverted while the tables hold rows. The revert drops the tables with their rows; that is acceptable on a development or test database. On a deployed database, a revert is a deploy decision, out of scope here.
 - A money value larger than the application supports is already in the database (written by raw SQL). Reading it fails loudly (Story 4, scenario 3).
@@ -201,7 +201,7 @@ A reader of the README sees the ERD of the tables that exist today, next to the 
 - **FR-012**: `ledger_transfers`: `type` is one of the 5 transfer types; exactly one source is set (top-up, invoice, deal or correction), and it matches the type; one transfer per top-up and per correction; one `invoice_payment` per invoice; one `payout` or `refund` per deal, never both; `actor_type` and `actor_ref` follow the rule of FR-010.
 - **FR-013**: `ledger_entries`: `amount_minor` is not 0; at commit, the entries of each transfer written in the transaction sum to 0 and their number equals the transfer's `entry_count`, which is 2 or more. A committed transfer is closed: entries added to it later, even a balanced pair, are rejected.
 - **FR-014**: `ledger_transfers` and `ledger_entries` rows are never updated or deleted.
-- **FR-015**: `top_ups`: `amount_minor` above 0; `bank_reference` unique and stored only in normalized form (trimmed, upper case).
+- **FR-015**: `top_ups`: `amount_minor` above 0; `bank_reference` unique and stored only in its electronic format: upper case, no whitespace, and only the characters `A-Z 0-9 / ? : ( ) . , ' + -` (the SEPA reference set, upper case, without the space).
 - **FR-016**: `corrections`: `amount_minor` is not 0; `reason` 1–1000 characters; `idempotency_key` (`uuid`) is required and unique.
 - **FR-017**: `platform_settings`: exactly one row (`id = 1`); each value within the bounds of data-model.md.
 - **FR-018**: Every rule MUST have a stable, readable name, so a rejection says which rule was broken (for example `deals_buyer_not_seller`).
@@ -252,7 +252,7 @@ The entities are those of feature 001, with three changes. Company also has a co
 - The database stays PostgreSQL 17, with the same image pin in `docker-compose.yml` and the test setup. UUID keys use `gen_random_uuid()`; the move to UUIDv7 waits for PostgreSQL 18 (R6).
 - The project's existing ORM (TypeORM) and its migration tooling are used; no new dependency is expected.
 - Money in the application is a `number` of minor units (Stripe model; FR-021), chosen over `bigint`, strings and a decimal value object. Revisit it if the platform handles 18-decimal assets (switch to `bigint`) or several currencies with fractional splits (add a money value object). The API format of amounts is decided by the first feature with an endpoint.
-- `bank_reference` normalization (R12) is enforced by a check rule in the database (the stored value equals its trimmed, upper-case form), in addition to the service normalizing it. Data-model.md says the value is stored normalized but does not list the check; this feature adds it.
+- `bank_reference` normalization (R12) is enforced by a check rule in the database (the stored value is in the electronic format of FR-015), in addition to the service normalizing it (removing all whitespace and upper-casing). Banks treat IBANs (ISO 13616) and RF creditor references (ISO 11649) the same way: a print format with spaces for people, an electronic format without them for systems. Data-model.md says the value is stored normalized but does not list the check; this feature adds it.
 - `companies.email` is new in this feature; data-model.md of feature 001 does not have it. It is required, because no company rows exist yet and every company needs a billing contact. The database checks only the basic shape (length, one `@`, no spaces); confirming that the address works is a later onboarding feature.
 - Invoice numbers come from one database sequence for all years, so the number part does not restart each year. Data-model.md and R6 do not require a yearly restart.
 - Rules that cross tables and are marked "service" in data-model.md (invoice amount equals the deal total, balance equals the sum of entries, allowed status transitions) are not enforced by the database in this feature.
