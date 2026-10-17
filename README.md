@@ -14,6 +14,10 @@ Containers: what the system consists of today. `docker-compose.yml` runs the fou
 
 ![Container diagram](docs/architecture/c4-container.drawio.svg)
 
+Data model: the marketplace tables exist in PostgreSQL, created by the migrations in `src/database/migrations/`, but no feature uses them yet. The rules and the reasons behind them are in [`specs/001-marketplace-data-model/data-model.md`](specs/001-marketplace-data-model/data-model.md).
+
+![Marketplace data model](docs/architecture/erd.drawio.svg)
+
 Everything that is planned is in a separate case: [Marketplace v2](docs/system-design/marketplace-v2/README.md) (previous version: [v1](docs/system-design/marketplace-v1/README.md)).
 
 ## Tech stack decisions

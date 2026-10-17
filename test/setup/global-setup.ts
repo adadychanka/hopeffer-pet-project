@@ -1,12 +1,13 @@
 // Starts throwaway Postgres, Redis, RustFS (S3) and OpenSearch containers once
 // per e2e run, applies the migrations, and hands the connection URLs to the
 // test workers through `provide`.
-/// <reference types="vite/client" />
 import { PostgreSqlContainer } from '@testcontainers/postgresql';
 import { RedisContainer } from '@testcontainers/redis';
 import { GenericContainer, Wait } from 'testcontainers';
-import { DataSource, type MigrationInterface } from 'typeorm';
+import { DataSource } from 'typeorm';
 import type { TestProject } from 'vitest/node';
+import { buildTypeOrmOptions } from '../../src/database/typeorm-options.js';
+import { loadMigrations } from './migrations.js';
 import { RUSTFS_ACCESS_KEY, RUSTFS_SECRET_KEY } from './rustfs.js';
 
 declare module 'vitest' {
@@ -27,19 +28,6 @@ const RUSTFS_IMAGE =
   'rustfs/rustfs:1.0.0@sha256:8cc9801755448b71a786705ce76692c77e14936cccd87cf2fc31842e58f4d1ff';
 const OPENSEARCH_IMAGE =
   'opensearchproject/opensearch:3.9.0@sha256:adfa61f85025d06b4aeb562e7e74fde7e31c437039c93c3862c17e9acebd6c7c';
-
-type MigrationClass = new () => MigrationInterface;
-
-// Vite compiles the .ts migrations here. A glob path would make TypeORM load
-// them with Node's own import(), and Node's type stripping fails on the
-// `import { MigrationInterface } from 'typeorm'` line in generated migrations.
-function loadMigrations(): MigrationClass[] {
-  const modules = import.meta.glob<Record<string, MigrationClass>>(
-    '../../src/database/migrations/*.ts',
-    { eager: true },
-  );
-  return Object.values(modules).flatMap((exports) => Object.values(exports));
-}
 
 function startRustfs() {
   return new GenericContainer(RUSTFS_IMAGE)
@@ -82,8 +70,7 @@ export default async function setup(project: TestProject) {
   // Build the schema with the real migrations, not `synchronize`, so the
   // tests also prove that the migrations match the entities.
   const dataSource = new DataSource({
-    type: 'postgres',
-    url: postgres.getConnectionUri(),
+    ...buildTypeOrmOptions(postgres.getConnectionUri()),
     migrations: loadMigrations(),
   });
   await dataSource.initialize();

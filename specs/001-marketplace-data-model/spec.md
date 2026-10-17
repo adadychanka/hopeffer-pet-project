@@ -197,7 +197,7 @@ A company reads its wallet history. The operator reads any wallet and the platfo
 **Companies**
 
 - **FR-001**: The model MUST represent a company as one record that can act as a seller, a buyer, or both.
-- **FR-002**: The model MUST give every company exactly one wallet. A new wallet starts with balance 0.
+- **FR-002**: The model MUST give a company zero or one wallet. A wallet starts with balance 0. A company needs its wallet before it publishes a lot, buys, or receives a top-up or correction (changed by feature 002).
 
 **Lots**
 
@@ -265,9 +265,10 @@ A company reads its wallet history. The operator reads any wallet and the platfo
 
 ### Key Entities _(include if feature involves data)_
 
-- **Company**: A legal entity on the marketplace. Acts as a seller, a buyer, or both. Owns exactly one wallet account and any number of lots.
+- **Company**: A legal entity on the marketplace. Acts as a seller, a buyer, or both. Owns zero or one wallet account (changed by feature 002) and any number of lots.
 - **Lot**: Units of one item that a seller offers. Has a title, a unit price, an available stock and a visibility status. Belongs to one seller company. Has photos. Deals refer to it.
 - **Lot photo**: Metadata of one image of a lot and the key of the stored file. Belongs to one lot.
+- **Lot price change**: One price of a lot: the old and the new price, the time and the actor. The first row records the price at creation. Never changes after it is written (added by feature 002).
 - **Deal**: One purchase: buyer, seller, lot, quantity, unit price at purchase, total, status. Has one invoice and a history of status changes.
 - **Deal status change**: One step of a deal's lifecycle: old and new status, time, actor reference, reason.
 - **Invoice**: The buyer's obligation to pay for one deal: number, amount, issue date, due date, status, payment time.
