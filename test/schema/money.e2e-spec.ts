@@ -167,14 +167,20 @@ describe('accounts', () => {
   it('never deletes an account or changes its type or company', async () => {
     const company = await createCompany(db);
     const other = await createCompany(db, { wallet: false });
+    // The platform accounts are shared by every test file, so these writes
+    // run in a rolled-back transaction: a broken guard fails only this test.
     await expectRule(
-      db.query('DELETE FROM accounts WHERE id = $1', [escrowId]),
+      rolledBack(db, (tx) =>
+        tx.query('DELETE FROM accounts WHERE id = $1', [escrowId]),
+      ),
       'accounts_identity_immutable',
     );
     await expectRule(
-      db.query("UPDATE accounts SET type = 'escrow' WHERE id = $1", [
-        bankClearingId,
-      ]),
+      rolledBack(db, (tx) =>
+        tx.query("UPDATE accounts SET type = 'escrow' WHERE id = $1", [
+          bankClearingId,
+        ]),
+      ),
       'accounts_identity_immutable',
     );
     await expectRule(
