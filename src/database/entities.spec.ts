@@ -1,6 +1,6 @@
-/// <reference types="vite/client" />
 import { DataSource, type EntityMetadata } from 'typeorm';
 import { describe, expect, it } from 'vitest';
+import { entityClasses } from '../../test/setup/entity-classes.js';
 import { buildTypeOrmOptions } from './typeorm-options.js';
 
 // Builds the metadata of every *.entity.ts file without a database connection,
@@ -11,18 +11,6 @@ class MetadataDataSource extends DataSource {
   build(): Promise<void> {
     return this.buildMetadatas();
   }
-}
-
-function entityClasses(): unknown[] {
-  const modules = import.meta.glob<Record<string, unknown>>(
-    '../**/*.entity.ts',
-    {
-      eager: true,
-    },
-  );
-  return Object.values(modules)
-    .flatMap((exports) => Object.values(exports))
-    .filter((value) => typeof value === 'function');
 }
 
 function ruleNames(metadata: EntityMetadata): string[] {
@@ -187,7 +175,7 @@ const EXPECTED_RULES: Record<string, string[]> = {
 async function buildMetadata(): Promise<EntityMetadata[]> {
   const dataSource = new MetadataDataSource({
     ...buildTypeOrmOptions('postgres://metadata-only'),
-    entities: entityClasses() as (new () => object)[],
+    entities: entityClasses(),
   });
   await dataSource.build();
   return dataSource.entityMetadatas;

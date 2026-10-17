@@ -3,38 +3,18 @@
 // tests, so they open a DataSource instead of booting AppModule
 // (constitution, Principle II). Every fixture writes random unique values,
 // because all test files share one database.
-/// <reference types="vite/client" />
 import { randomUUID } from 'node:crypto';
 import type { DatabaseError } from 'pg';
-import {
-  DataSource,
-  type EntityManager,
-  getMetadataArgsStorage,
-  QueryFailedError,
-} from 'typeorm';
+import { DataSource, type EntityManager, QueryFailedError } from 'typeorm';
 import { expect, inject } from 'vitest';
 import { buildTypeOrmOptions } from '../../src/database/typeorm-options.js';
+import { entityClasses } from '../setup/entity-classes.js';
 
-export type EntityClass = new () => object;
+export { entityClasses };
 
 // Anything that runs SQL: a DataSource, an EntityManager or a QueryRunner.
 export interface Queryable {
   query(sql: string, parameters?: unknown[]): Promise<unknown>;
-}
-
-// The classes of every *.entity.ts file, found the same way the TypeORM CLI
-// finds them (by file name), so a test sees what a generated migration sees.
-export function entityClasses(): EntityClass[] {
-  const modules = import.meta.glob<Record<string, unknown>>(
-    '../../src/**/*.entity.ts',
-    { eager: true },
-  );
-  const tables = new Set<unknown>(
-    getMetadataArgsStorage().tables.map((table) => table.target),
-  );
-  return Object.values(modules)
-    .flatMap((exports) => Object.values(exports))
-    .filter((value): value is EntityClass => tables.has(value));
 }
 
 export function openTestDataSource(): Promise<DataSource> {
