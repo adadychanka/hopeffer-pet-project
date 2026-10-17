@@ -492,6 +492,19 @@ description: 'Task list for the marketplace schema feature'
 
 ---
 
+## Phase 10: ERD normal forms and description (FR-030)
+
+**Goal**: The ERD shows the normal form of each table, and an `erd.md` next to each ERD copy explains every table, field and normal form.
+
+- [x] T060 Add FR-030 and the clarifications of the ERD description to `specs/002-marketplace-schema/spec.md`
+- [x] T061 In the ERD script `$TMPDIR/erd-update/build.py` (not in the repo), add the normal form to each table header (`deals · 2NF`, all other tables `BCNF`) and one legend line, rebuild from the `main` version of the ERD, render it to PNG and check that no text overlaps. Copy the result to `specs/001-marketplace-data-model/erd.drawio.svg`, `docs/system-design/marketplace-v2/erd.drawio.svg` and `docs/architecture/erd.drawio.svg`, and `cmp` the copies
+- [x] T062 Write `docs/architecture/erd.md`: conventions, a normal form summary with candidate keys, why BCNF is enough, why `deals` stays in 2NF, the deliberate copies across tables and rows, and one section per table with every column and its meaning. No relative links, because the file has three copies in different folders
+- [x] T063 Copy `erd.md` to `specs/001-marketplace-data-model/` and `docs/system-design/marketplace-v2/`, `cmp` the copies, and link it from `README.md`, `docs/system-design/marketplace-v2/README.md` and `specs/001-marketplace-data-model/data-model.md`
+- [x] T064 One-off check (not committed): every column of every `*.entity.ts` appears in `erd.md` under its table
+- [x] T065 Run `pnpm exec prettier --write` on the changed Markdown files, then `pnpm run ci`, and commit with a Conventional Commits message (`docs(database): ...`)
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies

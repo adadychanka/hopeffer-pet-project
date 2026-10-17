@@ -18,6 +18,8 @@ Data model: the marketplace tables exist in PostgreSQL, created by the migration
 
 ![Marketplace data model](docs/architecture/erd.drawio.svg)
 
+Every table and column, the normal form of each table and why it is enough: [`docs/architecture/erd.md`](docs/architecture/erd.md).
+
 Everything that is planned is in a separate case: [Marketplace v2](docs/system-design/marketplace-v2/README.md) (previous version: [v1](docs/system-design/marketplace-v1/README.md)).
 
 ## Tech stack decisions

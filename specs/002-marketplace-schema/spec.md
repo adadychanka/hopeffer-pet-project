@@ -10,6 +10,13 @@
 
 ## Clarifications
 
+### Session 2026-10-17 (ERD description)
+
+- Q: Where does the ERD description live? → A: An `erd.md` next to each of the three ERD copies, byte-identical like the SVG copies, so each folder stays self-contained.
+- Q: How strictly is the normal form reported? → A: The highest normal form each table meets. `deals` is labelled 2NF; the description explains each deliberate copy and the rule that keeps it correct, and lists copies across tables and rows separately.
+- Q: How does the ERD show the normal form? → A: In the table header (`deals · 2NF`), with one legend line.
+- Q: How is the change tracked? → A: As FR-030 of this feature, with tasks in a new phase of `tasks.md`.
+
 ### Session 2026-10-17
 
 - Q: What is the company email for: a contact address for the company as a whole, or a login address for a person? → A: A company contact address (billing, notifications), one per company and unique across companies regardless of letter case. People's login emails come later, with the security feature's users.
@@ -231,6 +238,7 @@ A reader of the README sees the ERD of the tables that exist today, next to the 
 
 - **FR-028**: The ERD of the built schema MUST be added to `docs/architecture/` and shown in the README Architecture section, updated to match what was built.
 - **FR-029**: The feature 001 design documents MUST be updated to the decisions of this feature (company email, zero or one wallet, the wallet references of FR-006a, account protection, idempotency keys on deals and corrections, the `lot_price_changes` table): `specs/001-marketplace-data-model/data-model.md` (Mermaid ERD, tables, invariants), FR-002 of `specs/001-marketplace-data-model/spec.md`, and the draw.io ERD in `specs/001-marketplace-data-model/erd.drawio.svg` with its identical copy in `docs/system-design/marketplace-v2/erd.drawio.svg`. The Mermaid cardinality between companies and accounts becomes zero-or-one on both sides (`companies |o--o| accounts`). `docs/system-design/marketplace-v1/` does not change.
+- **FR-030**: The ERD MUST show the highest normal form of each table in its header, with a legend line. Next to each ERD copy, an identical `erd.md` MUST describe every table and every column (meaning, not only type), state each table's normal form with its candidate keys, explain why that normal form is used and why it is enough, and list every deliberate copy of data across columns, tables or rows with the rule or service step that keeps it correct.
 
 ### Key Entities _(include if feature involves data)_
 

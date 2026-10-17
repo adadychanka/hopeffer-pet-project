@@ -11,6 +11,8 @@ Conventions for every table:
 
 ## Entity-relationship diagram
 
+The draw.io version is [`erd.drawio.svg`](./erd.drawio.svg). [`erd.md`](./erd.md) describes every table and column, the normal form of each table and the deliberate copies of data (feature 002).
+
 ```mermaid
 erDiagram
     companies |o--o| accounts : "owns wallet"

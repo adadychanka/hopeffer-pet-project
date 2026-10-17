@@ -34,7 +34,7 @@ The full model is in the feature specification [`specs/001-marketplace-data-mode
 
 ![Marketplace v2 data model](./erd.drawio.svg)
 
-`erd.drawio.svg` is both the picture and the source. Open it in [draw.io](https://app.diagrams.net/) to edit it. It is a copy of the file in the feature folder; keep the two identical.
+`erd.drawio.svg` is both the picture and the source. Open it in [draw.io](https://app.diagrams.net/) to edit it. [`erd.md`](./erd.md) describes every table and column and the normal form of each table. Both files are copies of the files in the feature folder and in `docs/architecture/`; keep all copies identical.
 
 How a deal moves:
 
