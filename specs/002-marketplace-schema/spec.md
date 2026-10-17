@@ -218,7 +218,7 @@ A reader of the README sees the ERD of the tables that exist today, next to the 
 
 **Ledger protection by access rights**
 
-- **FR-023**: In this feature, the triggers of FR-010, FR-010a and FR-014 are the only guard against changing or deleting ledger and status history rows. The application keeps one database connection, with no separate role. The restricted role of R4 (only `SELECT` and `INSERT` on the ledger tables) comes with the deploy or security feature.
+- **FR-023**: In this feature, the triggers of FR-010, FR-010a and FR-014 are the only guard against changing or deleting ledger and status history rows. The application keeps one database connection, with no separate role. The restricted role of R4 (only `SELECT` and `INSERT` on the ledger tables) comes with the deploy or security feature. Only the ledger tables also reject `TRUNCATE` by trigger. `TRUNCATE` on `deal_status_changes` and `lot_price_changes` (directly, or through `TRUNCATE lots CASCADE`) stays possible until that role exists, so the role gets only `SELECT` and `INSERT` on these two tables too, and `TRUNCATE` on no table.
 
 **Tests and pipeline**
 
