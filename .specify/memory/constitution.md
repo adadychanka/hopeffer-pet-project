@@ -17,12 +17,18 @@ Rationale: one command runs locally and in CI, so "done" means the same thing ev
 - Coverage MUST stay at or above 98% for statements, branches, functions and lines.
 - Tests that touch the database MUST use the real Postgres container, not mocked repositories.
   Only third-party APIs outside the project's control may be mocked.
-- E2E tests boot the full `AppModule` against Testcontainers that use the same image pins as
-  `docker-compose.yml`.
+- E2E tests of app behaviour (HTTP, startup and shutdown, logging, module wiring) boot the full
+  `AppModule` against Testcontainers that use the same image pins as `docker-compose.yml`. They
+  boot it once per test file, not once per test.
+- Database tests (schema rules, repositories, queries) MAY open a `DataSource` built from the
+  app's shared TypeORM options instead of booting the app. At least one e2e test MUST boot
+  `AppModule` and prove that every entity is registered.
 - Each test MUST create its own data and MUST NOT depend on rows from other tests.
 - Logic lives in services, not module factories, so it is testable.
 
-Rationale: mocked infrastructure hides the failures that matter most in a backend service.
+Rationale: mocked infrastructure hides the failures that matter most in a backend service. A
+database test checks the database, so it does not pay for starting clients it never uses; one
+full-app test still proves the wiring.
 
 ### III. Validated Configuration
 
@@ -103,4 +109,4 @@ Rationale: an unpinned or brand-new dependency is the cheapest way into the buil
   principle or section or expands guidance, PATCH clarifies wording.
 - Every plan and review checks compliance with these principles. Extra complexity MUST be justified.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-15 | **Last Amended**: 2026-10-15
+**Version**: 1.1.0 | **Ratified**: 2026-10-15 | **Last Amended**: 2026-10-17

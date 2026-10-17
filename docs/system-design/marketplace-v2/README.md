@@ -18,7 +18,7 @@ System design case, version 2. It describes the target system and how it grows. 
 - The buyer gets an invoice and pays it by the due date. Reminders go out 2 days before, 1 day before and on the due date. An unpaid invoice becomes overdue, and both sides are notified.
 - Both sides get notifications as the deal moves: money sent, money received, goods shipped, goods delivered.
 - The buyer earns bonuses for paying on time.
-- New in v2: each company has a wallet. Lots have a title, a price and a stock; the seller publishes a lot and can hide it. Lot photos are files in object storage with their metadata in the database.
+- New in v2: a company activates a wallet before it sells, buys or receives money; a company has zero or one wallet. Lots have a title, a price and a stock, and keep a history of their prices; the seller publishes a lot and can hide it. Lot photos are files in object storage with their metadata in the database.
 - New in v2: a deal records who bought what, from whom, how many units and at what price. A money journal records who was topped up, when and by how much, and every debit and credit.
 
 Decisions that are already made:
@@ -34,7 +34,7 @@ The full model is in the feature specification [`specs/001-marketplace-data-mode
 
 ![Marketplace v2 data model](./erd.drawio.svg)
 
-`erd.drawio.svg` is both the picture and the source. Open it in [draw.io](https://app.diagrams.net/) to edit it. It is a copy of the file in the feature folder; keep the two identical.
+`erd.drawio.svg` is both the picture and the source. Open it in [draw.io](https://app.diagrams.net/) to edit it. [`erd.md`](./erd.md) describes every table and column and the normal form of each table. Both files are copies of the files in the feature folder and in `docs/architecture/`; keep all copies identical.
 
 How a deal moves:
 
@@ -51,6 +51,7 @@ Money rules:
 
 - Money is a double-entry ledger. Every movement is a transfer whose entries sum to 0. Besides the company wallets there are two platform accounts: escrow, and bank clearing (the counterpart of every top-up). The sum of all balances is always 0.
 - A company wallet never goes below 0. The ledger is append-only: a mistake is fixed with a correction that records the reason.
+- A retried purchase or correction never runs twice: each carries an idempotency key that the database keeps unique.
 - Amounts are exact integers in minor units (cents). One currency.
 
 Abuse protection (platform settings that the operator can change):

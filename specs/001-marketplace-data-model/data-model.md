@@ -1,6 +1,6 @@
 # Data Model: Marketplace
 
-PostgreSQL schema for [spec.md](./spec.md). Design decisions and their alternatives are in [research.md](./research.md) (R1–R13). Table and column names are `snake_case`; tables are plural.
+PostgreSQL schema for [spec.md](./spec.md). Design decisions and their alternatives are in [research.md](./research.md) (R1–R13). Feature 002 built this schema and changed it in a few places: a company email, zero or one wallet per company, idempotency keys and lot price history (see the Clarifications of [feature 002](../002-marketplace-schema/spec.md)). Table and column names are `snake_case`; tables are plural.
 
 Conventions for every table:
 
@@ -11,24 +11,27 @@ Conventions for every table:
 
 ## Entity-relationship diagram
 
+The draw.io version is [`erd.drawio.svg`](./erd.drawio.svg). [`erd.md`](./erd.md) describes every table and column, the normal form of each table and the deliberate copies of data (feature 002).
+
 ```mermaid
 erDiagram
-    companies |o--|| accounts : "owns wallet"
-    companies ||--o{ lots : "sells"
+    companies |o--o| accounts : "owns wallet"
+    accounts ||--o{ lots : "sells"
     lots ||--o{ lot_photos : "has"
+    lots ||--|{ lot_price_changes : "price history"
     lots ||--o{ deals : "sold in"
-    companies ||--o{ deals : "buys in"
-    companies ||--o{ deals : "sells in"
+    accounts ||--o{ deals : "buys in"
+    accounts ||--o{ deals : "sells in"
     deals ||--|| invoices : "billed by"
     deals ||--|{ deal_status_changes : "history"
     ledger_transfers ||--|{ ledger_entries : "consists of"
     accounts ||--o{ ledger_entries : "posted to"
-    companies ||--o{ top_ups : "receives"
+    accounts ||--o{ top_ups : "receives"
     invoices |o--o{ top_ups : "named in"
     top_ups |o--|| ledger_transfers : "posted as"
     invoices |o--o| ledger_transfers : "paid by"
     deals |o--o| ledger_transfers : "paid out or refunded by"
-    companies ||--o{ corrections : "receives"
+    accounts ||--o{ corrections : "receives"
     top_ups |o--o{ corrections : "fixed by"
     corrections |o--|| ledger_transfers : "posted as"
 
@@ -36,6 +39,7 @@ erDiagram
         uuid id PK
         text name
         text registration_number UK
+        text email UK "unique on lower(email)"
         timestamptz created_at
         timestamptz updated_at
     }
@@ -48,13 +52,22 @@ erDiagram
     }
     lots {
         uuid id PK
-        uuid seller_company_id FK
+        uuid seller_company_id FK "seller wallet"
         text title
         bigint unit_price_minor "> 0"
         integer stock_available ">= 0"
         text status "hidden | published"
         timestamptz created_at
         timestamptz updated_at
+    }
+    lot_price_changes {
+        bigint id PK
+        uuid lot_id FK
+        bigint old_price_minor "null on creation"
+        bigint new_price_minor
+        text actor_type "seller | operator"
+        text actor_ref
+        timestamptz changed_at
     }
     lot_photos {
         uuid id PK
@@ -71,13 +84,14 @@ erDiagram
     deals {
         uuid id PK
         uuid lot_id FK
-        uuid buyer_company_id FK
-        uuid seller_company_id FK "with lot_id, matches lots"
+        uuid buyer_company_id FK "buyer wallet"
+        uuid seller_company_id FK "seller wallet; with lot_id, matches lots"
         integer quantity ">= 1"
         bigint unit_price_minor "price at purchase"
         bigint total_minor "quantity x unit price"
         text status
         timestamptz confirmation_due_at "set when shipped"
+        uuid idempotency_key "unique per buyer"
         timestamptz created_at
         timestamptz updated_at
     }
@@ -111,6 +125,7 @@ erDiagram
         uuid correction_id FK, UK
         text actor_type
         text actor_ref
+        smallint entry_count "2 or more"
         timestamptz created_at
     }
     ledger_entries {
@@ -123,7 +138,7 @@ erDiagram
     }
     top_ups {
         uuid id PK
-        uuid company_id FK
+        uuid company_id FK "company wallet"
         bigint amount_minor "> 0"
         text bank_reference UK "normalized"
         date transfer_date
@@ -133,11 +148,12 @@ erDiagram
     }
     corrections {
         uuid id PK
-        uuid company_id FK
+        uuid company_id FK "company wallet"
         bigint amount_minor "signed, not 0"
         text reason
         uuid top_up_id FK "optional"
         text operator_ref
+        uuid idempotency_key UK
         timestamptz created_at
     }
     platform_settings {
@@ -153,7 +169,7 @@ erDiagram
     }
 ```
 
-Cardinality markers: the marker next to a table says how many rows of that table one row on the other side has. For example, `top_ups |o--|| ledger_transfers` reads: a transfer has zero or one top-up (only `top_up` transfers have one), and a top-up has exactly one transfer. `companies |o--|| accounts` reads: a platform account has no company, and a company has exactly one wallet.
+Cardinality markers: the marker next to a table says how many rows of that table one row on the other side has. For example, `top_ups |o--|| ledger_transfers` reads: a transfer has zero or one top-up (only `top_up` transfers have one), and a top-up has exactly one transfer. `companies |o--o| accounts` reads: a platform account has no company, and a company has zero or one wallet. Lots, deals, top-ups and corrections point to the wallet (`accounts.company_id`), not to the company, so a company needs its wallet before it sells, buys or receives money.
 
 `platform_settings` has no relationships: its values are copied into `invoices` and `deals` when they are created (R5).
 
@@ -198,45 +214,49 @@ A paid invoice stays `paid` when the deal is later refunded; the refund is a tra
 
 ### companies
 
-| Column                | Type        | Rules                 |
-| --------------------- | ----------- | --------------------- |
-| `id`                  | uuid        | PK                    |
-| `name`                | text        | not null, 1–300 chars |
-| `registration_number` | text        | not null, `UNIQUE`    |
-| `created_at`          | timestamptz | not null              |
-| `updated_at`          | timestamptz | not null              |
+| Column                | Type        | Rules                                                                     |
+| --------------------- | ----------- | ------------------------------------------------------------------------- |
+| `id`                  | uuid        | PK                                                                        |
+| `name`                | text        | not null, 1–300 chars                                                     |
+| `registration_number` | text        | not null, `UNIQUE`                                                        |
+| `email`               | text        | not null, at most 254 chars, one `@`, no spaces; unique on `lower(email)` |
+| `created_at`          | timestamptz | not null                                                                  |
+| `updated_at`          | timestamptz | not null                                                                  |
 
 `registration_number` (the legal registration id) is not in the spec. It is added so the same legal entity cannot be registered twice; drop it if onboarding defines identity differently.
 
+`email` is the company's contact address for billing and notifications, not a login (feature 002). It is stored as typed; the unique index on `lower(email)` makes `Sales@Acme.com` and `sales@acme.com` the same address.
+
 ### accounts
 
-| Column          | Type        | Rules                                                                     |
-| --------------- | ----------- | ------------------------------------------------------------------------- |
-| `id`            | uuid        | PK                                                                        |
-| `type`          | text        | `company_wallet`, `escrow`, `bank_clearing`                               |
-| `company_id`    | uuid        | FK `companies`, `UNIQUE`; not null exactly when `type = 'company_wallet'` |
-| `balance_minor` | bigint      | not null, default 0                                                       |
-| `created_at`    | timestamptz | not null                                                                  |
+| Column          | Type        | Rules                                                                                          |
+| --------------- | ----------- | ---------------------------------------------------------------------------------------------- |
+| `id`            | uuid        | PK                                                                                             |
+| `type`          | text        | `company_wallet`, `escrow`, `bank_clearing`                                                    |
+| `company_id`    | uuid        | FK `companies` `ON DELETE RESTRICT`, `UNIQUE`; not null exactly when `type = 'company_wallet'` |
+| `balance_minor` | bigint      | not null, default 0                                                                            |
+| `created_at`    | timestamptz | not null                                                                                       |
 
 Constraints:
 
 - `CHECK ((type = 'company_wallet') = (company_id IS NOT NULL))`
 - `CHECK (type = 'bank_clearing' OR balance_minor >= 0)` and `CHECK (type <> 'bank_clearing' OR balance_minor <= 0)` (R2)
 - `UNIQUE (type) WHERE type <> 'company_wallet'`: one escrow and one bank clearing account. Both are created by the migration that creates the table.
-- A company and its wallet are inserted in one transaction (FR-002).
+- A company has zero or one wallet (FR-002, changed by feature 002). The wallet is a separate activation step; `lots`, `deals`, `top_ups` and `corrections` reference `accounts (company_id)`, so they need it.
+- Rows are never deleted, and `type` and `company_id` never change; only the balance changes (trigger `accounts_identity_immutable`).
 
 ### lots
 
-| Column              | Type        | Rules                                                   |
-| ------------------- | ----------- | ------------------------------------------------------- |
-| `id`                | uuid        | PK                                                      |
-| `seller_company_id` | uuid        | not null, FK `companies`                                |
-| `title`             | text        | not null, 1–200 chars                                   |
-| `unit_price_minor`  | bigint      | not null, `> 0`                                         |
-| `stock_available`   | integer     | not null, `>= 0`; reserved units are already subtracted |
-| `status`            | text        | `hidden`, `published`; default `hidden`                 |
-| `created_at`        | timestamptz | not null                                                |
-| `updated_at`        | timestamptz | not null                                                |
+| Column              | Type        | Rules                                                     |
+| ------------------- | ----------- | --------------------------------------------------------- |
+| `id`                | uuid        | PK                                                        |
+| `seller_company_id` | uuid        | not null, FK `accounts (company_id)`: the seller's wallet |
+| `title`             | text        | not null, 1–200 chars                                     |
+| `unit_price_minor`  | bigint      | not null, `> 0`                                           |
+| `stock_available`   | integer     | not null, `>= 0`; reserved units are already subtracted   |
+| `status`            | text        | `hidden`, `published`; default `hidden`                   |
+| `created_at`        | timestamptz | not null                                                  |
+| `updated_at`        | timestamptz | not null                                                  |
 
 - `UNIQUE (id, seller_company_id)`: target of the composite foreign key from `deals` (R10).
 - Index `(seller_company_id)`; partial index `(created_at) WHERE status = 'published'` for the catalog.
@@ -260,23 +280,44 @@ Constraints:
 - `UNIQUE (lot_id, position) DEFERRABLE INITIALLY DEFERRED`: photos can be reordered in one transaction.
 - `ON DELETE CASCADE` only matters for a lot without deals, which may be deleted.
 
+### lot_price_changes
+
+Added by feature 002.
+
+| Column            | Type        | Rules                                                |
+| ----------------- | ----------- | ---------------------------------------------------- |
+| `id`              | bigint      | PK, identity; orders the history                     |
+| `lot_id`          | uuid        | not null, FK `lots` `ON DELETE CASCADE`              |
+| `old_price_minor` | bigint      | null only in the lot's creation row; otherwise `> 0` |
+| `new_price_minor` | bigint      | not null, `> 0`, distinct from `old_price_minor`     |
+| `actor_type`      | text        | `seller`, `operator`                                 |
+| `actor_ref`       | text        | not null                                             |
+| `changed_at`      | timestamptz | not null                                             |
+
+- `UNIQUE (lot_id) WHERE old_price_minor IS NULL`: one creation row per lot.
+- Index `(lot_id, id)`.
+- Never updated; deleted only by the cascade when its lot (without deals) is deleted.
+- The service writes the creation row with the lot and one row per price change, in the same transaction; `lots.unit_price_minor` equals the newest `new_price_minor`.
+
 ### deals
 
-| Column                | Type        | Rules                                                                                              |
-| --------------------- | ----------- | -------------------------------------------------------------------------------------------------- |
-| `id`                  | uuid        | PK                                                                                                 |
-| `lot_id`              | uuid        | not null                                                                                           |
-| `buyer_company_id`    | uuid        | not null, FK `companies`                                                                           |
-| `seller_company_id`   | uuid        | not null; `(lot_id, seller_company_id)` FK `lots (id, seller_company_id)` `ON DELETE RESTRICT`     |
-| `quantity`            | integer     | not null, `>= 1`                                                                                   |
-| `unit_price_minor`    | bigint      | not null, `> 0`; copied from the lot at purchase                                                   |
-| `total_minor`         | bigint      | not null; `CHECK (total_minor = quantity * unit_price_minor)`                                      |
-| `status`              | text        | `awaiting_payment`, `paid`, `shipped`, `disputed`, `completed`, `cancelled`, `expired`, `refunded` |
-| `confirmation_due_at` | timestamptz | null until shipped; `shipped_at + confirmation_window_days`                                        |
-| `created_at`          | timestamptz | not null                                                                                           |
-| `updated_at`          | timestamptz | not null                                                                                           |
+| Column                | Type        | Rules                                                                                                                      |
+| --------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `id`                  | uuid        | PK                                                                                                                         |
+| `lot_id`              | uuid        | not null                                                                                                                   |
+| `buyer_company_id`    | uuid        | not null, FK `accounts (company_id)`: the buyer's wallet                                                                   |
+| `seller_company_id`   | uuid        | not null, FK `accounts (company_id)`; `(lot_id, seller_company_id)` FK `lots (id, seller_company_id)` `ON DELETE RESTRICT` |
+| `quantity`            | integer     | not null, `>= 1`                                                                                                           |
+| `unit_price_minor`    | bigint      | not null, `> 0`; copied from the lot at purchase                                                                           |
+| `total_minor`         | bigint      | not null; `CHECK (total_minor = quantity * unit_price_minor)`                                                              |
+| `status`              | text        | `awaiting_payment`, `paid`, `shipped`, `disputed`, `completed`, `cancelled`, `expired`, `refunded`                         |
+| `confirmation_due_at` | timestamptz | null until shipped; `shipped_at + confirmation_window_days`                                                                |
+| `idempotency_key`     | uuid        | not null; generated by the client once per purchase submission                                                             |
+| `created_at`          | timestamptz | not null                                                                                                                   |
+| `updated_at`          | timestamptz | not null                                                                                                                   |
 
 - `CHECK (buyer_company_id <> seller_company_id)` (FR-014).
+- `UNIQUE (buyer_company_id, idempotency_key)`: a retried purchase never creates a second deal (feature 002).
 - `CHECK ((status IN ('shipped', 'disputed', 'completed')) <= (confirmation_due_at IS NOT NULL))`: a shipped deal always has a confirmation deadline. A deal refunded after a dispute keeps its deadline too.
 - Indexes: `(buyer_company_id, status)` for the unpaid limit; `(seller_company_id, status)`; `(lot_id)`; partial `(confirmation_due_at) WHERE status = 'shipped'` for the auto-confirm job.
 - Allowed transitions (FR-011) are enforced in the service, and each transition writes a `deal_status_changes` row in the same transaction.
@@ -295,6 +336,7 @@ Constraints:
 | `changed_at`  | timestamptz | not null                                              |
 
 - Index `(deal_id, id)`.
+- `UNIQUE (deal_id) WHERE from_status IS NULL`: one creation row per deal.
 - Append-only, like the ledger (R4).
 - Expiry and auto-confirmation are written with `actor_type = 'system'` (US3 scenario 3).
 
@@ -318,17 +360,18 @@ Constraints:
 
 ### ledger_transfers
 
-| Column          | Type        | Rules                                                         |
-| --------------- | ----------- | ------------------------------------------------------------- |
-| `id`            | uuid        | PK                                                            |
-| `type`          | text        | `top_up`, `invoice_payment`, `payout`, `refund`, `correction` |
-| `top_up_id`     | uuid        | FK `top_ups`, `UNIQUE`                                        |
-| `invoice_id`    | uuid        | FK `invoices`                                                 |
-| `deal_id`       | uuid        | FK `deals`                                                    |
-| `correction_id` | uuid        | FK `corrections`, `UNIQUE`                                    |
-| `actor_type`    | text        | `buyer`, `seller`, `operator`, `system`                       |
-| `actor_ref`     | text        | null exactly when `actor_type = 'system'`                     |
-| `created_at`    | timestamptz | not null                                                      |
+| Column          | Type        | Rules                                                                 |
+| --------------- | ----------- | --------------------------------------------------------------------- |
+| `id`            | uuid        | PK                                                                    |
+| `type`          | text        | `top_up`, `invoice_payment`, `payout`, `refund`, `correction`         |
+| `top_up_id`     | uuid        | FK `top_ups`, `UNIQUE`                                                |
+| `invoice_id`    | uuid        | FK `invoices`                                                         |
+| `deal_id`       | uuid        | FK `deals`                                                            |
+| `correction_id` | uuid        | FK `corrections`, `UNIQUE`                                            |
+| `actor_type`    | text        | `buyer`, `seller`, `operator`, `system`                               |
+| `actor_ref`     | text        | null exactly when `actor_type = 'system'`                             |
+| `entry_count`   | smallint    | not null, `>= 2`; the number of entries of the transfer (feature 002) |
+| `created_at`    | timestamptz | not null                                                              |
 
 Constraints (R3):
 
@@ -349,8 +392,8 @@ Constraints (R3):
 | `balance_after_minor` | bigint      | not null; `accounts.balance_minor` after this entry             |
 | `created_at`          | timestamptz | not null                                                        |
 
-- Index `(account_id, id)` for statements.
-- Deferred constraint trigger: per transfer, at least 2 entries and `SUM(amount_minor) = 0` (FR-026).
+- Index `(account_id, id)` for statements; index `(transfer_id)` for the zero-sum trigger.
+- Deferred constraint trigger: per transfer, exactly `entry_count` entries and `SUM(amount_minor) = 0` (FR-026). A committed transfer is closed: entries added later break the count.
 - No `UPDATE` or `DELETE` (R4).
 - The service writes the entry and updates `accounts.balance_minor` in the same transaction, with the account row locked (R9).
 
@@ -367,31 +410,33 @@ Entries per transfer type:
 
 ### top_ups
 
-| Column           | Type        | Rules                                                      |
-| ---------------- | ----------- | ---------------------------------------------------------- |
-| `id`             | uuid        | PK                                                         |
-| `company_id`     | uuid        | not null, FK `companies`; the wallet that receives         |
-| `amount_minor`   | bigint      | not null, `> 0`                                            |
-| `bank_reference` | text        | not null, `UNIQUE`; trimmed and upper case (R12)           |
-| `transfer_date`  | date        | not null; value date from the bank notification            |
-| `invoice_id`     | uuid        | FK `invoices`; the invoice named in the transfer, optional |
-| `operator_ref`   | text        | not null                                                   |
-| `recorded_at`    | timestamptz | not null                                                   |
+| Column           | Type        | Rules                                                                  |
+| ---------------- | ----------- | ---------------------------------------------------------------------- |
+| `id`             | uuid        | PK                                                                     |
+| `company_id`     | uuid        | not null, FK `accounts (company_id)`; the wallet that receives         |
+| `amount_minor`   | bigint      | not null, `> 0`                                                        |
+| `bank_reference` | text        | not null, `UNIQUE`; electronic format: upper case, no whitespace (R12) |
+| `transfer_date`  | date        | not null; value date from the bank notification                        |
+| `invoice_id`     | uuid        | FK `invoices`; the invoice named in the transfer, optional             |
+| `operator_ref`   | text        | not null                                                               |
+| `recorded_at`    | timestamptz | not null                                                               |
 
 - One `top_up` transfer per row (`ledger_transfers.top_up_id` is `UNIQUE`).
+- `CHECK (bank_reference ~ '^[A-Z0-9/?:().,''+-]+$')`: only the electronic format is stored (feature 002).
 - If `invoice_id` is set, the invoice is `issued`, belongs to a deal of this company, and the wallet covers it after the top-up, the service also writes the `invoice_payment` transfer in the same transaction (FR-034). Otherwise the money stays in the wallet.
 
 ### corrections
 
-| Column         | Type        | Rules                                          |
-| -------------- | ----------- | ---------------------------------------------- |
-| `id`           | uuid        | PK                                             |
-| `company_id`   | uuid        | not null, FK `companies`                       |
-| `amount_minor` | bigint      | not null, `<> 0`; positive adds to the wallet  |
-| `reason`       | text        | not null, 1–1000 chars                         |
-| `top_up_id`    | uuid        | FK `top_ups`; the top-up being fixed, optional |
-| `operator_ref` | text        | not null                                       |
-| `created_at`   | timestamptz | not null                                       |
+| Column            | Type        | Rules                                                           |
+| ----------------- | ----------- | --------------------------------------------------------------- |
+| `id`              | uuid        | PK                                                              |
+| `company_id`      | uuid        | not null, FK `accounts (company_id)`                            |
+| `amount_minor`    | bigint      | not null, `<> 0`; positive adds to the wallet                   |
+| `reason`          | text        | not null, 1–1000 chars                                          |
+| `top_up_id`       | uuid        | FK `top_ups`; the top-up being fixed, optional                  |
+| `operator_ref`    | text        | not null                                                        |
+| `idempotency_key` | uuid        | not null, `UNIQUE`; generated by the client once per submission |
+| `created_at`      | timestamptz | not null                                                        |
 
 - A negative correction cannot take the wallet below 0: the `accounts` `CHECK` rejects it.
 - Wrong company credited and the money already spent: a negative correction on the wrong company for at most its current balance, and a positive correction on the right company for the full amount. Money recovered later by bank transfer is a `top_ups` row for the wrong company, followed by a negative correction of the same amount. The gap between the real bank account and the `bank_clearing` balance in between is not recorded in the model.
@@ -433,21 +478,23 @@ Prepay-only check at purchase (FR-023): count the buyer's deals with `status = '
 
 ## Invariants and where they are enforced
 
-| Rule                                                    | Spec           | Enforced by                                                   |
-| ------------------------------------------------------- | -------------- | ------------------------------------------------------------- |
-| Stock never below 0, no oversell                        | FR-016, SC-004 | conditional `UPDATE`, `CHECK (stock_available >= 0)`          |
-| Wallet and escrow never below 0                         | FR-031         | `CHECK` on `accounts`, row lock                               |
-| Transfer sums to 0, at least 2 entries                  | FR-026, SC-002 | deferred constraint trigger                                   |
-| Balance equals sum of entries                           | FR-031, SC-001 | service updates both in one transaction; reconciliation query |
-| Ledger never changes                                    | FR-030         | trigger + `INSERT`-only grants                                |
-| One payment per invoice, one payout or refund per deal  | FR-020, SC-005 | partial unique indexes on `ledger_transfers`                  |
-| One bank notification recorded once                     | FR-033, SC-008 | `UNIQUE (bank_reference)` on normalized value                 |
-| Deal price never changes                                | FR-006         | price copied to `deals`; no update path                       |
-| Buyer is not the seller; deal seller matches lot seller | FR-014         | `CHECK`, composite FK                                         |
-| One wallet per company                                  | FR-002         | `UNIQUE (company_id)` on `accounts`                           |
-| Escrow equals open deal totals                          | SC-003         | reconciliation query                                          |
-| Valid status transitions                                | FR-011         | service; history row per change                               |
-| Lot with deals is never deleted                         | FR-007         | `ON DELETE RESTRICT`                                          |
+| Rule                                                                                | Spec           | Enforced by                                                                  |
+| ----------------------------------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------- |
+| Stock never below 0, no oversell                                                    | FR-016, SC-004 | conditional `UPDATE`, `CHECK (stock_available >= 0)`                         |
+| Wallet and escrow never below 0                                                     | FR-031         | `CHECK` on `accounts`, row lock                                              |
+| Transfer sums to 0, has the entry count it declares (at least 2)                    | FR-026, SC-002 | deferred constraint trigger                                                  |
+| Balance equals sum of entries                                                       | FR-031, SC-001 | service updates both in one transaction; reconciliation query                |
+| Ledger never changes                                                                | FR-030         | trigger + `INSERT`-only grants                                               |
+| One payment per invoice, one payout or refund per deal                              | FR-020, SC-005 | partial unique indexes on `ledger_transfers`                                 |
+| One bank notification recorded once                                                 | FR-033, SC-008 | `UNIQUE (bank_reference)` on normalized value                                |
+| Deal price never changes                                                            | FR-006         | price copied to `deals`; no update path                                      |
+| Buyer is not the seller; deal seller matches lot seller                             | FR-014         | `CHECK`, composite FK                                                        |
+| Zero or one wallet per company; a wallet before any lot, deal, top-up or correction | FR-002         | `UNIQUE (company_id)` on `accounts`; foreign keys to `accounts (company_id)` |
+| Deal and correction submitted once                                                  | feature 002    | `UNIQUE (buyer_company_id, idempotency_key)`, `UNIQUE (idempotency_key)`     |
+| Price history never changes                                                         | feature 002    | trigger on `lot_price_changes`                                               |
+| Escrow equals open deal totals                                                      | SC-003         | reconciliation query                                                         |
+| Valid status transitions                                                            | FR-011         | service; history row per change                                              |
+| Lot with deals is never deleted                                                     | FR-007         | `ON DELETE RESTRICT`                                                         |
 
 Reconciliation queries (for a later health or admin check):
 

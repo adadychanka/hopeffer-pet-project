@@ -40,7 +40,11 @@
       "pnpm run docker:down *",
       "rtk pnpm run docker:down *",
       "git push *",
-      "rtk git push *"
+      "rtk git push *",
+      "pnpm run migration:run *",
+      "pnpm run migration:revert *",
+      "pnpm run migration:generate *",
+      "pnpm run migration:check *"
     ],
     "filesystem": {
       "allowWrite": ["~/Library/pnpm", "~/Library/Caches/pnpm"],
