@@ -34,13 +34,15 @@ export class CreateCatalog1792267745981 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "lot_price_changes" ADD CONSTRAINT "lot_price_changes_lot_id_fkey" FOREIGN KEY ("lot_id") REFERENCES "lots"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
     );
-    // Hand-written below: the price history is append-only. A direct delete
-    // is rejected; the cascade from deleting the lot itself runs inside the
-    // foreign key's own trigger (pg_trigger_depth() > 1) and is allowed.
+    // Hand-written below: the price history is append-only. A row may be
+    // deleted only when its lot is already gone, which is the case only in
+    // the lot's ON DELETE CASCADE. Any other delete, from any trigger depth,
+    // is rejected while the lot exists.
     await queryRunner.query(`
             CREATE FUNCTION reject_price_change_edit() RETURNS trigger LANGUAGE plpgsql AS $$
             BEGIN
-                IF TG_OP = 'DELETE' AND pg_trigger_depth() > 1 THEN
+                IF TG_OP = 'DELETE'
+                   AND NOT EXISTS (SELECT 1 FROM lots WHERE id = OLD.lot_id) THEN
                     RETURN OLD;
                 END IF;
                 RAISE EXCEPTION '% rejects %', TG_NAME, TG_OP

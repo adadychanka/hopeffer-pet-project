@@ -473,6 +473,32 @@ describe('lot_price_changes', () => {
     ).toEqual([]);
   });
 
+  it('rejects a delete from inside another trigger while the lot exists', async () => {
+    // A throwaway trigger that deletes history rows. Everything is rolled back.
+    const { lotId } = await lotWithCreationRow();
+    await expectRule(
+      rolledBack(db, async (tx) => {
+        await tx.query(
+          'CREATE TEMP TABLE price_history_probe (lot_id uuid) ON COMMIT DROP',
+        );
+        await tx.query(`
+          CREATE FUNCTION pg_temp.delete_price_history() RETURNS trigger
+          LANGUAGE plpgsql AS $$
+          BEGIN
+            DELETE FROM lot_price_changes WHERE lot_id = NEW.lot_id;
+            RETURN NULL;
+          END
+          $$`);
+        await tx.query(
+          `CREATE TRIGGER price_history_probe_delete AFTER INSERT ON price_history_probe
+           FOR EACH ROW EXECUTE FUNCTION pg_temp.delete_price_history()`,
+        );
+        await tx.query('INSERT INTO price_history_probe VALUES ($1)', [lotId]);
+      }),
+      'lot_price_changes_append_only',
+    );
+  });
+
   it('requires every column except the old price', async () => {
     await expectRequiredColumns(db, 'lot_price_changes', changeRow, [
       'lot_id',

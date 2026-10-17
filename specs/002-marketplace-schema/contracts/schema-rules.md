@@ -79,17 +79,17 @@ Required-column (`NOT NULL`) violations have no constraint name in PostgreSQL. T
 
 ## lot_price_changes (C)
 
-| Rule                                   | Kind         | Definition                                                                | Spec    |
-| -------------------------------------- | ------------ | ------------------------------------------------------------------------- | ------- |
-| `lot_price_changes_lot_id_fkey`        | foreign key  | `→ lots (id) ON DELETE CASCADE`                                           | FR-010a |
-| `lot_price_changes_old_price_positive` | check        | `old_price_minor IS NULL OR old_price_minor > 0`                          | FR-010a |
-| `lot_price_changes_new_price_positive` | check        | `new_price_minor > 0`                                                     | FR-010a |
-| `lot_price_changes_price_changed`      | check        | `old_price_minor IS DISTINCT FROM new_price_minor`                        | FR-010a |
-| `lot_price_changes_actor_type_check`   | check        | `actor_type IN ('seller', 'operator')`                                    | FR-010a |
-| `lot_price_changes_creation_key`       | unique index | `(lot_id) WHERE old_price_minor IS NULL`                                  | FR-010a |
-| `lot_price_changes_lot_id_id_idx`      | index        | `(lot_id, id)`                                                            | FR-010a |
-| `lot_price_changes_append_only`        | trigger      | rejects `UPDATE`; rejects `DELETE` unless it comes from the lot's cascade | FR-010a |
-| required                               | not null     | every column except `old_price_minor`                                     | FR-004  |
+| Rule                                   | Kind         | Definition                                                                                         | Spec    |
+| -------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------- | ------- |
+| `lot_price_changes_lot_id_fkey`        | foreign key  | `→ lots (id) ON DELETE CASCADE`                                                                    | FR-010a |
+| `lot_price_changes_old_price_positive` | check        | `old_price_minor IS NULL OR old_price_minor > 0`                                                   | FR-010a |
+| `lot_price_changes_new_price_positive` | check        | `new_price_minor > 0`                                                                              | FR-010a |
+| `lot_price_changes_price_changed`      | check        | `old_price_minor IS DISTINCT FROM new_price_minor`                                                 | FR-010a |
+| `lot_price_changes_actor_type_check`   | check        | `actor_type IN ('seller', 'operator')`                                                             | FR-010a |
+| `lot_price_changes_creation_key`       | unique index | `(lot_id) WHERE old_price_minor IS NULL`                                                           | FR-010a |
+| `lot_price_changes_lot_id_id_idx`      | index        | `(lot_id, id)`                                                                                     | FR-010a |
+| `lot_price_changes_append_only`        | trigger      | rejects `UPDATE`; rejects `DELETE` while the lot exists, so a row goes only with its lot's cascade | FR-010a |
+| required                               | not null     | every column except `old_price_minor`                                                              | FR-004  |
 
 ## deals (C)
 
