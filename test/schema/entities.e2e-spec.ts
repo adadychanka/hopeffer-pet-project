@@ -179,6 +179,7 @@ describe('entities round-trip every table (Story 4 scenario 1)', () => {
           correctionId: null,
           actorType: 'operator',
           actorRef: 'operator-1',
+          entryCount: 2,
         }),
       );
       const entries = await manager.save(

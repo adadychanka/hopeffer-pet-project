@@ -26,7 +26,7 @@ In scope:
 
 - The 12 tables of the data model plus `lot_price_changes` (13 in total), created by reversible schema migrations: `companies`, `accounts`, `lots`, `lot_photos`, `deals`, `deal_status_changes`, `invoices`, `ledger_transfers`, `ledger_entries`, `top_ups`, `corrections`, `platform_settings`, `lot_price_changes`.
 - Every rule the data model assigns to the database: keys, foreign keys with their delete rules, unique and partial unique rules, check rules, required columns, defaults and indexes.
-- The database triggers of R4: the deferred check that the entries of a transfer sum to 0 with at least two entries, and the rejection of changes and deletes on the append-only tables.
+- The database triggers of R4: the deferred check that a transfer has exactly the number of entries it declares (at least two) and that they sum to 0, and the rejection of changes and deletes on the append-only tables.
 - The invoice number source of R6.
 - The seed rows: the single platform settings row with its defaults, and the two platform accounts (escrow, bank clearing).
 - Data definitions in the application code, one per table, that later features use to read and write the tables.
@@ -199,7 +199,7 @@ A reader of the README sees the ERD of the tables that exist today, next to the 
 **Money rules** (enforced by the database)
 
 - **FR-012**: `ledger_transfers`: `type` is one of the 5 transfer types; exactly one source is set (top-up, invoice, deal or correction), and it matches the type; one transfer per top-up and per correction; one `invoice_payment` per invoice; one `payout` or `refund` per deal, never both; `actor_type` and `actor_ref` follow the rule of FR-010.
-- **FR-013**: `ledger_entries`: `amount_minor` is not 0; at commit, the entries of each transfer written in the transaction number two or more and sum to 0.
+- **FR-013**: `ledger_entries`: `amount_minor` is not 0; at commit, the entries of each transfer written in the transaction sum to 0 and their number equals the transfer's `entry_count`, which is 2 or more. A committed transfer is closed: entries added to it later, even a balanced pair, are rejected.
 - **FR-014**: `ledger_transfers` and `ledger_entries` rows are never updated or deleted.
 - **FR-015**: `top_ups`: `amount_minor` above 0; `bank_reference` unique and stored only in normalized form (trimmed, upper case).
 - **FR-016**: `corrections`: `amount_minor` is not 0; `reason` 1–1000 characters; `idempotency_key` (`uuid`) is required and unique.
@@ -243,7 +243,7 @@ The entities are those of feature 001, with three changes. Company also has a co
 - **SC-001**: 100% of the rules in FR-005 to FR-017 (including FR-006a and FR-010a) have at least one test that breaks the rule and sees it rejected, and a traceability list maps each rule to its test.
 - **SC-002**: On an empty database, apply, revert and apply again succeed in 100% of runs, and the schema after the second apply is identical to the schema after the first.
 - **SC-003**: A data definition change without a matching migration fails the standard pipeline in 100% of cases.
-- **SC-004**: A transfer whose entries do not sum to 0, or that has fewer than 2 entries, is never committed: 0 such transfers exist after the tests run.
+- **SC-004**: A transfer whose entries do not sum to 0, that has fewer than 2 entries, or that has another number of entries than it declares, is never committed: 0 such transfers exist after the tests run.
 - **SC-005**: Money amounts round-trip exactly across the whole supported range: the smallest, the largest and a random sample of 1,000 amounts read back identical.
 - **SC-006**: A developer of the next feature can write a deal and its invoice from code in under 10 lines, with no raw SQL.
 

@@ -36,8 +36,8 @@ INSERT INTO accounts (type, company_id) SELECT 'company_wallet', id FROM compani
 INSERT INTO corrections (company_id, amount_minor, reason, operator_ref, idempotency_key)
   SELECT id, 100, 'quickstart', 'op-1', gen_random_uuid() FROM companies WHERE registration_number = 'QS-1';
 WITH t AS (
-  INSERT INTO ledger_transfers (type, correction_id, actor_type, actor_ref)
-  SELECT 'correction', id, 'operator', 'op-1' FROM corrections WHERE reason = 'quickstart' RETURNING id
+  INSERT INTO ledger_transfers (type, correction_id, actor_type, actor_ref, entry_count)
+  SELECT 'correction', id, 'operator', 'op-1', 2 FROM corrections WHERE reason = 'quickstart' RETURNING id
 )
 INSERT INTO ledger_entries (transfer_id, account_id, amount_minor, balance_after_minor)
 SELECT t.id, a.id, 100, 100 FROM t, accounts a JOIN companies c ON c.id = a.company_id WHERE c.registration_number = 'QS-1';

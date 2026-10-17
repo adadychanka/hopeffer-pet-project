@@ -123,6 +123,7 @@ erDiagram
         uuid correction_id FK, UK
         text actor_type
         text actor_ref
+        smallint entry_count "2 or more"
         timestamptz created_at
     }
     ledger_entries {
@@ -357,17 +358,18 @@ Added by feature 002.
 
 ### ledger_transfers
 
-| Column          | Type        | Rules                                                         |
-| --------------- | ----------- | ------------------------------------------------------------- |
-| `id`            | uuid        | PK                                                            |
-| `type`          | text        | `top_up`, `invoice_payment`, `payout`, `refund`, `correction` |
-| `top_up_id`     | uuid        | FK `top_ups`, `UNIQUE`                                        |
-| `invoice_id`    | uuid        | FK `invoices`                                                 |
-| `deal_id`       | uuid        | FK `deals`                                                    |
-| `correction_id` | uuid        | FK `corrections`, `UNIQUE`                                    |
-| `actor_type`    | text        | `buyer`, `seller`, `operator`, `system`                       |
-| `actor_ref`     | text        | null exactly when `actor_type = 'system'`                     |
-| `created_at`    | timestamptz | not null                                                      |
+| Column          | Type        | Rules                                                                 |
+| --------------- | ----------- | --------------------------------------------------------------------- |
+| `id`            | uuid        | PK                                                                    |
+| `type`          | text        | `top_up`, `invoice_payment`, `payout`, `refund`, `correction`         |
+| `top_up_id`     | uuid        | FK `top_ups`, `UNIQUE`                                                |
+| `invoice_id`    | uuid        | FK `invoices`                                                         |
+| `deal_id`       | uuid        | FK `deals`                                                            |
+| `correction_id` | uuid        | FK `corrections`, `UNIQUE`                                            |
+| `actor_type`    | text        | `buyer`, `seller`, `operator`, `system`                               |
+| `actor_ref`     | text        | null exactly when `actor_type = 'system'`                             |
+| `entry_count`   | smallint    | not null, `>= 2`; the number of entries of the transfer (feature 002) |
+| `created_at`    | timestamptz | not null                                                              |
 
 Constraints (R3):
 
@@ -389,7 +391,7 @@ Constraints (R3):
 | `created_at`          | timestamptz | not null                                                        |
 
 - Index `(account_id, id)` for statements; index `(transfer_id)` for the zero-sum trigger.
-- Deferred constraint trigger: per transfer, at least 2 entries and `SUM(amount_minor) = 0` (FR-026).
+- Deferred constraint trigger: per transfer, exactly `entry_count` entries and `SUM(amount_minor) = 0` (FR-026). A committed transfer is closed: entries added later break the count.
 - No `UPDATE` or `DELETE` (R4).
 - The service writes the entry and updates `accounts.balance_minor` in the same transaction, with the account row locked (R9).
 
@@ -478,7 +480,7 @@ Prepay-only check at purchase (FR-023): count the buyer's deals with `status = '
 | ----------------------------------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------- |
 | Stock never below 0, no oversell                                                    | FR-016, SC-004 | conditional `UPDATE`, `CHECK (stock_available >= 0)`                         |
 | Wallet and escrow never below 0                                                     | FR-031         | `CHECK` on `accounts`, row lock                                              |
-| Transfer sums to 0, at least 2 entries                                              | FR-026, SC-002 | deferred constraint trigger                                                  |
+| Transfer sums to 0, has the entry count it declares (at least 2)                    | FR-026, SC-002 | deferred constraint trigger                                                  |
 | Balance equals sum of entries                                                       | FR-031, SC-001 | service updates both in one transaction; reconciliation query                |
 | Ledger never changes                                                                | FR-030         | trigger + `INSERT`-only grants                                               |
 | One payment per invoice, one payout or refund per deal                              | FR-020, SC-005 | partial unique indexes on `ledger_transfers`                                 |

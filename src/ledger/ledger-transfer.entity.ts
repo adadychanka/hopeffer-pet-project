@@ -25,8 +25,11 @@ export const TRANSFER_TYPES = [
 export type TransferType = (typeof TRANSFER_TYPES)[number];
 
 // One money movement. It points to exactly one source record, which matches
-// its type. Its entries sum to 0, checked at commit by deferred triggers in
-// the migration; transfers and entries are never changed or deleted.
+// its type. The service declares how many entries it has (entry_count). At
+// commit, deferred triggers in the migration check that the transfer has
+// exactly that many entries and that they sum to 0. Transfers and entries are
+// never changed or deleted, so a committed transfer is closed: an entry added
+// later breaks the count.
 @Entity({ name: 'ledger_transfers' })
 @Check('ledger_transfers_type_check', `"type" IN (${sqlList(TRANSFER_TYPES)})`)
 @Check(
@@ -53,6 +56,7 @@ export type TransferType = (typeof TRANSFER_TYPES)[number];
   'ledger_transfers_actor_type_check',
   `"actor_type" IN (${sqlList(ACTOR_TYPES)})`,
 )
+@Check('ledger_transfers_entry_count_min', '"entry_count" >= 2')
 @Check(
   'ledger_transfers_actor_ref_matches_type',
   `("actor_type" = 'system') = ("actor_ref" IS NULL)`,
@@ -103,6 +107,9 @@ export class LedgerTransfer {
 
   @Column({ type: 'text', name: 'actor_ref', nullable: true })
   actorRef!: string | null;
+
+  @Column({ type: 'smallint', name: 'entry_count' })
+  entryCount!: number;
 
   /* v8 ignore start -- TS decorator metadata branch for a Date property, not app logic */
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })

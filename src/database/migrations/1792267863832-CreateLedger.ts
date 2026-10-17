@@ -11,7 +11,7 @@ export class CreateLedger1792267863832 implements MigrationInterface {
       `CREATE TABLE "corrections" ("id" uuid NOT NULL DEFAULT gen_random_uuid(), "company_id" uuid NOT NULL, "amount_minor" bigint NOT NULL, "reason" text NOT NULL, "top_up_id" uuid, "operator_ref" text NOT NULL, "idempotency_key" uuid NOT NULL, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "corrections_idempotency_key_key" UNIQUE ("idempotency_key"), CONSTRAINT "corrections_reason_length" CHECK (char_length("reason") BETWEEN 1 AND 1000), CONSTRAINT "corrections_amount_not_zero" CHECK ("amount_minor" <> 0), CONSTRAINT "corrections_pkey" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `CREATE TABLE "ledger_transfers" ("id" uuid NOT NULL DEFAULT gen_random_uuid(), "type" text NOT NULL, "top_up_id" uuid, "invoice_id" uuid, "deal_id" uuid, "correction_id" uuid, "actor_type" text NOT NULL, "actor_ref" text, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "ledger_transfers_correction_id_key" UNIQUE ("correction_id"), CONSTRAINT "ledger_transfers_top_up_id_key" UNIQUE ("top_up_id"), CONSTRAINT "ledger_transfers_actor_ref_matches_type" CHECK (("actor_type" = 'system') = ("actor_ref" IS NULL)), CONSTRAINT "ledger_transfers_actor_type_check" CHECK ("actor_type" IN ('buyer', 'seller', 'operator', 'system')), CONSTRAINT "ledger_transfers_correction_matches_type" CHECK (("type" = 'correction') = ("correction_id" IS NOT NULL)), CONSTRAINT "ledger_transfers_deal_matches_type" CHECK (("type" IN ('payout', 'refund')) = ("deal_id" IS NOT NULL)), CONSTRAINT "ledger_transfers_invoice_matches_type" CHECK (("type" = 'invoice_payment') = ("invoice_id" IS NOT NULL)), CONSTRAINT "ledger_transfers_top_up_matches_type" CHECK (("type" = 'top_up') = ("top_up_id" IS NOT NULL)), CONSTRAINT "ledger_transfers_one_source" CHECK (num_nonnulls("top_up_id", "invoice_id", "deal_id", "correction_id") = 1), CONSTRAINT "ledger_transfers_type_check" CHECK ("type" IN ('top_up', 'invoice_payment', 'payout', 'refund', 'correction')), CONSTRAINT "ledger_transfers_pkey" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "ledger_transfers" ("id" uuid NOT NULL DEFAULT gen_random_uuid(), "type" text NOT NULL, "top_up_id" uuid, "invoice_id" uuid, "deal_id" uuid, "correction_id" uuid, "actor_type" text NOT NULL, "actor_ref" text, "entry_count" smallint NOT NULL, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "ledger_transfers_correction_id_key" UNIQUE ("correction_id"), CONSTRAINT "ledger_transfers_top_up_id_key" UNIQUE ("top_up_id"), CONSTRAINT "ledger_transfers_entry_count_min" CHECK ("entry_count" >= 2), CONSTRAINT "ledger_transfers_actor_ref_matches_type" CHECK (("actor_type" = 'system') = ("actor_ref" IS NULL)), CONSTRAINT "ledger_transfers_actor_type_check" CHECK ("actor_type" IN ('buyer', 'seller', 'operator', 'system')), CONSTRAINT "ledger_transfers_correction_matches_type" CHECK (("type" = 'correction') = ("correction_id" IS NOT NULL)), CONSTRAINT "ledger_transfers_deal_matches_type" CHECK (("type" IN ('payout', 'refund')) = ("deal_id" IS NOT NULL)), CONSTRAINT "ledger_transfers_invoice_matches_type" CHECK (("type" = 'invoice_payment') = ("invoice_id" IS NOT NULL)), CONSTRAINT "ledger_transfers_top_up_matches_type" CHECK (("type" = 'top_up') = ("top_up_id" IS NOT NULL)), CONSTRAINT "ledger_transfers_one_source" CHECK (num_nonnulls("top_up_id", "invoice_id", "deal_id", "correction_id") = 1), CONSTRAINT "ledger_transfers_type_check" CHECK ("type" IN ('top_up', 'invoice_payment', 'payout', 'refund', 'correction')), CONSTRAINT "ledger_transfers_pkey" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE UNIQUE INDEX "ledger_transfers_deal_settlement_key" ON "ledger_transfers"  ("deal_id") WHERE "type" IN ('payout', 'refund')`,
@@ -58,29 +58,34 @@ export class CreateLedger1792267863832 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "ledger_entries" ADD CONSTRAINT "ledger_entries_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "accounts"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
     );
-    // Hand-written below. Zero-sum rule: at commit, a transfer has at least
-    // two entries and they sum to 0. The trigger on transfers catches a
-    // transfer with no entries; the trigger on entries catches an entry
-    // added later to an older transfer. Both raise one rule name, so the
-    // reported rule never depends on which trigger runs first.
+    // Hand-written below. Zero-sum rule: at commit, a transfer has exactly
+    // the number of entries it declares (entry_count, at least 2) and they
+    // sum to 0. The trigger on transfers catches a transfer with missing
+    // entries; the trigger on entries catches entries added later to a
+    // committed transfer, even a balanced pair, because they break the count.
+    // Both raise one rule name, so the reported rule never depends on which
+    // trigger runs first.
     await queryRunner.query(`
             CREATE FUNCTION check_transfer_balanced() RETURNS trigger LANGUAGE plpgsql AS $$
             DECLARE
                 checked_transfer_id uuid;
-                entry_count bigint;
-                entry_sum numeric;
+                declared_count smallint;
+                actual_count bigint;
+                actual_sum numeric;
             BEGIN
                 IF TG_TABLE_NAME = 'ledger_entries' THEN
                     checked_transfer_id := NEW.transfer_id;
                 ELSE
                     checked_transfer_id := NEW.id;
                 END IF;
+                SELECT t.entry_count INTO declared_count
+                    FROM ledger_transfers t WHERE t.id = checked_transfer_id;
                 SELECT count(*), coalesce(sum(amount_minor), 0)
-                    INTO entry_count, entry_sum
+                    INTO actual_count, actual_sum
                     FROM ledger_entries WHERE transfer_id = checked_transfer_id;
-                IF entry_count < 2 OR entry_sum <> 0 THEN
-                    RAISE EXCEPTION 'ledger transfer % has % entries summing to %',
-                        checked_transfer_id, entry_count, entry_sum
+                IF actual_count <> declared_count OR actual_sum <> 0 THEN
+                    RAISE EXCEPTION 'ledger transfer % declares % entries but has % summing to %',
+                        checked_transfer_id, declared_count, actual_count, actual_sum
                         USING ERRCODE = 'check_violation',
                               CONSTRAINT = 'ledger_transfers_balanced';
                 END IF;

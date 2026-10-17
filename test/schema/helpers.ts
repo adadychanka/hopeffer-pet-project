@@ -310,6 +310,8 @@ export interface TransferFixture {
     ref: string | null;
   };
   entries: { accountId: string; amountMinor: number }[];
+  // The entry count the transfer declares. Defaults to entries.length.
+  entryCount?: number;
 }
 
 // Inserts a transfer and its entries without committing. The zero-sum check
@@ -321,12 +323,13 @@ export async function writeTransfer(
     source,
     actor = { type: 'operator', ref: 'operator-1' },
     entries,
+    entryCount = entries.length,
   }: TransferFixture,
 ): Promise<string> {
   const transferId = await insertReturningId(
     db,
-    `INSERT INTO ledger_transfers (type, top_up_id, invoice_id, deal_id, correction_id, actor_type, actor_ref)
-     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+    `INSERT INTO ledger_transfers (type, top_up_id, invoice_id, deal_id, correction_id, actor_type, actor_ref, entry_count)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
     [
       type,
       source.topUpId ?? null,
@@ -335,6 +338,7 @@ export async function writeTransfer(
       source.correctionId ?? null,
       actor.type,
       actor.ref,
+      entryCount,
     ],
   );
   for (const entry of entries) {

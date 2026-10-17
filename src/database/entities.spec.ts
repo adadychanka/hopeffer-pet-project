@@ -160,6 +160,7 @@ const EXPECTED_RULES: Record<string, string[]> = {
     'ledger_transfers_actor_type_check',
     'ledger_transfers_correction_matches_type',
     'ledger_transfers_deal_matches_type',
+    'ledger_transfers_entry_count_min',
     'ledger_transfers_invoice_matches_type',
     'ledger_transfers_one_source',
     'ledger_transfers_top_up_matches_type',

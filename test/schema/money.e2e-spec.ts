@@ -377,6 +377,7 @@ describe('ledger_transfers', () => {
     correction_id: (await correctionSource()).correctionId,
     actor_type: 'operator',
     actor_ref: 'operator-1',
+    entry_count: 2,
   });
 
   it('rejects a transfer committed without entries', async () => {
@@ -394,6 +395,7 @@ describe('ledger_transfers', () => {
         type: 'gift',
         actor_type: 'operator',
         actor_ref: 'operator-1',
+        entry_count: 2,
       }),
       ['ledger_transfers_one_source', 'ledger_transfers_type_check'],
     );
@@ -430,6 +432,7 @@ describe('ledger_transfers', () => {
         type: 'payout',
         top_up_id: topUpId,
         actor_type: 'system',
+        entry_count: 2,
       }),
       'ledger_transfers_deal_matches_type',
     );
@@ -444,6 +447,7 @@ describe('ledger_transfers', () => {
         invoice_id: invoiceId,
         actor_type: 'operator',
         actor_ref: 'operator-1',
+        entry_count: 2,
       }),
       'ledger_transfers_invoice_matches_type',
     );
@@ -459,6 +463,7 @@ describe('ledger_transfers', () => {
         top_up_id: topUpId,
         actor_type: 'operator',
         actor_ref: 'operator-1',
+        entry_count: 2,
       }),
       [
         'ledger_transfers_correction_matches_type',
@@ -504,6 +509,7 @@ describe('ledger_transfers', () => {
           type,
           [column]: randomUUID(),
           actor_type: 'system',
+          entry_count: 2,
         }),
         rule,
       );
@@ -599,10 +605,21 @@ describe('ledger_transfers', () => {
     );
   });
 
-  it('requires the type, the actor type and the creation time', async () => {
+  it('declares at least 2 entries', async () => {
+    await expectRule(
+      insertRow(db, 'ledger_transfers', {
+        ...(await transferRow()),
+        entry_count: 1,
+      }),
+      'ledger_transfers_entry_count_min',
+    );
+  });
+
+  it('requires the type, the actor type, the entry count and the creation time', async () => {
     await expectRequiredColumns(db, 'ledger_transfers', transferRow, [
       'type',
       'actor_type',
+      'entry_count',
       'created_at',
     ]);
   });
@@ -643,12 +660,15 @@ describe('ledger_entries', () => {
   });
 
   it('rejects a transfer with a single entry (Story 3 scenario 3)', async () => {
+    // A transfer that declares 1 entry fails ledger_transfers_entry_count_min
+    // at insert. One that declares 2 but writes 1 fails at commit.
     const { walletId, correctionId } = await correctionSource();
     await expectRule(
       db.transaction((tx) =>
         writeTransfer(tx, {
           type: 'correction',
           source: { correctionId },
+          entryCount: 2,
           entries: [{ accountId: walletId, amountMinor: 100 }],
         }),
       ),
@@ -730,6 +750,52 @@ describe('ledger_entries', () => {
     );
   });
 
+  it('rejects a balanced pair of entries added later to a committed transfer', async () => {
+    const { transferId, walletId } = await committedCorrection();
+    const other = await createCompany(db);
+    await expectRule(
+      db.transaction(async (tx) => {
+        await insertRow(tx, 'ledger_entries', {
+          transfer_id: transferId,
+          account_id: other.walletId,
+          amount_minor: 500,
+          balance_after_minor: 500,
+        });
+        await insertRow(tx, 'ledger_entries', {
+          transfer_id: transferId,
+          account_id: walletId,
+          amount_minor: -500,
+          balance_after_minor: 0,
+        });
+      }),
+      'ledger_transfers_balanced',
+    );
+    expect(
+      await db.query<{ count: number }[]>(
+        'SELECT count(*)::int AS count FROM ledger_entries WHERE transfer_id = $1',
+        [transferId],
+      ),
+    ).toEqual([{ count: 2 }]);
+  });
+
+  it('rejects a transfer with fewer entries than it declares', async () => {
+    const source = await correctionSource();
+    await expectRule(
+      db.transaction((tx) =>
+        writeTransfer(tx, {
+          type: 'correction',
+          source: { correctionId: source.correctionId },
+          entryCount: 3,
+          entries: [
+            { accountId: bankClearingId, amountMinor: -100 },
+            { accountId: source.walletId, amountMinor: 100 },
+          ],
+        }),
+      ),
+      'ledger_transfers_balanced',
+    );
+  });
+
   it('points only to an existing transfer and account', async () => {
     const { transferId, walletId } = await committedCorrection();
     await expectRule(
@@ -795,13 +861,14 @@ describe('ledger_entries', () => {
     );
   });
 
-  it('holds no committed transfer with fewer than 2 entries or a non-zero sum (SC-004)', async () => {
+  it('holds no committed transfer with fewer than 2 entries, another count than it declares, or a non-zero sum (SC-004)', async () => {
     expect(
       await db.query(
         `SELECT t.id FROM ledger_transfers t
          LEFT JOIN ledger_entries e ON e.transfer_id = t.id
          GROUP BY t.id
-         HAVING count(e.id) < 2 OR coalesce(sum(e.amount_minor), 0) <> 0`,
+         HAVING count(e.id) < 2 OR count(e.id) <> t.entry_count
+             OR coalesce(sum(e.amount_minor), 0) <> 0`,
       ),
     ).toEqual([]);
   });
