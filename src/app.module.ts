@@ -15,6 +15,7 @@ import { LoggerModule } from './logger/logger.module.js';
 import { OpensearchModule } from './opensearch/opensearch.module.js';
 import { PlatformSettingsModule } from './platform-settings/platform-settings.module.js';
 import { S3Module } from './s3/s3.module.js';
+import { WalletsModule } from './wallets/wallets.module.js';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { S3Module } from './s3/s3.module.js';
     PlatformSettingsModule,
     CatalogModule,
     DealsModule,
+    WalletsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

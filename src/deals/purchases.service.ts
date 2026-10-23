@@ -4,6 +4,7 @@ import { parseSafeBigint } from '../database/safe-bigint.js';
 import type { CompanyActor } from '../http/actor.js';
 import { DomainError } from '../http/domain-error.js';
 import { lockAccounts, platformAccountIds } from '../ledger/posting.js';
+import { walletIdOf } from '../ledger/wallets.js';
 import type { DealStatus } from './deal.entity.js';
 import type { InvoiceStatus } from './invoice.entity.js';
 import { InvoicePaymentService } from './invoice-payment.service.js';
@@ -119,7 +120,7 @@ export class PurchasesService {
     { lotId, quantity, payNow }: PurchaseBody,
   ): Promise<PurchaseResult> {
     const buyerId = actor.companyId;
-    const walletId = await this.walletOf(manager, buyerId);
+    const walletId = await walletIdOf(manager, buyerId);
     const { escrowId } = await platformAccountIds(manager);
     const locked = await lockAccounts(
       manager,
@@ -221,29 +222,6 @@ export class PurchasesService {
       });
     }
     return { replayed: false, ...(await this.view(manager, dealId)) };
-  }
-
-  // The buyer's wallet id; the company must exist and have a wallet.
-  private async walletOf(
-    manager: EntityManager,
-    companyId: string,
-  ): Promise<string> {
-    const rows = await manager.query<{ wallet_id: string | null }[]>(
-      `SELECT a.id AS wallet_id FROM companies c
-       LEFT JOIN accounts a ON a.company_id = c.id
-       WHERE c.id = $1`,
-      [companyId],
-    );
-    if (rows.length === 0) {
-      throw new DomainError('company_not_found');
-    }
-    if (rows[0].wallet_id === null) {
-      throw new DomainError(
-        'wallet_not_activated',
-        'The company needs a wallet before it buys.',
-      );
-    }
-    return rows[0].wallet_id;
   }
 
   // The unpaid limit and the prepay-only rule (FR-019). Only a purchase that
