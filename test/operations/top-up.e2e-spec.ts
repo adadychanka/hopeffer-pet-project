@@ -468,7 +468,9 @@ describe('POST /top-ups: edge cases and errors', () => {
       topUp({ companyId: company.id, amountMinor: 1_000, bankReference }),
     ]);
 
-    expect(responses.map((r) => r.status).sort()).toEqual([201, 409]);
+    expect(responses.map((r) => r.status).sort((a, b) => a - b)).toEqual([
+      201, 409,
+    ]);
     expectProblem(
       responses.find((r) => r.status === 409) as (typeof responses)[number],
       409,

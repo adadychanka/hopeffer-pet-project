@@ -41,10 +41,6 @@ beforeAll(async () => {
   headers = await import('./helpers.js');
   booted = await headers.bootApp();
   db = booted.db;
-  const [{ name }] = await db.query<{ name: string }[]>(
-    'SELECT current_database() AS name',
-  );
-  expect(name).toBe(databaseName);
 });
 
 afterAll(async () => {
@@ -111,6 +107,10 @@ function invoiceIdOf(response: request.Response): string {
 
 describe('ledger reconciliation over a mix of operations', () => {
   it('keeps every balance, the zero sum and escrow consistent after each step', async () => {
+    const [{ name }] = await db.query<{ name: string }[]>(
+      'SELECT current_database() AS name',
+    );
+    expect(name).toBe(databaseName);
     const seller = await createCompany(db);
     const [first, second, third] = await Promise.all([
       createCompany(db),

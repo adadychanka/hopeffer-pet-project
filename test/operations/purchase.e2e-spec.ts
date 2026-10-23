@@ -552,7 +552,9 @@ describe('POST /deals: at the same time', () => {
       buyers.map((buyer) => buy(buyer.id, { lotId, quantity: 1 })),
     );
 
-    const statuses = responses.map((response) => response.status).sort();
+    const statuses = responses
+      .map((response) => response.status)
+      .sort((a, b) => a - b);
     expect(statuses).toEqual([201, ...Array<number>(9).fill(422)]);
     for (const response of responses.filter((r) => r.status === 422)) {
       expectProblem(response, 422, 'insufficient_stock');
