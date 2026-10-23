@@ -9,6 +9,7 @@ import { validateEnv } from './config/env.js';
 import { DatabaseModule } from './database/database.module.js';
 import { DealsModule } from './deals/deals.module.js';
 import { HealthModule } from './health/health.module.js';
+import { HttpModule } from './http/http.module.js';
 import { LedgerModule } from './ledger/ledger.module.js';
 import { LoggerModule } from './logger/logger.module.js';
 import { OpensearchModule } from './opensearch/opensearch.module.js';
@@ -26,6 +27,7 @@ import { S3Module } from './s3/s3.module.js';
       ignoreEnvFile: process.env.NODE_ENV === 'test',
     }),
     LoggerModule,
+    HttpModule,
     DatabaseModule,
     RedisCacheModule,
     S3Module,

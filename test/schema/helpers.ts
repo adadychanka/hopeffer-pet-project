@@ -197,9 +197,13 @@ export interface InvoiceFixture {
   amountMinor?: number;
   status?: string;
   paidAt?: Date | null;
+  // Defaults: issued now, due in 5 days, expiring 1 day later.
+  issuedAt?: Date;
+  dueAt?: Date;
+  expiresAt?: Date;
 }
 
-const DAY_MS = 24 * 60 * 60 * 1000;
+export const DAY_MS = 24 * 60 * 60 * 1000;
 
 export function createInvoice(
   db: Queryable,
@@ -208,22 +212,16 @@ export function createInvoice(
     amountMinor = 100_000,
     status = 'issued',
     paidAt = null,
+    issuedAt = new Date(),
+    dueAt = new Date(issuedAt.getTime() + 5 * DAY_MS),
+    expiresAt = new Date(dueAt.getTime() + DAY_MS),
   }: InvoiceFixture = {},
 ): Promise<string> {
-  const issuedAt = new Date();
   return insertReturningId(
     db,
     `INSERT INTO invoices (deal_id, amount_minor, status, issued_at, due_at, expires_at, paid_at)
      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
-    [
-      dealId,
-      amountMinor,
-      status,
-      issuedAt,
-      new Date(issuedAt.getTime() + 5 * DAY_MS),
-      new Date(issuedAt.getTime() + 6 * DAY_MS),
-      paidAt,
-    ],
+    [dealId, amountMinor, status, issuedAt, dueAt, expiresAt, paidAt],
   );
 }
 
@@ -411,4 +409,42 @@ export async function rolledBackManager<T>(
     await queryRunner.rollbackTransaction();
     await queryRunner.release();
   }
+}
+
+export async function walletBalance(
+  db: Queryable,
+  companyId: string,
+): Promise<number> {
+  const rows = (await db.query(
+    'SELECT balance_minor FROM accounts WHERE company_id = $1',
+    [companyId],
+  )) as { balance_minor: string }[];
+  return Number(rows[0].balance_minor);
+}
+
+export interface EntryRow {
+  accountId: string;
+  amountMinor: number;
+  balanceAfterMinor: number;
+}
+
+// The entries of one transfer, in the order they were written.
+export async function ledgerEntriesOf(
+  db: Queryable,
+  transferId: string,
+): Promise<EntryRow[]> {
+  const rows = (await db.query(
+    `SELECT account_id, amount_minor, balance_after_minor FROM ledger_entries
+     WHERE transfer_id = $1 ORDER BY id`,
+    [transferId],
+  )) as {
+    account_id: string;
+    amount_minor: string;
+    balance_after_minor: string;
+  }[];
+  return rows.map((row) => ({
+    accountId: row.account_id,
+    amountMinor: Number(row.amount_minor),
+    balanceAfterMinor: Number(row.balance_after_minor),
+  }));
 }
