@@ -7,9 +7,31 @@ export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
     root: './',
-    include: ['**/*.spec.ts'],
     // Experiments are separate apps with their own package.json.
     exclude: [...configDefaults.exclude, 'experiments/**'],
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          include: ['**/*.spec.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'e2e',
+          include: ['**/*.e2e-spec.ts'],
+          // Testcontainers: Postgres, Redis, RustFS and OpenSearch, started
+          // once for the whole run.
+          globalSetup: ['./test/setup/global-setup.ts'],
+          setupFiles: ['./test/setup/env.ts'],
+        },
+      },
+    ],
+    // Measured over both projects: database code is tested only against the
+    // real Postgres container (constitution, Principle II), so the e2e tests
+    // are what cover it.
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],

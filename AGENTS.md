@@ -16,17 +16,17 @@ pnpm run docker:up        # start postgres, redis, rustfs, opensearch
 pnpm run start:dev        # watch mode
 
 pnpm run test             # unit tests (*.spec.ts)
-pnpm run test:e2e         # e2e tests (*.e2e-spec.ts, vitest.config.e2e.ts); needs Docker
-pnpm run test:cov         # coverage; fails below 98% statements/branches/functions/lines
-pnpm exec vitest run src/s3/s3.service.spec.ts   # single file
-pnpm exec vitest run -t "builds its client from the S3_\* env vars"   # single test by name
+pnpm run test:e2e         # e2e tests (*.e2e-spec.ts, the `e2e` project of vitest.config.ts); needs Docker
+pnpm run test:cov         # unit + e2e under coverage; fails below 98% statements/branches/functions/lines; needs Docker
+pnpm exec vitest run --project unit src/s3/s3.service.spec.ts   # single file
+pnpm exec vitest run --project unit -t "builds its client from the S3_\* env vars"   # single test by name
 
 pnpm run lint             # oxlint (fast; same as pre-commit); warnings do not fail it
 pnpm run lint:eslint      # full type-aware eslint, with --fix
 pnpm run typecheck
 pnpm run commitlint:check # commit messages in origin/main..HEAD
 pnpm run secrets:scan     # TruffleHog over all history reachable from HEAD (Docker)
-pnpm run ci               # format:check, commitlint:check, secrets:scan, lint, typecheck, eslint (0 warnings), build, test:cov, test:e2e
+pnpm run ci               # format:check, commitlint:check, secrets:scan, lint, typecheck, eslint (0 warnings), build, test:cov (unit and e2e)
 
 pnpm run migration:generate src/database/migrations/<Name>   # diff entities vs DB
 pnpm run migration:create src/database/migrations/<Name>     # empty migration
@@ -80,7 +80,7 @@ Run `pnpm run ci` before you report a task as complete. **If `pnpm run ci` fails
 
 - ESM with `module: nodenext`: relative imports **must** use a `.js` extension (`./app.service.js`).
 - Vitest globals are disabled. Import `describe`/`it`/`expect`/`vi` from `vitest` explicitly.
-- Unit tests sit next to the source as `*.spec.ts`. E2E tests go in `test/` as `*.e2e-spec.ts`. Coverage ignores `main.ts`, `*.module.ts`, `src/database/data-source.ts` and `src/database/migrations/**` (reasons are in `vitest.config.ts`). Put logic in services, not module factories, and test it to keep the 98% threshold. A class whose Nest decorator (`@Injectable()`, `@Controller()`) sits over a constructor with parameters gets a compiler-generated metadata branch that no test can reach. Wrap only that decorator in `/* v8 ignore start -- TS __decorate helper branch, not app logic */` … `/* v8 ignore stop */`, as `src/app.controller.ts` does.
+- Unit tests sit next to the source as `*.spec.ts`. E2E tests go in `test/` as `*.e2e-spec.ts`. Coverage is measured over both Vitest projects, `unit` and `e2e`, because database code is tested only against the real container. Coverage ignores `main.ts`, `*.module.ts`, `src/database/data-source.ts` and `src/database/migrations/**` (reasons are in `vitest.config.ts`). Put logic in services, not module factories, and test it to keep the 98% threshold. A class whose Nest decorator (`@Injectable()`, `@Controller()`) sits over a constructor with parameters gets a compiler-generated metadata branch that no test can reach. Wrap only that decorator in `/* v8 ignore start -- TS __decorate helper branch, not app logic */` … `/* v8 ignore stop */`, as `src/app.controller.ts` does.
 - To mark an unused variable or argument, prefix it with `_`. Floating promises are an error in both linters.
 - Log with Nest's `Logger` (`new Logger(MyService.name)`). Pass data as fields and an error as `err`: `this.logger.error({ msg: 'Payment failed', err, orderId })`. Do not build the message from values. Never log secrets, tokens, request bodies or query parameters. Only an error under the `err` key goes through the error serializer, so never log an error under another key. To log one more HTTP header or error field, add it to an allowlist in `src/logger/serializers.ts`, and only if it can never hold a secret.
 - Commits follow Conventional Commits, enforced by commitlint. Git hooks: pre-commit runs lint-staged (`oxlint --fix` + `prettier`). Pre-push runs TruffleHog through Docker, so Docker must be running to push. `scripts/trufflehog.sh` is the only place that pins the TruffleHog image (version and digest); both `.husky/pre-push` and `secrets:scan` call it. Bump the version and digest together by hand. It also works from git worktrees. Dependabot updates the pinned action SHAs in `.github/workflows/`. When you add an action, pin it by full commit SHA with the version as a comment (`uses: owner/action@<40-char sha> # v1.2.3`), never by tag alone. Pin Docker images in `docker-compose.yml` the same way, by version and multi-arch index digest (`image: name:1.2.3@sha256:<digest>`; get the digest with `docker buildx imagetools inspect name:1.2.3`). Dependabot updates them. `test/setup/global-setup.ts` must use the same image pins.

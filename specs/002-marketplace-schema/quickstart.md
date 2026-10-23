@@ -73,8 +73,8 @@ Expected: after five reverts only `migrations` is left, and no functions, trigge
 ## 5. Automated checks
 
 ```bash
-pnpm exec vitest run src/database                                    # transformer and entity metadata
-pnpm run build && pnpm exec vitest run --config ./vitest.config.e2e.ts test/schema   # rule, round-trip, drift tests
+pnpm exec vitest run --project unit src/database                     # transformer and entity metadata
+pnpm run test:e2e test/schema                                         # rule, round-trip, drift tests
 pnpm run ci                                                          # definition of done
 ```
 
