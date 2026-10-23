@@ -11,20 +11,20 @@ How to prove the feature works. The contract is in [contracts/http-api.md](./con
 
 ```bash
 pnpm run test:e2e        # all e2e tests, including test/operations/
-pnpm exec vitest run --project e2e test/operations/purchase.e2e-spec.ts   # one operation
+pnpm run test:e2e test/operations/purchase.e2e-spec.ts   # one operation
 pnpm run test:cov        # unit + e2e under coverage, 98% thresholds
 pnpm run ci              # definition of done
 ```
 
-| Spec item                    | Proved by                                              |
-| ---------------------------- | ------------------------------------------------------ |
-| User Story 1, FR-016–FR-022  | `test/operations/purchase.e2e-spec.ts`                 |
-| User Story 2, FR-006–FR-010a | `test/operations/top-up.e2e-spec.ts`                   |
-| User Story 3, FR-011–FR-015  | `test/operations/price-change.e2e-spec.ts`             |
-| SC-001, SC-002, SC-005       | the "at the same time" tests in `purchase.e2e-spec.ts` |
-| SC-003                       | the ledger invariant check after each money test       |
-| SC-004                       | the bank reference tests in `top-up.e2e-spec.ts`       |
-| SC-008                       | one test per error code of the contract                |
+| Spec item                    | Proved by                                                                                                                     |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| User Story 1, FR-016–FR-022  | `test/operations/purchase.e2e-spec.ts`                                                                                        |
+| User Story 2, FR-006–FR-010a | `test/operations/top-up.e2e-spec.ts`                                                                                          |
+| User Story 3, FR-011–FR-015  | `test/operations/price-change.e2e-spec.ts`                                                                                    |
+| SC-001, SC-002, SC-005       | the "at the same time" tests in `purchase.e2e-spec.ts`                                                                        |
+| SC-003                       | `test/operations/reconciliation.e2e-spec.ts` (global sums, own database) and `expectWalletConsistent()` after each money test |
+| SC-004                       | the bank reference tests in `top-up.e2e-spec.ts`                                                                              |
+| SC-008                       | one test per error code of the contract                                                                                       |
 
 ## Manual run
 
