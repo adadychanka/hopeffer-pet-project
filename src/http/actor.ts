@@ -9,9 +9,18 @@ import { parseInput } from './zod-validation.pipe.js';
 // headers are trusted as sent: the API must stay inside a trusted network.
 export type ActorRole = 'operator' | 'company';
 
-export type Actor =
-  | { role: 'operator'; ref: string }
-  | { role: 'company'; ref: string; companyId: string };
+export interface OperatorActor {
+  role: 'operator';
+  ref: string;
+}
+
+export interface CompanyActor {
+  role: 'company';
+  ref: string;
+  companyId: string;
+}
+
+export type Actor = OperatorActor | CompanyActor;
 
 const actorRef = z.string().min(1).max(200);
 
@@ -52,11 +61,16 @@ export function parseActor(
   return actor;
 }
 
-// @ActorContext('company') injects the Actor of the request, or rejects it.
-export const ActorContext = createParamDecorator(
+const actorParam = createParamDecorator(
   (allowedRoles: readonly ActorRole[], context: ExecutionContext): Actor =>
     parseActor(
       context.switchToHttp().getRequest<Request>().headers,
       allowedRoles,
     ),
 );
+
+// @ActorContext('company') injects the Actor of the request, or rejects it
+// when the headers are invalid or the role is not one of those given.
+export function ActorContext(...allowedRoles: ActorRole[]): ParameterDecorator {
+  return actorParam(allowedRoles);
+}

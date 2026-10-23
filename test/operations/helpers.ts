@@ -11,7 +11,8 @@ import type { App } from 'supertest/types.js';
 import { DataSource } from 'typeorm';
 import { expect } from 'vitest';
 import { AppModule } from '../../src/app.module.js';
-import type { Queryable } from '../schema/helpers.js';
+import { lockAccounts, platformAccountIds } from '../../src/ledger/posting.js';
+import { createCorrection, type Queryable } from '../schema/helpers.js';
 
 export interface BootedApp {
   app: INestApplication<App>;
@@ -86,4 +87,53 @@ export async function expectWalletConsistent(
     expect(row.entries_sum, row.company_id).toBe(row.balance_minor);
     expect(row.last_after ?? '0', row.company_id).toBe(row.balance_minor);
   }
+}
+
+// Gives a wallet money the way the ledger allows: a positive correction from
+// bank clearing, posted with the app's own posting code, so the wallet stays
+// consistent with its entries.
+export async function fundWallet(
+  db: DataSource,
+  company: { id: string; walletId: string | null },
+  amountMinor: number,
+): Promise<void> {
+  const correctionId = await createCorrection(db, company.id, { amountMinor });
+  await db.transaction(async (manager) => {
+    const { bankClearingId } = await platformAccountIds(manager);
+    const walletId = company.walletId as string;
+    const locked = await lockAccounts(manager, [walletId, bankClearingId]);
+    await locked.post(manager, {
+      type: 'correction',
+      sourceId: correctionId,
+      actor: { type: 'operator', ref: 'operator-1' },
+      legs: [
+        { accountId: bankClearingId, amountMinor: -amountMinor },
+        { accountId: walletId, amountMinor },
+      ],
+    });
+  });
+}
+
+export interface Settings {
+  paymentWindowDays: number;
+  gracePeriodDays: number;
+  maxUnpaidDeals: number;
+  expiryLimit: number;
+  expiryLookbackDays: number;
+}
+
+// Tests read the settings row, never change it: it is shared by every file.
+export async function readSettings(db: Queryable): Promise<Settings> {
+  const rows = (await db.query(
+    `SELECT payment_window_days, grace_period_days, max_unpaid_deals,
+            expiry_limit, expiry_lookback_days FROM platform_settings`,
+  )) as Record<string, number>[];
+  const row = rows[0];
+  return {
+    paymentWindowDays: row.payment_window_days,
+    gracePeriodDays: row.grace_period_days,
+    maxUnpaidDeals: row.max_unpaid_deals,
+    expiryLimit: row.expiry_limit,
+    expiryLookbackDays: row.expiry_lookback_days,
+  };
 }

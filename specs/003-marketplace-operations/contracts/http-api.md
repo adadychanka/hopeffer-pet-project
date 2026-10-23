@@ -187,4 +187,4 @@ The checks run in this order, and the first failing one answers: actor and body,
 | `insufficient_balance`            | 422    | pay at once, and the wallet does not cover the total                                  | `accounts_balance_not_negative`                          |
 | `internal_error`                  | 500    | anything else; logged with `err`, no detail sent                                      | any unmapped rule                                        |
 
-A `deals_buyer_idempotency_key_key` violation is not an error: the service answers it as a replay (R9).
+`deals_buyer_idempotency_key_key` is not mapped: the buyer wallet lock serializes a buyer's purchases, so a second request with the same key always finds the first deal and answers it as a replay (R9).
