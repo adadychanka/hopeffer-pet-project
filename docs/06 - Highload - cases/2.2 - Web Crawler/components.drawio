@@ -1,0 +1,328 @@
+<mxfile host="65bd71144e">
+    <diagram id="frontier" name="URL Frontier Service">
+        <mxGraphModel dx="1877" dy="1403" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1120" math="0" shadow="0">
+            <root>
+                <mxCell id="0" />
+                <mxCell id="1" parent="0" />
+                <mxCell id="frontier-1" value="URL Frontier Service — components (C4, level 3)" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#333333;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="20" width="700" height="40" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-2" value="&lt;b&gt;URL Frontier Service&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: Node.js]&lt;/font&gt;" style="rounded=1;fontSize=12;whiteSpace=wrap;html=1;dashed=1;arcSize=2;fillColor=none;strokeColor=#666666;fontColor=#333333;labelBackgroundColor=none;align=left;verticalAlign=bottom;spacing=10;dashPattern=8 4;container=0;" parent="1" vertex="1">
+                    <mxGeometry x="300" y="220" width="1040" height="650" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-3" value="&lt;b&gt;Admin API&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: NestJS]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Seed URLs&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#23A2D9;fontColor=#ffffff;align=center;arcSize=10;strokeColor=#0E7DAD;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="40" width="240" height="120" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-4" value="&lt;b&gt;Parser Workers&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: Node.js]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;New URLs&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#23A2D9;fontColor=#ffffff;align=center;arcSize=10;strokeColor=#0E7DAD;" parent="1" vertex="1">
+                    <mxGeometry x="20" y="260" width="220" height="120" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-5" value="&lt;b&gt;Fetcher Workers&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: Node.js]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Download pages&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#23A2D9;fontColor=#ffffff;align=center;arcSize=10;strokeColor=#0E7DAD;" parent="1" vertex="1">
+                    <mxGeometry x="20" y="480" width="220" height="120" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-6" value="&lt;b&gt;Frontier Store&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: Redis Cluster]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Queues, host heap, leases&lt;/font&gt;" style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#23A2D9;fontSize=11;fontColor=#ffffff;align=center;strokeColor=#0E7DAD;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="960" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-7" value="&lt;b&gt;Robots &amp; Politeness Cache&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: Redis]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;robots.txt, crawl-delay&lt;/font&gt;" style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#23A2D9;fontSize=11;fontColor=#ffffff;align=center;strokeColor=#0E7DAD;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="960" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-8" value="&lt;b&gt;Enqueue API&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: gRPC controller]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Accepts new URLs in batches&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="260" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-9" value="&lt;b&gt;Prioritizer&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: TS module]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Scores priority: PageRank signal, update frequency, depth&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="260" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-10" value="&lt;b&gt;Front Queues f1…fn&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: Redis lists]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;One queue per priority level&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="260" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-11" value="&lt;b&gt;Front Queue Selector&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: TS module]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Weighted random pick: higher priority — more often&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="480" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-12" value="&lt;b&gt;Back Queue Router + Mapping&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: TS module]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;host → back queue table. One back queue holds exactly one host&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="480" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-13" value="&lt;b&gt;Lease API&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: gRPC controller]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Leases URL batches for 60 s; ack/nack&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="480" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-14" value="&lt;b&gt;Politeness Scheduler&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: TS module]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Host heap by nextFetchAt. Crawl-delay; the pause grows on 429/503 and timeouts&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="700" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-15" value="&lt;b&gt;Lease Reaper&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: cron, every 10 s]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Returns expired leases to the host queue, attempts+1, after 3 — dead&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="700" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-16" value="&lt;b&gt;Seed URLs&lt;/b&gt;&lt;br&gt;[gRPC]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="frontier-3" target="frontier-8" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-17" value="&lt;b&gt;New URLs&lt;/b&gt;&lt;br&gt;[gRPC]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="frontier-4" target="frontier-8" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-18" value="&lt;b&gt;lease / ack / nack&lt;/b&gt;&lt;br&gt;[gRPC]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="frontier-5" target="frontier-13" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-19" value="&lt;b&gt;URL&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="frontier-8" target="frontier-9" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-20" value="&lt;b&gt;URL + priority&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="frontier-9" target="frontier-10" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-21" value="&lt;b&gt;Queues&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="frontier-10" target="frontier-11" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-22" value="&lt;b&gt;Next URL&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="frontier-11" target="frontier-12" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-23" value="&lt;b&gt;URL to host queue&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="frontier-12" target="frontier-14" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-24" value="&lt;b&gt;Ready hosts; ack/nack → nextFetchAt&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="1" source="frontier-13" target="frontier-14" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="460" y="650" />
+                            <mxPoint x="760" y="650" />
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="frontier-25" value="&lt;b&gt;Return URL to queue&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="frontier-15" target="frontier-14" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-26" value="&lt;b&gt;Heap, back queues, leases&lt;/b&gt;&lt;br&gt;[Redis]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="frontier-14" target="frontier-6" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="frontier-27" value="&lt;b&gt;Finds expired leases&lt;/b&gt;&lt;br&gt;[Redis]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="frontier-15" target="frontier-6" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="460" y="1025" />
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="frontier-28" value="&lt;b&gt;Crawl-delay, Disallow&lt;/b&gt;&lt;br&gt;[Redis]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="frontier-14" target="frontier-7" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1180" y="765" />
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="frontier-29" value="&lt;b&gt;How to read&lt;/b&gt;&lt;br&gt;• Front queues — priority: important pages first.&lt;br&gt;• Back queues — politeness: one host = one queue = at most one request at a time.&lt;br&gt;• The Frontier shard is picked by hash(host): politeness is enforced locally, no distributed locks.&lt;br&gt;• Lease with a timeout: if a worker dies, the URL returns to the queue on its own." style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fillColor=#FFF9E6;strokeColor=#D6B656;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+                    <mxGeometry x="1400" y="220" width="460" height="300" as="geometry" />
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="fetcher" name="Fetcher Worker">
+        <mxGraphModel dx="1743" dy="1303" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1200" math="0" shadow="0">
+            <root>
+                <mxCell id="0" />
+                <mxCell id="1" parent="0" />
+                <mxCell id="fetcher-1" value="Fetcher Worker — components (C4, level 3)" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#333333;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="20" width="700" height="40" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-2" value="&lt;b&gt;Fetcher Worker&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: Node.js, undici]&lt;/font&gt;" style="rounded=1;fontSize=12;whiteSpace=wrap;html=1;dashed=1;arcSize=2;fillColor=none;strokeColor=#666666;fontColor=#333333;labelBackgroundColor=none;align=left;verticalAlign=bottom;spacing=10;dashPattern=8 4;container=0;" parent="1" vertex="1">
+                    <mxGeometry x="300" y="220" width="1040" height="650" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-3" value="&lt;b&gt;URL Frontier Service&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: Node.js]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;URL leases&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#23A2D9;fontColor=#ffffff;align=center;arcSize=10;strokeColor=#0E7DAD;" parent="1" vertex="1">
+                    <mxGeometry x="20" y="260" width="220" height="120" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-4" value="&lt;b&gt;Robots &amp; Politeness Cache&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: Redis]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;robots.txt&lt;/font&gt;" style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#23A2D9;fontSize=11;fontColor=#ffffff;align=center;strokeColor=#0E7DAD;" parent="1" vertex="1">
+                    <mxGeometry x="1400" y="260" width="220" height="120" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-5" value="&lt;b&gt;DNS Cache&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: Unbound]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Shared DNS cache&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#23A2D9;fontColor=#ffffff;align=center;arcSize=10;strokeColor=#0E7DAD;" parent="1" vertex="1">
+                    <mxGeometry x="1400" y="480" width="220" height="120" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-6" value="&lt;b&gt;Websites&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Software System]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;HTML&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#8C8496;fontColor=#ffffff;align=center;arcSize=10;strokeColor=#736782;" parent="1" vertex="1">
+                    <mxGeometry x="1400" y="700" width="220" height="120" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-7" value="&lt;b&gt;page-fetched&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: Kafka topic]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Fetch events&lt;/font&gt;" style="shape=cylinder3;size=15;direction=south;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#23A2D9;fontSize=11;fontColor=#ffffff;align=center;strokeColor=#0E7DAD;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="960" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-8" value="&lt;b&gt;Page Storage&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: S3]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Gzipped HTML&lt;/font&gt;" style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#23A2D9;fontSize=11;fontColor=#ffffff;align=center;strokeColor=#0E7DAD;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="960" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-9" value="&lt;b&gt;Lease Client&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: gRPC client]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Takes a URL batch, extends the lease, sends ack/nack&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="260" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-10" value="&lt;b&gt;Fetch Orchestrator&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: TS module]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Up to 200 parallel fetches, at most 1 per host&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="260" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-11" value="&lt;b&gt;Robots Checker&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: TS module]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Checks Disallow against the robots.txt cache&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="260" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-12" value="&lt;b&gt;Error Classifier&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: TS module]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Timeout, 5xx, 429 → nack with reason. 4xx → failed, no retry&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="480" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-13" value="&lt;b&gt;HTTP Downloader&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: undici]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Connect 3 s, total 10 s, max 2 MB, ≤ 5 redirects&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="480" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-14" value="&lt;b&gt;DNS Client&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: TS module]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Local cache honoring record TTL + shared DNS Cache&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="480" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-15" value="&lt;b&gt;Event Publisher&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: Kafka producer]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Publishes page-fetched only after the S3 write, then acks&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="700" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-16" value="&lt;b&gt;Page Writer&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: S3 SDK]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;gzip, key = sha256(url)/crawlTs&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="700" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-17" value="&lt;b&gt;lease / ack / nack&lt;/b&gt;&lt;br&gt;[gRPC]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="fetcher-9" target="fetcher-3" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-18" value="&lt;b&gt;URL batch&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="fetcher-9" target="fetcher-10" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-19" value="&lt;b&gt;Allowed to fetch?&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="fetcher-10" target="fetcher-11" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-20" value="&lt;b&gt;Rules&lt;/b&gt;&lt;br&gt;[Redis]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="fetcher-11" target="fetcher-4" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-21" value="&lt;b&gt;Fetch&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="fetcher-10" target="fetcher-13" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-22" value="&lt;b&gt;Host IP&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="fetcher-13" target="fetcher-14" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-23" value="&lt;b&gt;DNS&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="fetcher-14" target="fetcher-5" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-24" value="&lt;b&gt;GET&lt;/b&gt;&lt;br&gt;[HTTPS]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="fetcher-13" target="fetcher-6" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="880" y="650" />
+                            <mxPoint x="1360" y="650" />
+                            <mxPoint x="1360" y="760" />
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="fetcher-25" value="&lt;b&gt;Timeout, 5xx, 429&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="fetcher-13" target="fetcher-12" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-26" value="&lt;b&gt;nack + reason&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="fetcher-12" target="fetcher-9" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-27" value="&lt;b&gt;200 OK&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="fetcher-13" target="fetcher-16" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-28" value="&lt;b&gt;PUT&lt;/b&gt;&lt;br&gt;[S3 API]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="fetcher-16" target="fetcher-8" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-29" value="&lt;b&gt;Stored&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="fetcher-16" target="fetcher-15" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-30" value="&lt;b&gt;page-fetched&lt;/b&gt;&lt;br&gt;[Kafka]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="fetcher-15" target="fetcher-7" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="fetcher-31" value="&lt;b&gt;Failures&lt;/b&gt;&lt;br&gt;• Site takes 30 s: abort at 10 s, nack(timeout), Frontier doubles the host pause. A slow host takes 1 slot out of ~200.&lt;br&gt;• Worker died: the 60 s lease expires, the URL returns to the queue. S3 PUT is atomic, the event is sent only after the write." style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fillColor=#FFF9E6;strokeColor=#D6B656;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="960" width="560" height="200" as="geometry" />
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="parser" name="Parser Worker">
+        <mxGraphModel dx="1220" dy="912" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2240" pageHeight="1120" math="0" shadow="0">
+            <root>
+                <mxCell id="0" />
+                <mxCell id="1" parent="0" />
+                <mxCell id="parser-1" value="Parser Worker — components (C4, level 3)" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#333333;" parent="1" vertex="1">
+                    <mxGeometry x="20" y="20" width="640" height="40" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-2" value="&lt;b&gt;Parser Worker&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: Node.js, cheerio]&lt;/font&gt;" style="rounded=1;fontSize=12;whiteSpace=wrap;html=1;dashed=1;arcSize=2;fillColor=none;strokeColor=#666666;fontColor=#333333;labelBackgroundColor=none;align=left;verticalAlign=bottom;spacing=10;dashPattern=8 4;container=0;" parent="1" vertex="1">
+                    <mxGeometry x="300" y="220" width="1400" height="650" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-3" value="&lt;b&gt;page-fetched&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: Kafka topic]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Fetch events&lt;/font&gt;" style="shape=cylinder3;size=15;direction=south;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#23A2D9;fontSize=11;fontColor=#ffffff;align=center;strokeColor=#0E7DAD;" parent="1" vertex="1">
+                    <mxGeometry x="20" y="260" width="220" height="120" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-4" value="&lt;b&gt;Page Storage&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: S3]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Gzipped HTML&lt;/font&gt;" style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#23A2D9;fontSize=11;fontColor=#ffffff;align=center;strokeColor=#0E7DAD;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="40" width="240" height="120" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-5" value="&lt;b&gt;URL Metadata DB&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: Cassandra]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;URL status and hash&lt;/font&gt;" style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#23A2D9;fontSize=11;fontColor=#ffffff;align=center;strokeColor=#0E7DAD;" parent="1" vertex="1">
+                    <mxGeometry x="1420" y="40" width="240" height="120" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-6" value="&lt;b&gt;URL Frontier Service&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: Node.js]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;URL queue&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#23A2D9;fontColor=#ffffff;align=center;arcSize=10;strokeColor=#0E7DAD;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="960" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-7" value="&lt;b&gt;Dedup Store&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Container: Redis + RedisBloom]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;URL Bloom filter, content hashes&lt;/font&gt;" style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#23A2D9;fontSize=11;fontColor=#ffffff;align=center;strokeColor=#0E7DAD;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="960" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-8" value="&lt;b&gt;Event Consumer&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: Kafka consumer group]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Commits the offset only after processing&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="260" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-9" value="&lt;b&gt;HTML Parser &amp; Validator&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: cheerio]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Drops broken and non-HTML content&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="260" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-10" value="&lt;b&gt;Content Seen?&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: TS module]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;sha256 of content: the same page under another URL stops here&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="260" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-11" value="&lt;b&gt;Metadata Writer&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: Cassandra driver]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Status, hash, s3Key, crawl time&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="1420" y="260" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-12" value="&lt;b&gt;Link Extractor&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: cheerio]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Links from a[href]; relative → absolute&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="480" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-13" value="&lt;b&gt;URL Normalizer&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: TS module]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Lowercase host, no #fragment or utm_*, sorted query&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="480" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-14" value="&lt;b&gt;URL Filter&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: TS module]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Blocklist, extensions, length ≤ 2048, depth ≤ 15, per-host page limit&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="480" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-15" value="&lt;b&gt;URL Seen?&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: RedisBloom client]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;BF.EXISTS / BF.ADD&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="700" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-16" value="&lt;b&gt;Frontier Client&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;[Component: gRPC client]&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;Sends new URLs in batches of 500&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#63BEF2;fontColor=#ffffff;align=center;arcSize=6;strokeColor=#2086C9;" parent="1" vertex="1">
+                    <mxGeometry x="700" y="700" width="240" height="130" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-17" value="&lt;b&gt;page-fetched&lt;/b&gt;&lt;br&gt;[Kafka]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="parser-3" target="parser-8" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-18" value="&lt;b&gt;url, s3Key, status&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="parser-8" target="parser-9" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-19" value="&lt;b&gt;Reads HTML&lt;/b&gt;&lt;br&gt;[S3 API]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="parser-9" target="parser-4" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-20" value="&lt;b&gt;Valid HTML&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="parser-9" target="parser-10" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-21" value="&lt;b&gt;Status, hash&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="parser-10" target="parser-11" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-22" value="&lt;b&gt;Writes&lt;/b&gt;&lt;br&gt;[CQL]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="parser-11" target="parser-5" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-23" value="&lt;b&gt;Content hash&lt;/b&gt;&lt;br&gt;[Redis]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="parser-10" target="parser-7" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1360" y="357.5" />
+                            <mxPoint x="1360" y="1025" />
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="parser-24" value="&lt;b&gt;New content&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="parser-10" target="parser-12" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-25" value="&lt;b&gt;Absolute URLs&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="parser-12" target="parser-13" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-26" value="&lt;b&gt;Normalized URLs&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="parser-13" target="parser-14" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-27" value="&lt;b&gt;Passed the filter&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="parser-14" target="parser-15" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-28" value="&lt;b&gt;New URLs&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="parser-15" target="parser-16" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-29" value="&lt;b&gt;BF.EXISTS / BF.ADD&lt;/b&gt;&lt;br&gt;[RedisBloom]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="1" source="parser-15" target="parser-7" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="460" y="900" />
+                            <mxPoint x="1120" y="900" />
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="parser-30" value="&lt;b&gt;URL batches&lt;/b&gt;&lt;br&gt;[gRPC]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=blockThin;endFill=1;strokeColor=#828282;fontSize=10;fontColor=#404040;labelBackgroundColor=#ffffff;" parent="1" source="parser-16" target="parser-6" edge="1">
+                    <mxGeometry relative="1" as="geometry" />
+                </mxCell>
+                <mxCell id="parser-31" value="&lt;b&gt;How not to download twice or loop forever&lt;/b&gt;&lt;br&gt;• Normalization: one page — one URL.&lt;br&gt;• URL Seen? — Bloom filter: &quot;no&quot; is exact, &quot;yes&quot; is wrong ~1% of the time. We lose a few new URLs but never download twice.&lt;br&gt;• Content Seen?: ~30% of web pages are duplicates under different URLs.&lt;br&gt;• Traps: URL length &gt; 2048, depth &gt; 15, &gt; 10,000 pages per host per day, repeated path segments (/a/b/a/b/).&lt;br&gt;• The Kafka offset is committed after processing: on a crash the event comes again, dedup makes the retry safe." style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fillColor=#FFF9E6;strokeColor=#D6B656;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+                    <mxGeometry x="1760" y="220" width="440" height="380" as="geometry" />
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
