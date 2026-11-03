@@ -96,7 +96,7 @@ Decisions for the three operations of [spec.md](./spec.md), built on the schema 
   - Transfer date: a real calendar date `YYYY-MM-DD`, at most 1 day after the server's UTC date (a bank in a time zone ahead of UTC can already be on the next day).
   - Ids and the idempotency key: uuid.
 - **Rationale**: zod 4 already validates the environment (`src/config/env.ts`), so one validation library serves the whole app. Constitution: a new dependency needs a reason, and there is none.
-- **Alternatives considered**: `class-validator` with Nest's `ValidationPipe`: the Nest default, but two new dependencies and a second validation style next to zod.
+- **Alternatives considered**: `class-validator` with Nest's `ValidationPipe`: the Nest default, but two new dependencies and a second validation style next to zod. Nest 12's `@Body({ schema })` with `StandardSchemaValidationPipe`: built in and ready for OpenAPI, but its `exceptionFactory` receives only the issues, so the `body.` and `path.` prefixes of the error paths would need a custom `transform()`, and `@Headers()` has no `schema` option, so headers would still need `parseInput()`. Kept the own pipe (decided with the user on 2026-11-03).
 
 ## R7. Errors: RFC 9457 problem details with a stable `code`
 
