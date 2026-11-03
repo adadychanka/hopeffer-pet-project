@@ -154,13 +154,15 @@ The checks run in this order, and the first failing one answers: actor and body,
 
 ```json
 {
-  "type": "about:blank",
+  "type": "https://hopeffer.example/problems/insufficient-stock",
   "title": "Insufficient stock",
   "status": 422,
   "code": "insufficient_stock",
   "detail": "The lot has 2 units available; 3 were requested."
 }
 ```
+
+`type` is a URI per code: `https://hopeffer.example/problems/` plus the code with `-` for `_`. It identifies the problem type and does not have to resolve. `title` describes that type. Clients branch on `type` or `code`; both are stable.
 
 `validation_failed` adds `errors`: a list of `{ "path": "body.amountMinor", "message": "…" }`.
 

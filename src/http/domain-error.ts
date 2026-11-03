@@ -43,6 +43,15 @@ export function errorInfo(code: ErrorCode): ErrorInfo {
   return ERROR_CODES.get(code) as ErrorInfo;
 }
 
+// RFC 9457 identifies a problem type by URI. Each code has its own, built
+// from the code, so the title describes the type. The URI is an identifier:
+// it does not have to resolve, but it must never change.
+export const PROBLEM_TYPE_BASE = 'https://hopeffer.example/problems/';
+
+export function problemType(code: ErrorCode): string {
+  return PROBLEM_TYPE_BASE + code.replaceAll('_', '-');
+}
+
 export interface FieldError {
   path: string;
   message: string;

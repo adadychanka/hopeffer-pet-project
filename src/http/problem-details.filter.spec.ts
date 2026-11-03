@@ -50,7 +50,7 @@ describe('ProblemDetailsFilter', () => {
     expect(answer(new DomainError('insufficient_stock', '2 left'))).toEqual({
       status: 422,
       body: {
-        type: 'about:blank',
+        type: 'https://hopeffer.example/problems/insufficient-stock',
         title: 'Insufficient stock',
         status: 422,
         code: 'insufficient_stock',
@@ -104,7 +104,7 @@ describe('ProblemDetailsFilter', () => {
 
     expect(status).toBe(500);
     expect(body).toEqual({
-      type: 'about:blank',
+      type: 'https://hopeffer.example/problems/internal-error',
       title: 'Internal error',
       status: 500,
       code: 'internal_error',

@@ -9,10 +9,10 @@ import {
 import type { Response } from 'express';
 import { QueryFailedError } from 'typeorm';
 import { domainErrorFrom } from './constraint-errors.js';
-import { DomainError, errorInfo } from './domain-error.js';
+import { DomainError, errorInfo, problemType } from './domain-error.js';
 
 export interface ProblemDetails {
-  type: 'about:blank';
+  type: string;
   title: string;
   status: number;
   code: string;
@@ -23,7 +23,7 @@ export interface ProblemDetails {
 export function problemFor(error: DomainError): ProblemDetails {
   const { status, title } = errorInfo(error.code);
   return {
-    type: 'about:blank',
+    type: problemType(error.code),
     title,
     status,
     code: error.code,
