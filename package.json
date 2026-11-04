@@ -36,11 +36,11 @@
     "lint:eslint:check": "eslint \"{src,test}/**/*.ts\" --max-warnings 0",
     "commitlint:check": "sh scripts/commitlint-check.sh",
     "secrets:scan": "sh scripts/trufflehog.sh --branch=HEAD",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:cov": "vitest run --coverage",
-    "test:debug": "vitest --inspect-brk --no-file-parallelism",
-    "test:e2e": "pnpm run build && vitest run --config ./vitest.config.e2e.ts",
+    "test": "vitest run --project unit",
+    "test:watch": "vitest --project unit",
+    "test:cov": "pnpm run build && vitest run --coverage",
+    "test:debug": "vitest --project unit --inspect-brk --no-file-parallelism",
+    "test:e2e": "pnpm run build && vitest run --project e2e",
     "prepare": "husky",
     "migration:generate": "pnpm run build && typeorm migration:generate -d dist/database/data-source.js",
     "migration:create": "typeorm migration:create",
@@ -49,7 +49,7 @@
     "migration:check": "pnpm run build && typeorm migration:generate src/database/migrations/SchemaDrift --check -d dist/database/data-source.js",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
-    "ci": "pnpm run format:check && pnpm run commitlint:check && pnpm run secrets:scan && pnpm run lint && pnpm run typecheck && pnpm run lint:eslint:check && pnpm run build && pnpm run test:cov && pnpm run test:e2e"
+    "ci": "pnpm run format:check && pnpm run commitlint:check && pnpm run secrets:scan && pnpm run lint && pnpm run typecheck && pnpm run lint:eslint:check && pnpm run build && pnpm run test:cov"
   },
   "lint-staged": {
     "*.ts": [

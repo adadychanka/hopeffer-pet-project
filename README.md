@@ -194,6 +194,20 @@ pnpm run build && pnpm run start:prod   # production build
 
 The app reads `.env` from the current directory. Without it, or with a setting missing, it stops at startup and names the variables to fix.
 
+## API
+
+The marketplace operations. Request and response bodies, actor headers and error codes are in [`specs/003-marketplace-operations/contracts/http-api.md`](specs/003-marketplace-operations/contracts/http-api.md).
+
+| Endpoint                           | Who                        | What                                                                                       |
+| ---------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------ |
+| `POST /top-ups`                    | operator                   | Records a bank notification, credits the wallet, and pays the invoice it names if covered. |
+| `POST /lots/{lotId}/price-changes` | the lot's seller, operator | Sets a new unit price. Existing deals keep theirs.                                         |
+| `POST /deals` + `Idempotency-Key`  | buyer company              | Buys units of a lot; with `"payNow": true` pays the invoice from the wallet at once.       |
+
+Every request says who acts in `X-Actor-Role` (`operator` or `company`), `X-Actor-Ref` and, for a company, `X-Company-Id`. Errors are `application/problem+json` with a stable `code`.
+
+> **Warning:** the actor headers are trusted as sent. Anyone who can reach the API can act as any company or as an operator. Keep the API inside a trusted network until authentication replaces them.
+
 ## Shutdown
 
 On SIGTERM, `/ready` answers 503 for `SHUTDOWN_DRAIN_MS` (default 5000) while the app still serves, so the load balancer stops sending traffic. `/live` stays 200, so Kubernetes does not restart the pod. Then the server stops taking connections, finishes the requests in flight, closes Postgres, Redis, S3 and OpenSearch, and exits with code 0. Ctrl+C (SIGINT) skips the drain wait. `start:dev` restarts the app with SIGTERM on every rebuild, so set `SHUTDOWN_DRAIN_MS=0` in your local `.env` (as `.env.example` does), or each reload waits the full drain. In Kubernetes, keep `terminationGracePeriodSeconds` (default 30 s) well above `SHUTDOWN_DRAIN_MS`: a request that never finishes holds the shutdown until Kubernetes kills the pod, and keep-alive connections can add up to 5 s.
