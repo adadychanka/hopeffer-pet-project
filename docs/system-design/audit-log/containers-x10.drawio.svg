@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Edit this file in draw.io (app.diagrams.net): the picture and the editable model are both in it. -->
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="1990px" height="1440px" viewBox="0 0 1990 1440" font-family="Helvetica, Arial, sans-serif" content="&lt;mxfile host=&quot;app.diagrams.net&quot; version=&quot;24.7.17&quot; type=&quot;device&quot;&gt;&lt;diagram id=&quot;audit-log-containers&quot; name=&quot;Audit log containers x10&quot;&gt;&lt;mxGraphModel dx=&quot;1990&quot; dy=&quot;1440&quot; grid=&quot;1&quot; gridSize=&quot;10&quot; guides=&quot;1&quot; tooltips=&quot;1&quot; connect=&quot;1&quot; arrows=&quot;1&quot; fold=&quot;1&quot; page=&quot;0&quot; pageScale=&quot;1&quot; pageWidth=&quot;1990&quot; pageHeight=&quot;1440&quot; background=&quot;#ffffff&quot; math=&quot;0&quot; shadow=&quot;0&quot;&gt;&lt;root&gt;
+&lt;mxCell id=&quot;0&quot;/&gt;
+&lt;mxCell id=&quot;1&quot; parent=&quot;0&quot;/&gt;
+&lt;mxCell id=&quot;title&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:18px&amp;quot;&amp;gt;Audit log, scenario x10&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;color:#3A4450;margin-top:4px&amp;quot;&amp;gt;C4 level 2: containers&amp;lt;/div&amp;gt;&quot; style=&quot;text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;fontSize=12;fontColor=#1F2933;spacing=0;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;40&quot; y=&quot;24&quot; width=&quot;400&quot; height=&quot;50&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;boundary&quot; value=&quot;&quot; style=&quot;rounded=1;arcSize=2;html=1;dashed=1;dashPattern=8 6;strokeWidth=2;fillColor=none;strokeColor=#5B6770;pointerEvents=0;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;20&quot; y=&quot;308&quot; width=&quot;1600&quot; height=&quot;992&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;boundary-caption&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:14px;color:#5B6770&amp;quot;&amp;gt;Marketplace platform&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;&amp;lt;span style=&amp;quot;color:#5B6770&amp;quot;&amp;gt;[Software System]&amp;lt;/span&amp;gt;&quot; style=&quot;text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;fontSize=12;fontColor=#1F2933;spacing=0;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;40&quot; y=&quot;1250&quot; width=&quot;300&quot; height=&quot;40&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;seller&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Seller / Buyer&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Person]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;Lists, orders, reviews; sees why&amp;lt;br&amp;gt;a listing or account was blocked&amp;lt;/div&amp;gt;&quot; style=&quot;shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;align=center;fillColor=#08427B;strokeColor=#073B6F;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;40&quot; y=&quot;100&quot; width=&quot;240&quot; height=&quot;140&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;orgadmin&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Organization admin&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Person]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;Manages services, team access&amp;lt;br&amp;gt;and subscription&amp;lt;/div&amp;gt;&quot; style=&quot;shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;align=center;fillColor=#08427B;strokeColor=#073B6F;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;370&quot; y=&quot;100&quot; width=&quot;240&quot; height=&quot;140&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;moderator&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Moderator&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Person]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;Takes listings down&amp;lt;br&amp;gt;and puts them back&amp;lt;/div&amp;gt;&quot; style=&quot;shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;align=center;fillColor=#08427B;strokeColor=#073B6F;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;700&quot; y=&quot;100&quot; width=&quot;240&quot; height=&quot;140&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;support&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Support agent&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Person]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;Handles user tickets&amp;lt;/div&amp;gt;&quot; style=&quot;shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;align=center;fillColor=#08427B;strokeColor=#073B6F;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;1030&quot; y=&quot;100&quot; width=&quot;240&quot; height=&quot;140&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;platadmin&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Platform admin&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Person]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;Bans and unbans users&amp;lt;/div&amp;gt;&quot; style=&quot;shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;align=center;fillColor=#08427B;strokeColor=#073B6F;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;1360&quot; y=&quot;100&quot; width=&quot;240&quot; height=&quot;140&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;web&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Marketplace web app&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Container: SPA]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;UI for sellers and buyers&amp;lt;/div&amp;gt;&quot; style=&quot;rounded=1;arcSize=8;verticalAlign=middle;spacing=8;whiteSpace=wrap;html=1;align=center;fillColor=#438DD5;strokeColor=#3C7FC0;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;40&quot; y=&quot;330&quot; width=&quot;240&quot; height=&quot;130&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;console&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Admin console&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Container: SPA]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;UI for staff and organization admins: admin actions and audit log search&amp;lt;/div&amp;gt;&quot; style=&quot;rounded=1;arcSize=8;verticalAlign=middle;spacing=8;whiteSpace=wrap;html=1;align=center;fillColor=#438DD5;strokeColor=#3C7FC0;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;370&quot; y=&quot;330&quot; width=&quot;1230&quot; height=&quot;130&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;domain&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Domain services&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Container: NestJS]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;Listings, orders, reviews,&amp;lt;br&amp;gt;organizations, moderation, bans.&amp;lt;br&amp;gt;Emit an audit event per action&amp;lt;/div&amp;gt;&quot; style=&quot;rounded=1;arcSize=8;verticalAlign=middle;spacing=8;whiteSpace=wrap;html=1;align=center;fillColor=#438DD5;strokeColor=#3C7FC0;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;40&quot; y=&quot;530&quot; width=&quot;240&quot; height=&quot;130&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;query&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Audit Query API&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Container: NestJS]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;Role scope and field masking.&amp;lt;br&amp;gt;30 days: replica; older: Athena&amp;lt;/div&amp;gt;&quot; style=&quot;rounded=1;arcSize=8;verticalAlign=middle;spacing=8;whiteSpace=wrap;html=1;align=center;fillColor=#438DD5;strokeColor=#3C7FC0;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;1030&quot; y=&quot;530&quot; width=&quot;240&quot; height=&quot;130&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;domaindb&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Domain databases&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Container: PostgreSQL]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;Business data and an outbox&amp;lt;br&amp;gt;table, written in one transaction&amp;lt;/div&amp;gt;&quot; style=&quot;shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;whiteSpace=wrap;html=1;align=center;fillColor=#438DD5;strokeColor=#3C7FC0;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;40&quot; y=&quot;730&quot; width=&quot;240&quot; height=&quot;130&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;relay&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Outbox relay&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Container: Node.js worker]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;Reads new outbox rows, sends&amp;lt;br&amp;gt;batches, marks rows sent.&amp;lt;br&amp;gt;At-least-once delivery&amp;lt;/div&amp;gt;&quot; style=&quot;rounded=1;arcSize=8;verticalAlign=middle;spacing=8;whiteSpace=wrap;html=1;align=center;fillColor=#438DD5;strokeColor=#3C7FC0;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;370&quot; y=&quot;730&quot; width=&quot;240&quot; height=&quot;130&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;ingest&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Audit ingestion&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Container: NestJS]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;Validates schema, drops secrets,&amp;lt;br&amp;gt;encrypts personal data,&amp;lt;br&amp;gt;idempotent by event_id&amp;lt;/div&amp;gt;&quot; style=&quot;rounded=1;arcSize=8;verticalAlign=middle;spacing=8;whiteSpace=wrap;html=1;align=center;fillColor=#438DD5;strokeColor=#3C7FC0;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;700&quot; y=&quot;730&quot; width=&quot;240&quot; height=&quot;130&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;primary&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Audit DB&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Container: RDS PostgreSQL, Multi-AZ]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;Hot 30 days, ~300 GB. Daily&amp;lt;br&amp;gt;partitions, INSERT-only role,&amp;lt;br&amp;gt;append-only trigger&amp;lt;/div&amp;gt;&quot; style=&quot;shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;whiteSpace=wrap;html=1;align=center;fillColor=#438DD5;strokeColor=#3C7FC0;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;700&quot; y=&quot;930&quot; width=&quot;240&quot; height=&quot;130&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;replica&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Audit DB read replica&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Container: RDS PostgreSQL]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;Serves hot searches, so they&amp;lt;br&amp;gt;do not slow down ingestion&amp;lt;/div&amp;gt;&quot; style=&quot;shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;whiteSpace=wrap;html=1;align=center;fillColor=#438DD5;strokeColor=#3C7FC0;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;1030&quot; y=&quot;930&quot; width=&quot;240&quot; height=&quot;130&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;athena&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Archive search&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Container: Athena + Glue Catalog]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;SQL over Parquet files.&amp;lt;br&amp;gt;Date partitions (projection).&amp;lt;br&amp;gt;Async, seconds to minutes&amp;lt;/div&amp;gt;&quot; style=&quot;rounded=1;arcSize=8;verticalAlign=middle;spacing=8;whiteSpace=wrap;html=1;align=center;fillColor=#438DD5;strokeColor=#3C7FC0;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;1360&quot; y=&quot;930&quot; width=&quot;240&quot; height=&quot;130&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;archiver&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Archiver and verifier&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Container: scheduled ECS task]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;Hourly: digest of new events.&amp;lt;br&amp;gt;Daily: export a day, verify&amp;lt;br&amp;gt;count and hash, drop partition&amp;lt;/div&amp;gt;&quot; style=&quot;rounded=1;arcSize=8;verticalAlign=middle;spacing=8;whiteSpace=wrap;html=1;align=center;fillColor=#438DD5;strokeColor=#3C7FC0;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;700&quot; y=&quot;1130&quot; width=&quot;240&quot; height=&quot;130&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;s3&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Audit archive&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Container: S3, Object Lock]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;Parquet by date and hash digests.&amp;lt;br&amp;gt;Compliance retention 5 years.&amp;lt;br&amp;gt;~18 TB raw, ~2-3.5 TB stored&amp;lt;/div&amp;gt;&quot; style=&quot;shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;whiteSpace=wrap;html=1;align=center;fillColor=#438DD5;strokeColor=#3C7FC0;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;1030&quot; y=&quot;1130&quot; width=&quot;240&quot; height=&quot;130&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;idp&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Identity provider&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Software System]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;Users, staff roles and&amp;lt;br&amp;gt;organization membership&amp;lt;/div&amp;gt;&quot; style=&quot;rounded=1;arcSize=8;verticalAlign=middle;spacing=8;whiteSpace=wrap;html=1;align=center;fillColor=#8C8C8C;strokeColor=#736F6F;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;1700&quot; y=&quot;530&quot; width=&quot;240&quot; height=&quot;130&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;helpdesk&quot; value=&quot;&amp;lt;b style=&amp;quot;font-size:15px&amp;quot;&amp;gt;Helpdesk&amp;lt;/b&amp;gt;&amp;lt;div style=&amp;quot;font-size:11px&amp;quot;&amp;gt;[Software System]&amp;lt;/div&amp;gt;&amp;lt;div style=&amp;quot;font-size:12px;margin-top:6px&amp;quot;&amp;gt;Support tickets. An open ticket&amp;lt;br&amp;gt;gives support access to&amp;lt;br&amp;gt;the user&amp;amp;#x27;s events&amp;lt;/div&amp;gt;&quot; style=&quot;rounded=1;arcSize=8;verticalAlign=middle;spacing=8;whiteSpace=wrap;html=1;align=center;fillColor=#8C8C8C;strokeColor=#736F6F;fontColor=#ffffff;fontSize=12;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;1700&quot; y=&quot;730&quot; width=&quot;240&quot; height=&quot;130&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-seller-web&quot; value=&quot;lists, orders,&amp;lt;br&amp;gt;reviews [HTTPS]&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5000;exitY=1.0000;exitDx=0;exitDy=0;entryX=0.5000;entryY=0.0000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;seller&quot; target=&quot;web&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-org-console&quot; value=&quot;manages team, services;&amp;lt;br&amp;gt;reads own org log&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5000;exitY=1.0000;exitDx=0;exitDy=0;entryX=0.0976;entryY=0.0000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;orgadmin&quot; target=&quot;console&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-mod-console&quot; value=&quot;takes listings down;&amp;lt;br&amp;gt;reads moderation log&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5000;exitY=1.0000;exitDx=0;exitDy=0;entryX=0.3659;entryY=0.0000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;moderator&quot; target=&quot;console&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-sup-console&quot; value=&quot;reads events of&amp;lt;br&amp;gt;the ticket user&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5000;exitY=1.0000;exitDx=0;exitDy=0;entryX=0.6341;entryY=0.0000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;support&quot; target=&quot;console&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-plat-console&quot; value=&quot;bans users;&amp;lt;br&amp;gt;reads the full log&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5000;exitY=1.0000;exitDx=0;exitDy=0;entryX=0.9024;entryY=0.0000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;platadmin&quot; target=&quot;console&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-web-domain&quot; value=&quot;[JSON/HTTPS]&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5000;exitY=1.0000;exitDx=0;exitDy=0;entryX=0.5000;entryY=0.0000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;web&quot; target=&quot;domain&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-console-domain&quot; value=&quot;admin actions&amp;lt;br&amp;gt;[JSON/HTTPS]&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.0488;exitY=1.0000;exitDx=0;exitDy=0;entryX=0.8750;entryY=0.0000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;console&quot; target=&quot;domain&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-console-query&quot; value=&quot;log search&amp;lt;br&amp;gt;[JSON/HTTPS]&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.6341;exitY=1.0000;exitDx=0;exitDy=0;entryX=0.5000;entryY=0.0000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;console&quot; target=&quot;query&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-domain-db&quot; value=&quot;change + outbox row&amp;lt;br&amp;gt;in one transaction&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5000;exitY=1.0000;exitDx=0;exitDy=0;entryX=0.5000;entryY=0.0000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;domain&quot; target=&quot;domaindb&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-domain-query&quot; value=&quot;own ban and takedown&amp;lt;br&amp;gt;reasons [JSON/HTTPS]&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=1.0000;exitY=0.5000;exitDx=0;exitDy=0;entryX=0.0000;entryY=0.5000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;domain&quot; target=&quot;query&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-relay-db&quot; value=&quot;polls&amp;lt;br&amp;gt;outbox [SQL]&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.0000;exitY=0.5000;exitDx=0;exitDy=0;entryX=1.0000;entryY=0.5000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;relay&quot; target=&quot;domaindb&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-relay-ingest&quot; value=&quot;event batches&amp;lt;br&amp;gt;[HTTPS]&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=1.0000;exitY=0.5000;exitDx=0;exitDy=0;entryX=0.0000;entryY=0.5000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;relay&quot; target=&quot;ingest&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-ingest-primary&quot; value=&quot;batch INSERT,&amp;lt;br&amp;gt;dedupe by event_id&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5000;exitY=1.0000;exitDx=0;exitDy=0;entryX=0.5000;entryY=0.0000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;ingest&quot; target=&quot;primary&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-primary-replica&quot; value=&quot;streaming&amp;lt;br&amp;gt;replication&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=1.0000;exitY=0.5000;exitDx=0;exitDy=0;entryX=0.0000;entryY=0.5000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;primary&quot; target=&quot;replica&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-query-replica&quot; value=&quot;searches up to&amp;lt;br&amp;gt;30 days [SQL]&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5000;exitY=1.0000;exitDx=0;exitDy=0;entryX=0.5000;entryY=0.0000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;query&quot; target=&quot;replica&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-query-athena&quot; value=&quot;archive search&amp;lt;br&amp;gt;[AWS SDK]&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.8750;exitY=1.0000;exitDx=0;exitDy=0;entryX=0.5000;entryY=0.0000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;query&quot; target=&quot;athena&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-query-idp&quot; value=&quot;validates tokens&amp;lt;br&amp;gt;[OIDC]&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=1.0000;exitY=0.3500;exitDx=0;exitDy=0;entryX=0.0000;entryY=0.3500;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;query&quot; target=&quot;idp&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-query-helpdesk&quot; value=&quot;checks open ticket&amp;lt;br&amp;gt;[HTTPS]&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=1.0000;exitY=0.7300;exitDx=0;exitDy=0;entryX=0.0000;entryY=0.5000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;query&quot; target=&quot;helpdesk&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-athena-s3&quot; value=&quot;reads Parquet&amp;lt;br&amp;gt;[S3 API]&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5000;exitY=1.0000;exitDx=0;exitDy=0;entryX=1.0000;entryY=0.5000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;athena&quot; target=&quot;s3&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-archiver-primary&quot; value=&quot;exports a day older than&amp;lt;br&amp;gt;30 days, drops partition&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5000;exitY=0.0000;exitDx=0;exitDy=0;entryX=0.5000;entryY=1.0000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;archiver&quot; target=&quot;primary&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;e-archiver-s3&quot; value=&quot;Parquet,&amp;lt;br&amp;gt;digests&quot; style=&quot;endArrow=block;endFill=1;endSize=8;html=1;rounded=0;strokeColor=#59636E;strokeWidth=1.5;fontColor=#3A4450;fontSize=11;labelBackgroundColor=#ffffff;exitX=1.0000;exitY=0.5000;exitDx=0;exitDy=0;entryX=0.0000;entryY=0.5000;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;archiver&quot; target=&quot;s3&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;
+&lt;mxCell id=&quot;notes&quot; value=&quot;&amp;lt;b&amp;gt;Scenario x10:&amp;lt;/b&amp;gt; 10M events per day, peak ~1,160 events/s, ~10 GB per day.&amp;lt;br&amp;gt;&amp;lt;b&amp;gt;Hot data:&amp;lt;/b&amp;gt; last 30 days (~300 GB) in the audit DB. Archive: 5 years in S3 (~18 TB raw, ~2-3.5 TB as Parquet).&amp;lt;br&amp;gt;&amp;lt;b&amp;gt;Event path:&amp;lt;/b&amp;gt; domain transaction, outbox, relay, ingestion, audit DB, archive. At-least-once, deduplicated by event_id.&amp;lt;br&amp;gt;&amp;lt;b&amp;gt;Immutability:&amp;lt;/b&amp;gt; INSERT-only role and append-only trigger in the audit DB; S3 Object Lock (compliance) and hourly hash digests in the archive.&quot; style=&quot;text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;strokeColor=none;fillColor=none;fontSize=12;fontColor=#1F2933;spacing=0;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;40&quot; y=&quot;1320&quot; width=&quot;1900&quot; height=&quot;80&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;
+&lt;/root&gt;&lt;/mxGraphModel&gt;&lt;/diagram&gt;&lt;/mxfile&gt;">
+<title>Audit log containers, scenario x10</title>
+<rect x="0" y="0" width="1990" height="1440" fill="#ffffff"/>
+<text x="40" y="42" font-size="18" font-weight="bold" fill="#1F2933">Audit log, scenario x10</text>
+<text x="40" y="64" font-size="12" fill="#3A4450">C4 level 2: containers</text>
+<rect x="20" y="308" width="1600" height="992" rx="10" fill="none" stroke="#5B6770" stroke-width="2" stroke-dasharray="8 6"/>
+<text x="40" y="1264" font-size="14" font-weight="bold" fill="#5B6770">Marketplace platform</text>
+<text x="40" y="1281" font-size="12" fill="#5B6770">[Software System]</text>
+<line x1="160.0" y1="240.0" x2="160.0" y2="320.0" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="160.0,330.0 155.5,320.0 164.5,320.0" fill="#59636E"/>
+<rect x="111.0" y="269.5" width="98.0" height="31.0" fill="#ffffff"/>
+<text x="160.0" y="282.0" font-size="11" text-anchor="middle" fill="#3A4450">lists, orders,</text>
+<text x="160.0" y="295.5" font-size="11" text-anchor="middle" fill="#3A4450">reviews [HTTPS]</text>
+<line x1="490.0" y1="240.0" x2="490.0" y2="320.0" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="490.0,330.0 485.5,320.0 494.5,320.0" fill="#59636E"/>
+<rect x="417.0" y="269.5" width="146.0" height="31.0" fill="#ffffff"/>
+<text x="490.0" y="282.0" font-size="11" text-anchor="middle" fill="#3A4450">manages team, services;</text>
+<text x="490.0" y="295.5" font-size="11" text-anchor="middle" fill="#3A4450">reads own org log</text>
+<line x1="820.0" y1="240.0" x2="820.0" y2="320.0" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="820.0,330.0 815.5,320.0 824.5,320.0" fill="#59636E"/>
+<rect x="756.0" y="269.5" width="128.0" height="31.0" fill="#ffffff"/>
+<text x="820.0" y="282.0" font-size="11" text-anchor="middle" fill="#3A4450">takes listings down;</text>
+<text x="820.0" y="295.5" font-size="11" text-anchor="middle" fill="#3A4450">reads moderation log</text>
+<line x1="1150.0" y1="240.0" x2="1150.0" y2="320.0" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="1150.0,330.0 1145.5,320.0 1154.5,320.0" fill="#59636E"/>
+<rect x="1101.0" y="269.5" width="98.0" height="31.0" fill="#ffffff"/>
+<text x="1150.0" y="282.0" font-size="11" text-anchor="middle" fill="#3A4450">reads events of</text>
+<text x="1150.0" y="295.5" font-size="11" text-anchor="middle" fill="#3A4450">the ticket user</text>
+<line x1="1480.0" y1="240.0" x2="1480.0" y2="320.0" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="1480.0,330.0 1475.5,320.0 1484.5,320.0" fill="#59636E"/>
+<rect x="1422.0" y="269.5" width="116.0" height="31.0" fill="#ffffff"/>
+<text x="1480.0" y="282.0" font-size="11" text-anchor="middle" fill="#3A4450">bans users;</text>
+<text x="1480.0" y="295.5" font-size="11" text-anchor="middle" fill="#3A4450">reads the full log</text>
+<line x1="160.0" y1="460.0" x2="160.0" y2="520.0" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="160.0,530.0 155.5,520.0 164.5,520.0" fill="#59636E"/>
+<rect x="120.0" y="486.2" width="80.0" height="17.5" fill="#ffffff"/>
+<text x="160.0" y="498.8" font-size="11" text-anchor="middle" fill="#3A4450">[JSON/HTTPS]</text>
+<line x1="430.0" y1="460.0" x2="259.3" y2="526.4" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="250.0,530.0 257.7,522.2 261.0,530.6" fill="#59636E"/>
+<rect x="297.0" y="479.5" width="86.0" height="31.0" fill="#ffffff"/>
+<text x="340.0" y="492.0" font-size="11" text-anchor="middle" fill="#3A4450">admin actions</text>
+<text x="340.0" y="505.5" font-size="11" text-anchor="middle" fill="#3A4450">[JSON/HTTPS]</text>
+<line x1="1150.0" y1="460.0" x2="1150.0" y2="520.0" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="1150.0,530.0 1145.5,520.0 1154.5,520.0" fill="#59636E"/>
+<rect x="1110.0" y="479.5" width="80.0" height="31.0" fill="#ffffff"/>
+<text x="1150.0" y="492.0" font-size="11" text-anchor="middle" fill="#3A4450">log search</text>
+<text x="1150.0" y="505.5" font-size="11" text-anchor="middle" fill="#3A4450">[JSON/HTTPS]</text>
+<line x1="160.0" y1="660.0" x2="160.0" y2="720.0" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="160.0,730.0 155.5,720.0 164.5,720.0" fill="#59636E"/>
+<rect x="99.0" y="679.5" width="122.0" height="31.0" fill="#ffffff"/>
+<text x="160.0" y="692.0" font-size="11" text-anchor="middle" fill="#3A4450">change + outbox row</text>
+<text x="160.0" y="705.5" font-size="11" text-anchor="middle" fill="#3A4450">in one transaction</text>
+<line x1="280.0" y1="595.0" x2="1020.0" y2="595.0" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="1030.0,595.0 1020.0,599.5 1020.0,590.5" fill="#59636E"/>
+<rect x="591.0" y="579.5" width="128.0" height="31.0" fill="#ffffff"/>
+<text x="655.0" y="592.0" font-size="11" text-anchor="middle" fill="#3A4450">own ban and takedown</text>
+<text x="655.0" y="605.5" font-size="11" text-anchor="middle" fill="#3A4450">reasons [JSON/HTTPS]</text>
+<line x1="370.0" y1="795.0" x2="290.0" y2="795.0" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="280.0,795.0 290.0,790.5 290.0,799.5" fill="#59636E"/>
+<rect x="285.0" y="779.5" width="80.0" height="31.0" fill="#ffffff"/>
+<text x="325.0" y="792.0" font-size="11" text-anchor="middle" fill="#3A4450">polls</text>
+<text x="325.0" y="805.5" font-size="11" text-anchor="middle" fill="#3A4450">outbox [SQL]</text>
+<line x1="610.0" y1="795.0" x2="690.0" y2="795.0" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="700.0,795.0 690.0,799.5 690.0,790.5" fill="#59636E"/>
+<rect x="612.0" y="779.5" width="86.0" height="31.0" fill="#ffffff"/>
+<text x="655.0" y="792.0" font-size="11" text-anchor="middle" fill="#3A4450">event batches</text>
+<text x="655.0" y="805.5" font-size="11" text-anchor="middle" fill="#3A4450">[HTTPS]</text>
+<line x1="820.0" y1="860.0" x2="820.0" y2="920.0" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="820.0,930.0 815.5,920.0 824.5,920.0" fill="#59636E"/>
+<rect x="762.0" y="879.5" width="116.0" height="31.0" fill="#ffffff"/>
+<text x="820.0" y="892.0" font-size="11" text-anchor="middle" fill="#3A4450">batch INSERT,</text>
+<text x="820.0" y="905.5" font-size="11" text-anchor="middle" fill="#3A4450">dedupe by event_id</text>
+<line x1="940.0" y1="995.0" x2="1020.0" y2="995.0" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="1030.0,995.0 1020.0,999.5 1020.0,990.5" fill="#59636E"/>
+<rect x="948.0" y="979.5" width="74.0" height="31.0" fill="#ffffff"/>
+<text x="985.0" y="992.0" font-size="11" text-anchor="middle" fill="#3A4450">streaming</text>
+<text x="985.0" y="1005.5" font-size="11" text-anchor="middle" fill="#3A4450">replication</text>
+<line x1="1150.0" y1="660.0" x2="1150.0" y2="920.0" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="1150.0,930.0 1145.5,920.0 1154.5,920.0" fill="#59636E"/>
+<rect x="1104.0" y="779.5" width="92.0" height="31.0" fill="#ffffff"/>
+<text x="1150.0" y="792.0" font-size="11" text-anchor="middle" fill="#3A4450">searches up to</text>
+<text x="1150.0" y="805.5" font-size="11" text-anchor="middle" fill="#3A4450">30 days [SQL]</text>
+<line x1="1240.0" y1="660.0" x2="1473.4" y2="922.5" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="1480.0,930.0 1470.0,925.5 1476.7,919.5" fill="#59636E"/>
+<rect x="1314.0" y="779.5" width="92.0" height="31.0" fill="#ffffff"/>
+<text x="1360.0" y="792.0" font-size="11" text-anchor="middle" fill="#3A4450">archive search</text>
+<text x="1360.0" y="805.5" font-size="11" text-anchor="middle" fill="#3A4450">[AWS SDK]</text>
+<line x1="1270.0" y1="575.5" x2="1690.0" y2="575.5" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="1700.0,575.5 1690.0,580.0 1690.0,571.0" fill="#59636E"/>
+<rect x="1433.0" y="560.0" width="104.0" height="31.0" fill="#ffffff"/>
+<text x="1485.0" y="572.5" font-size="11" text-anchor="middle" fill="#3A4450">validates tokens</text>
+<text x="1485.0" y="586.0" font-size="11" text-anchor="middle" fill="#3A4450">[OIDC]</text>
+<line x1="1270.0" y1="624.9" x2="1690.7" y2="791.3" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="1700.0,795.0 1689.0,795.5 1692.4,787.1" fill="#59636E"/>
+<rect x="1427.0" y="694.5" width="116.0" height="31.0" fill="#ffffff"/>
+<text x="1485.0" y="707.0" font-size="11" text-anchor="middle" fill="#3A4450">checks open ticket</text>
+<text x="1485.0" y="720.5" font-size="11" text-anchor="middle" fill="#3A4450">[HTTPS]</text>
+<line x1="1480.0" y1="1060.0" x2="1278.4" y2="1189.6" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="1270.0,1195.0 1276.0,1185.8 1280.8,1193.4" fill="#59636E"/>
+<rect x="1332.0" y="1112.0" width="86.0" height="31.0" fill="#ffffff"/>
+<text x="1375.0" y="1124.5" font-size="11" text-anchor="middle" fill="#3A4450">reads Parquet</text>
+<text x="1375.0" y="1138.0" font-size="11" text-anchor="middle" fill="#3A4450">[S3 API]</text>
+<line x1="820.0" y1="1130.0" x2="820.0" y2="1070.0" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="820.0,1060.0 824.5,1070.0 815.5,1070.0" fill="#59636E"/>
+<rect x="744.0" y="1079.5" width="152.0" height="31.0" fill="#ffffff"/>
+<text x="820.0" y="1092.0" font-size="11" text-anchor="middle" fill="#3A4450">exports a day older than</text>
+<text x="820.0" y="1105.5" font-size="11" text-anchor="middle" fill="#3A4450">30 days, drops partition</text>
+<line x1="940.0" y1="1195.0" x2="1020.0" y2="1195.0" stroke="#59636E" stroke-width="1.5"/>
+<polygon points="1030.0,1195.0 1020.0,1199.5 1020.0,1190.5" fill="#59636E"/>
+<rect x="957.0" y="1179.5" width="56.0" height="31.0" fill="#ffffff"/>
+<text x="985.0" y="1192.0" font-size="11" text-anchor="middle" fill="#3A4450">Parquet,</text>
+<text x="985.0" y="1205.5" font-size="11" text-anchor="middle" fill="#3A4450">digests</text>
+<rect x="40" y="143" width="240" height="97" rx="18" fill="#08427B" stroke="#073B6F" stroke-width="1.5"/>
+<circle cx="160.0" cy="128" r="28" fill="#08427B" stroke="#073B6F" stroke-width="1.5"/>
+<text x="160.0" y="172.5" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Seller / Buyer</text>
+<text x="160.0" y="186.2" font-size="11" text-anchor="middle" fill="#ffffff">[Person]</text>
+<text x="160.0" y="207.2" font-size="12" text-anchor="middle" fill="#ffffff">Lists, orders, reviews; sees why</text>
+<text x="160.0" y="222.2" font-size="12" text-anchor="middle" fill="#ffffff">a listing or account was blocked</text>
+<rect x="370" y="143" width="240" height="97" rx="18" fill="#08427B" stroke="#073B6F" stroke-width="1.5"/>
+<circle cx="490.0" cy="128" r="28" fill="#08427B" stroke="#073B6F" stroke-width="1.5"/>
+<text x="490.0" y="172.5" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Organization admin</text>
+<text x="490.0" y="186.2" font-size="11" text-anchor="middle" fill="#ffffff">[Person]</text>
+<text x="490.0" y="207.2" font-size="12" text-anchor="middle" fill="#ffffff">Manages services, team access</text>
+<text x="490.0" y="222.2" font-size="12" text-anchor="middle" fill="#ffffff">and subscription</text>
+<rect x="700" y="143" width="240" height="97" rx="18" fill="#08427B" stroke="#073B6F" stroke-width="1.5"/>
+<circle cx="820.0" cy="128" r="28" fill="#08427B" stroke="#073B6F" stroke-width="1.5"/>
+<text x="820.0" y="172.5" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Moderator</text>
+<text x="820.0" y="186.2" font-size="11" text-anchor="middle" fill="#ffffff">[Person]</text>
+<text x="820.0" y="207.2" font-size="12" text-anchor="middle" fill="#ffffff">Takes listings down</text>
+<text x="820.0" y="222.2" font-size="12" text-anchor="middle" fill="#ffffff">and puts them back</text>
+<rect x="1030" y="143" width="240" height="97" rx="18" fill="#08427B" stroke="#073B6F" stroke-width="1.5"/>
+<circle cx="1150.0" cy="128" r="28" fill="#08427B" stroke="#073B6F" stroke-width="1.5"/>
+<text x="1150.0" y="180.0" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Support agent</text>
+<text x="1150.0" y="193.8" font-size="11" text-anchor="middle" fill="#ffffff">[Person]</text>
+<text x="1150.0" y="214.8" font-size="12" text-anchor="middle" fill="#ffffff">Handles user tickets</text>
+<rect x="1360" y="143" width="240" height="97" rx="18" fill="#08427B" stroke="#073B6F" stroke-width="1.5"/>
+<circle cx="1480.0" cy="128" r="28" fill="#08427B" stroke="#073B6F" stroke-width="1.5"/>
+<text x="1480.0" y="180.0" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Platform admin</text>
+<text x="1480.0" y="193.8" font-size="11" text-anchor="middle" fill="#ffffff">[Person]</text>
+<text x="1480.0" y="214.8" font-size="12" text-anchor="middle" fill="#ffffff">Bans and unbans users</text>
+<rect x="40" y="330" width="240" height="130" rx="10" fill="#438DD5" stroke="#3C7FC0" stroke-width="1.5"/>
+<text x="160.0" y="383.5" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Marketplace web app</text>
+<text x="160.0" y="397.2" font-size="11" text-anchor="middle" fill="#ffffff">[Container: SPA]</text>
+<text x="160.0" y="418.2" font-size="12" text-anchor="middle" fill="#ffffff">UI for sellers and buyers</text>
+<rect x="370" y="330" width="1230" height="130" rx="10" fill="#438DD5" stroke="#3C7FC0" stroke-width="1.5"/>
+<text x="985.0" y="383.5" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Admin console</text>
+<text x="985.0" y="397.2" font-size="11" text-anchor="middle" fill="#ffffff">[Container: SPA]</text>
+<text x="985.0" y="418.2" font-size="12" text-anchor="middle" fill="#ffffff">UI for staff and organization admins: admin actions and audit log search</text>
+<rect x="40" y="530" width="240" height="130" rx="10" fill="#438DD5" stroke="#3C7FC0" stroke-width="1.5"/>
+<text x="160.0" y="568.5" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Domain services</text>
+<text x="160.0" y="582.2" font-size="11" text-anchor="middle" fill="#ffffff">[Container: NestJS]</text>
+<text x="160.0" y="603.2" font-size="12" text-anchor="middle" fill="#ffffff">Listings, orders, reviews,</text>
+<text x="160.0" y="618.2" font-size="12" text-anchor="middle" fill="#ffffff">organizations, moderation, bans.</text>
+<text x="160.0" y="633.2" font-size="12" text-anchor="middle" fill="#ffffff">Emit an audit event per action</text>
+<rect x="1030" y="530" width="240" height="130" rx="10" fill="#438DD5" stroke="#3C7FC0" stroke-width="1.5"/>
+<text x="1150.0" y="576.0" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Audit Query API</text>
+<text x="1150.0" y="589.8" font-size="11" text-anchor="middle" fill="#ffffff">[Container: NestJS]</text>
+<text x="1150.0" y="610.8" font-size="12" text-anchor="middle" fill="#ffffff">Role scope and field masking.</text>
+<text x="1150.0" y="625.8" font-size="12" text-anchor="middle" fill="#ffffff">30 days: replica; older: Athena</text>
+<path d="M40,745 A120.0,15 0 0 1 280,745 L280,845 A120.0,15 0 0 1 40,845 Z" fill="#438DD5" stroke="#3C7FC0" stroke-width="1.5"/>
+<path d="M40,745 A120.0,15 0 0 0 280,745" fill="none" stroke="#3C7FC0" stroke-width="1.5"/>
+<text x="160.0" y="783.5" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Domain databases</text>
+<text x="160.0" y="797.2" font-size="11" text-anchor="middle" fill="#ffffff">[Container: PostgreSQL]</text>
+<text x="160.0" y="818.2" font-size="12" text-anchor="middle" fill="#ffffff">Business data and an outbox</text>
+<text x="160.0" y="833.2" font-size="12" text-anchor="middle" fill="#ffffff">table, written in one transaction</text>
+<rect x="370" y="730" width="240" height="130" rx="10" fill="#438DD5" stroke="#3C7FC0" stroke-width="1.5"/>
+<text x="490.0" y="768.5" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Outbox relay</text>
+<text x="490.0" y="782.2" font-size="11" text-anchor="middle" fill="#ffffff">[Container: Node.js worker]</text>
+<text x="490.0" y="803.2" font-size="12" text-anchor="middle" fill="#ffffff">Reads new outbox rows, sends</text>
+<text x="490.0" y="818.2" font-size="12" text-anchor="middle" fill="#ffffff">batches, marks rows sent.</text>
+<text x="490.0" y="833.2" font-size="12" text-anchor="middle" fill="#ffffff">At-least-once delivery</text>
+<rect x="700" y="730" width="240" height="130" rx="10" fill="#438DD5" stroke="#3C7FC0" stroke-width="1.5"/>
+<text x="820.0" y="768.5" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Audit ingestion</text>
+<text x="820.0" y="782.2" font-size="11" text-anchor="middle" fill="#ffffff">[Container: NestJS]</text>
+<text x="820.0" y="803.2" font-size="12" text-anchor="middle" fill="#ffffff">Validates schema, drops secrets,</text>
+<text x="820.0" y="818.2" font-size="12" text-anchor="middle" fill="#ffffff">encrypts personal data,</text>
+<text x="820.0" y="833.2" font-size="12" text-anchor="middle" fill="#ffffff">idempotent by event_id</text>
+<path d="M700,945 A120.0,15 0 0 1 940,945 L940,1045 A120.0,15 0 0 1 700,1045 Z" fill="#438DD5" stroke="#3C7FC0" stroke-width="1.5"/>
+<path d="M700,945 A120.0,15 0 0 0 940,945" fill="none" stroke="#3C7FC0" stroke-width="1.5"/>
+<text x="820.0" y="976.0" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Audit DB</text>
+<text x="820.0" y="989.8" font-size="11" text-anchor="middle" fill="#ffffff">[Container: RDS PostgreSQL, Multi-AZ]</text>
+<text x="820.0" y="1010.8" font-size="12" text-anchor="middle" fill="#ffffff">Hot 30 days, ~300 GB. Daily</text>
+<text x="820.0" y="1025.8" font-size="12" text-anchor="middle" fill="#ffffff">partitions, INSERT-only role,</text>
+<text x="820.0" y="1040.8" font-size="12" text-anchor="middle" fill="#ffffff">append-only trigger</text>
+<path d="M1030,945 A120.0,15 0 0 1 1270,945 L1270,1045 A120.0,15 0 0 1 1030,1045 Z" fill="#438DD5" stroke="#3C7FC0" stroke-width="1.5"/>
+<path d="M1030,945 A120.0,15 0 0 0 1270,945" fill="none" stroke="#3C7FC0" stroke-width="1.5"/>
+<text x="1150.0" y="983.5" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Audit DB read replica</text>
+<text x="1150.0" y="997.2" font-size="11" text-anchor="middle" fill="#ffffff">[Container: RDS PostgreSQL]</text>
+<text x="1150.0" y="1018.2" font-size="12" text-anchor="middle" fill="#ffffff">Serves hot searches, so they</text>
+<text x="1150.0" y="1033.2" font-size="12" text-anchor="middle" fill="#ffffff">do not slow down ingestion</text>
+<rect x="1360" y="930" width="240" height="130" rx="10" fill="#438DD5" stroke="#3C7FC0" stroke-width="1.5"/>
+<text x="1480.0" y="968.5" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Archive search</text>
+<text x="1480.0" y="982.2" font-size="11" text-anchor="middle" fill="#ffffff">[Container: Athena + Glue Catalog]</text>
+<text x="1480.0" y="1003.2" font-size="12" text-anchor="middle" fill="#ffffff">SQL over Parquet files.</text>
+<text x="1480.0" y="1018.2" font-size="12" text-anchor="middle" fill="#ffffff">Date partitions (projection).</text>
+<text x="1480.0" y="1033.2" font-size="12" text-anchor="middle" fill="#ffffff">Async, seconds to minutes</text>
+<rect x="700" y="1130" width="240" height="130" rx="10" fill="#438DD5" stroke="#3C7FC0" stroke-width="1.5"/>
+<text x="820.0" y="1168.5" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Archiver and verifier</text>
+<text x="820.0" y="1182.2" font-size="11" text-anchor="middle" fill="#ffffff">[Container: scheduled ECS task]</text>
+<text x="820.0" y="1203.2" font-size="12" text-anchor="middle" fill="#ffffff">Hourly: digest of new events.</text>
+<text x="820.0" y="1218.2" font-size="12" text-anchor="middle" fill="#ffffff">Daily: export a day, verify</text>
+<text x="820.0" y="1233.2" font-size="12" text-anchor="middle" fill="#ffffff">count and hash, drop partition</text>
+<path d="M1030,1145 A120.0,15 0 0 1 1270,1145 L1270,1245 A120.0,15 0 0 1 1030,1245 Z" fill="#438DD5" stroke="#3C7FC0" stroke-width="1.5"/>
+<path d="M1030,1145 A120.0,15 0 0 0 1270,1145" fill="none" stroke="#3C7FC0" stroke-width="1.5"/>
+<text x="1150.0" y="1176.0" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Audit archive</text>
+<text x="1150.0" y="1189.8" font-size="11" text-anchor="middle" fill="#ffffff">[Container: S3, Object Lock]</text>
+<text x="1150.0" y="1210.8" font-size="12" text-anchor="middle" fill="#ffffff">Parquet by date and hash digests.</text>
+<text x="1150.0" y="1225.8" font-size="12" text-anchor="middle" fill="#ffffff">Compliance retention 5 years.</text>
+<text x="1150.0" y="1240.8" font-size="12" text-anchor="middle" fill="#ffffff">~18 TB raw, ~2-3.5 TB stored</text>
+<rect x="1700" y="530" width="240" height="130" rx="10" fill="#8C8C8C" stroke="#736F6F" stroke-width="1.5"/>
+<text x="1820.0" y="576.0" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Identity provider</text>
+<text x="1820.0" y="589.8" font-size="11" text-anchor="middle" fill="#ffffff">[Software System]</text>
+<text x="1820.0" y="610.8" font-size="12" text-anchor="middle" fill="#ffffff">Users, staff roles and</text>
+<text x="1820.0" y="625.8" font-size="12" text-anchor="middle" fill="#ffffff">organization membership</text>
+<rect x="1700" y="730" width="240" height="130" rx="10" fill="#8C8C8C" stroke="#736F6F" stroke-width="1.5"/>
+<text x="1820.0" y="768.5" font-size="15" text-anchor="middle" fill="#ffffff" font-weight="bold">Helpdesk</text>
+<text x="1820.0" y="782.2" font-size="11" text-anchor="middle" fill="#ffffff">[Software System]</text>
+<text x="1820.0" y="803.2" font-size="12" text-anchor="middle" fill="#ffffff">Support tickets. An open ticket</text>
+<text x="1820.0" y="818.2" font-size="12" text-anchor="middle" fill="#ffffff">gives support access to</text>
+<text x="1820.0" y="833.2" font-size="12" text-anchor="middle" fill="#ffffff">the user&#x27;s events</text>
+<text x="40" y="1334" font-size="12" fill="#1F2933"><tspan font-weight="bold">Scenario x10:</tspan> 10M events per day, peak ~1,160 events/s, ~10 GB per day.</text>
+<text x="40" y="1352" font-size="12" fill="#1F2933"><tspan font-weight="bold">Hot data:</tspan> last 30 days (~300 GB) in the audit DB. Archive: 5 years in S3 (~18 TB raw, ~2-3.5 TB as Parquet).</text>
+<text x="40" y="1370" font-size="12" fill="#1F2933"><tspan font-weight="bold">Event path:</tspan> domain transaction, outbox, relay, ingestion, audit DB, archive. At-least-once, deduplicated by event_id.</text>
+<text x="40" y="1388" font-size="12" fill="#1F2933"><tspan font-weight="bold">Immutability:</tspan> INSERT-only role and append-only trigger in the audit DB; S3 Object Lock (compliance) and hourly hash digests in the archive.</text>
+</svg>
